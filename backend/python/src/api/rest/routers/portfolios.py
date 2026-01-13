@@ -72,3 +72,17 @@ async def get_portfolio(
         name=p.name,
         created_at=p.created_at
     )
+
+@router.delete("/{portfolio_id}", status_code=204)
+async def delete_portfolio(
+    portfolio_id: int,
+    user=Depends(get_current_user),
+    ucs:UseCases=Depends(get_usecases),
+):
+    uc = ucs.PortfolioMgt
+    
+    ok = await uc.delete_portfolio(owner_id=user.id, portfolio_id=portfolio_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    return None
+        
