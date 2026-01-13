@@ -17,5 +17,5 @@ class UseCases:
         auth_dataservice = build_auth_dataservice()
         db_dataservice = build_db_dataservice()
         auth_uc = AuthMgt(auth_data_service=auth_dataservice)
-        portfolio_uc = PortfolioMgt(dataService=db_dataservice)
+        portfolio_uc = PortfolioMgt(data_service=db_dataservice)
         return UseCases(AuthMgt=auth_uc, PortfolioMgt=portfolio_uc)

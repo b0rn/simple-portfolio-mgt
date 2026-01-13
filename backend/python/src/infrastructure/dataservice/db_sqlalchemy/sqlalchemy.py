@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import Optional
-from sqlalchemy import select,delete, func
+from sqlalchemy import select,update,delete, func
 from src.domain.aggregates.portfolio.portfolio import Portfolio
 from src.domain.aggregates.portfolio.asset import Asset
-from src.domain.usecases.portfoliomgt.portfoliomgt import PortfolioCreate, AssetCreate
+from src.domain.usecases.portfoliomgt.payloads import PortfolioCreate, PortfolioUpdate, AssetCreate
 from src.infrastructure.dataservice.dbdataservice import DbDataService
 from src.infrastructure.datastore.sqlalchemy.models.portfolio import Portfolio as PortfolioModel
 from src.infrastructure.datastore.sqlalchemy.models.asset import Asset as AssetModel
@@ -36,6 +36,23 @@ class SQLAlchemyDataService(DbDataService):
                     PortfolioModel.owner_id == owner_id,
                     PortfolioModel.id == portfolio_id
                 )
+            )
+            model = res.scalar_one_or_none()
+            if model:
+                return Portfolio(id=model.id, owner_id=model.owner_id, name=model.name, created_at=model.created_at)
+            return None
+        
+    async def update_portfolio(self, owner_id: str, portfolio_id: int, payload : PortfolioUpdate):
+        async with session_scope() as db:
+            kwargs = {}
+            if payload.name:
+                kwargs["name"] = payload.name
+                
+            res = await db.execute(
+                update(PortfolioModel).where(
+                    PortfolioModel.owner_id == owner_id,
+                    PortfolioModel.id == portfolio_id
+                ).values(**kwargs)
             )
             model = res.scalar_one_or_none()
             if model:

@@ -3,7 +3,7 @@ from abc import ABC,abstractmethod
 from typing import Optional
 from src.domain.aggregates.portfolio.portfolio import Portfolio
 from src.domain.aggregates.portfolio.asset import Asset
-from src.domain.usecases.portfoliomgt.payloads import PortfolioCreate, AssetCreate
+from src.domain.usecases.portfoliomgt.payloads import PortfolioCreate, PortfolioUpdate, AssetCreate
 from src.infrastructure.utils.pagination import PaginationRequest, PaginationResponse
 
 class DbDataService(ABC):
@@ -19,6 +19,10 @@ class DbDataService(ABC):
     
     @abstractmethod
     async def get_portfolio(self, owner_id: str, portfolio_id: int) -> Optional[Portfolio]:
+        pass
+    
+    @abstractmethod
+    async def update_portfolio(self, owner_id: str, portfolio_id: int, payload: PortfolioUpdate) -> Optional[Portfolio]:
         pass
     
     @abstractmethod
