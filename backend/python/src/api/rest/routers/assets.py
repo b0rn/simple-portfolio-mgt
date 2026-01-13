@@ -47,6 +47,7 @@ async def list_assets(
     user=Depends(get_current_user),
     ucs: UseCases = Depends(get_usecases)
 ):
+    # Effectively checking if the asset's portfolio is owned by the user
     p = await ucs.PortfolioMgt.get_portfolio(owner_id=user.id, portfolio_id=portfolio_id)
     if not p:
         raise HTTPException(status_code=404, detail="Portfolio not found")
@@ -69,12 +70,17 @@ async def list_assets(
     )
 
 
-@router.delete("/assets/{asset_id}", status_code=204)
+@router.delete("/portfolios/{portfolio_id}/assets/{asset_id}", status_code=204)
 async def delete_asset(
+    portfolio_id: int,
     asset_id: int,
     user=Depends(get_current_user),
     ucs: UseCases = Depends(get_usecases),
 ):
+    p = await ucs.PortfolioMgt.get_portfolio(owner_id=user.id, portfolio_id=portfolio_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    
     ok = await ucs.PortfolioMgt.delete_asset(asset_id=asset_id)
     if not ok:
         raise HTTPException(status_code=404, detail="Asset not found")
