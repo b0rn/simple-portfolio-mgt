@@ -7,7 +7,6 @@ class PortfolioValuation:
     total_value: float
     lines: list["ValuationLine"]
     unknown_symbols: list[str]
-    currency: str = "USD"
     
 @dataclass(frozen=True, slots=True)
 class ValuationLine:
