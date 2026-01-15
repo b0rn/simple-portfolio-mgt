@@ -103,7 +103,7 @@ export function AssetTable({ portfolioId, page, itemsPerPage, childIfNoResults }
                     {
                         !assetsQuery.data?.data?.items.length ?
                             <TableRow>
-                                <TableCell colSpan={3}>{childIfNoResults}</TableCell>
+                                <TableCell colSpan={4}>{childIfNoResults}</TableCell>
                             </TableRow>
                             : null
                     }
