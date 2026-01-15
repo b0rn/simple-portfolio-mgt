@@ -2,19 +2,20 @@
 
 import { useApiClient } from "@/src/components/api-client-provider";
 import { useMe } from "@/lib/api/helper";
-import { useRouter } from "@/i18n/navigation";
+import { redirect } from "@/i18n/navigation";
+import { useLocale } from "next-intl";
 
 export default function AuthLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const router = useRouter();
+    const locale = useLocale();
     const client = useApiClient();
     const meQuery = useMe(client);
 
     if(meQuery.data?.response.status === 200){
-        router.replace("/app/portfolios");
+        redirect({href : "/app/portfolios", locale : locale})
     }
 
     return <>{children}</>
