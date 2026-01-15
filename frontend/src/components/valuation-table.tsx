@@ -51,7 +51,7 @@ export function ValuationTable({ valuation }: ValuationTableProps) {
                                     </TableCell>
                                 </TableRow>
                             ))
-                            : <TableRow><TableCell colSpan={4}>{t("no_data")}</TableCell></TableRow>
+                            : <TableRow><TableCell colSpan={4} className="text-center">{t("no_data")}</TableCell></TableRow>
                     }
                 </TableBody>
             </Table>
