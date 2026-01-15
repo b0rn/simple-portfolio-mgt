@@ -19,6 +19,10 @@
         "login": "Connexion",
         "sign_up": "Créer un compte"
     },
+     "About" : {
+        "title" : "À propos de Simple Portfolio App",
+        "description" : "<bold>Simple Portfolio App</bold> est une application web simple pour gérer des portefeuilles.\nLe frontend est écrit en <bold>Typescript</bold> et utilise <bold>Next.js</bold> et <bold>shadcn</bold>.\nLe backend est écrit en <bold>Python</bold> (avec <bold>FastAPI</bold> et <bold>SQLAlchemy</bold>)."
+    },
     "LoginForm": {
         "login_failed": "Échec de la connexion",
         "login_failed_unauthorized": "Identifiants invalides",
