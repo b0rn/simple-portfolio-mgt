@@ -88,7 +88,7 @@
         "delete_portfolio_confirmation_title": "Supprimer le portefeuille",
         "delete_portfolio_confirmation_description": "Êtes-vous sûr de vouloir supprimer {portfolioTitle} ? Cette action est irréversible.",
         "cancel": "Cancel",
-        "delete": "Delete",
+        "delete": "Supprimer",
         "add_asset": "Ajouter un actif",
         "add_asset_description": "Ajoutez un actif à votre portefeuille"
     },
