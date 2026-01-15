@@ -39,7 +39,11 @@ export function LoginForm({
     const client = useApiClient();
     const router = useRouter();
     const form = useForm<z.infer<ReturnType<typeof formSchema>>>({
-        resolver: zodResolver(formSchema(t))
+        resolver: zodResolver(formSchema(t)),
+        defaultValues : {
+            email : "",
+            password : ""
+        }
     });
     const [errorTitle, setErrorTitle] = useState("");
     const [errorDescription, setErrorDescription] = useState("");
