@@ -84,7 +84,7 @@ export default function Page() {
                             setPortfolioFormIsOpen(true);
                         }}>
                             <PlusIcon className="w-4 h-4" />
-                            {t("add")}
+                            <span className="hidden md:inline">{t("add")}</span>
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="overflow-y-scroll max-h-[90vh]" showCloseButton={false} >

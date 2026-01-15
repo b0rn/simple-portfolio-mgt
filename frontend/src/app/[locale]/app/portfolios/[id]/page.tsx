@@ -4,7 +4,7 @@ import { useApiClient } from "@/components/api-client-provider";
 import { Spinner } from "@/components/ui/spinner";
 import { parsePositiveInt } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { use, useState } from "react";
 import { CircleQuestionMark, Pencil, Plus, Trash2 } from "lucide-react";
@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { PortfolioForm, PortfolioFormData } from "@/components/portfolio-form";
 import { components } from "@/lib/api/types/schema";
-import { useRouter } from "@/i18n/navigation";
+import { redirect } from "@/i18n/navigation";
 import { AssetForm } from "@/components/asset-form";
 import { AssetTable } from "@/components/asset-table";
 import { toast } from "sonner";
@@ -25,7 +25,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     const t = useTranslations("Portfolio");
     const client = useApiClient();
     const queryClient = useQueryClient();
-    const router = useRouter();
+    const locale = useLocale();
     const searchParams = useSearchParams();
     const page = parsePositiveInt(searchParams.get("page"), 1);
     const itemsPerPage = parsePositiveInt(searchParams.get("itemsPerPage"), 5);
@@ -67,7 +67,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                 toast.error(t("error_500"));
             } else if (response.status === 204) {
                 setDeleteConfirmationDialogIsOpen(false);
-                router.replace("/app/portfolios");
+                redirect({href : "/app/portfolios", locale : locale});
             }
         }
     })
@@ -97,8 +97,8 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
     return (
         <div className="flex flex-col grow gap-2">
-            <div className="flex flex-row items-center justify-between">
-                <div className="flex flex-row gap-2 items-center">
+            <div className="flex flex-col md:flex-row gap-2 items-center justify-between">
+                <div className="flex flex-col md:flex-row gap-2 items-center">
                     <h1 className="text-2xl font-extrabold">{portfolioQuery.data?.data?.name}</h1>
                     <Dialog>
                         <Tooltip>
@@ -198,7 +198,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                         <DialogTrigger asChild>
                             <Button className="cursor-pointer">
                                 <Plus size={30} />
-                                {t("add_asset")}
+                                <span className="hidden md:inline">{t("add_asset")}</span>
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="overflow-y-scroll max-h-[90vh]">
