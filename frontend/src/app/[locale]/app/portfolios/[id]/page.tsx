@@ -137,6 +137,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                         <DialogTrigger asChild>
                             <Button className="cursor-pointer">
                                 <Pencil size={30} />
+                                <span className="hidden md:inline">{t("edit")}</span>
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="overflow-y-scroll max-h-[90vh]">
@@ -168,6 +169,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                         <DialogTrigger asChild>
                             <Button variant="destructive" className="cursor-pointer">
                                 <Trash2 size={30} />
+                                <span className="hidden md:inline">{t("delete")}</span>
                             </Button>
                         </DialogTrigger>
                         <DialogContent>

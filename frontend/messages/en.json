@@ -83,6 +83,7 @@
         "valuation_lines": "Valuation lines",
         "valuation_lines_description": "List of valuation of your assets in USD",
         "assets": "Assets",
+        "edit" : "Edit",
         "edit_portfolio": "Edit portfolio",
         "edit_portfolio_description": "You can edit the portfolio's name.",
         "delete_portfolio_confirmation_title": "Delete portfolio",

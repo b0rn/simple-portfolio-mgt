@@ -82,6 +82,7 @@
         "valuation_lines": "Lignes d'estimations",
         "valuation_lines_description": "Liste des estimations de vos actifs en USD.",
         "assets": "Actifs",
+        "edit" : "Modifier",
         "edit_portfolio": "Modifier le portefeuille",
         "edit_portfolio_description": "Vous pouvez modifier le nom du portefeuille.",
         "delete_portfolio_confirmation_title": "Supprimer le portefeuille",
