@@ -21,7 +21,7 @@
     },
     "About" : {
         "title" : "About Simple Portfolio App",
-        "description" : "<bold>Simple Portfolio App</bold> is a simple web app to manage portfolios.\nThe frontend is written in <bold>Typescript</bold> and uses <bold>Next.js</bold> and <bold>shadcn</bold>.\nThe backend is written in <bold>Python</bold> (with <bold>FastAPI</bold> and <bold>SQLAlchemy</bold>)."
+        "description" : "<bold>Simple Portfolio App</bold> is a simple web app to manage portfolios.\nThe frontend is written in <bold>Typescript</bold> and uses <bold>Next.js</bold>, <bold>Tailwind</bold> and <bold>shadcn</bold>.\nThe backend is written in <bold>Python</bold> (with <bold>FastAPI</bold> and <bold>SQLAlchemy</bold>)."
     },
     "LoginForm": {
         "login_failed": "Login failed",
