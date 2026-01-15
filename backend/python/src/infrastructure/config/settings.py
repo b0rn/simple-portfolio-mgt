@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from urllib.parse import quote_plus
-from typing import Literal
+from typing import Literal, Optional
 from pydantic import Field,field_validator,model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     )
 
     # App
-    app_name: str = Field(default="Portfolio Tracker API", alias="APP_NAME")
+    app_name: str = Field(default="Simple Portfolio App API", alias="APP_NAME")
     app_env: str = Field(default="dev", alias="APP_ENV")
     app_debug: bool = Field(default=False, alias="APP_DEBUG")
 
@@ -132,4 +132,5 @@ class Settings(BaseSettings):
         return self
 
 
-settings = Settings()
+def build_settings():
+    return Settings()

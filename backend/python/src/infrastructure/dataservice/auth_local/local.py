@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from datetime import datetime, timezone, timedelta
 import uuid
 from jose import jwt
-from src.infrastructure.config.settings import settings
+from src.infrastructure.config.settings import Settings
 from src.infrastructure.datastore.sqlalchemy.base import session_scope
 from src.infrastructure.datastore.sqlalchemy.models.user import User as UserModel
 from passlib.context import CryptContext
@@ -15,13 +15,14 @@ from src.domain.aggregates.exceptions.auth import EmailAlreadyExistsError, Inval
 
 class LocalAuthDataService(AuthDataService):
     
-    def __init__(self) -> None:
+    def __init__(self, settings: Settings) -> None:
         super().__init__()
+        self.settings = settings
         self.pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
         self.JWT_ALG = "HS256"
 
     async def health_check(self) -> bool:
-        if not settings.jwt_secret:
+        if not self.settings.jwt_secret:
             return False
         async with session_scope() as db:
             try:
@@ -58,10 +59,10 @@ class LocalAuthDataService(AuthDataService):
             return user, token
     
     async def get_user_from_token(self, access_token: str) -> Optional[User]:
-        if not settings.jwt_secret:
+        if not self.settings.jwt_secret:
             raise ValueError("JWT secret is not set")
         try:
-            data = jwt.decode(access_token, settings.jwt_secret, algorithms=[self.JWT_ALG])
+            data = jwt.decode(access_token, self.settings.jwt_secret, algorithms=[self.JWT_ALG])
             sub = data.get("sub")
             if not sub:
                 return None
@@ -85,9 +86,9 @@ class LocalAuthDataService(AuthDataService):
         return self.pwd_context.verify(password, password_hash)
     
     def __create_access_token(self, user_id: uuid.UUID) -> str:
-        if not settings.jwt_secret:
+        if not self.settings.jwt_secret:
             raise ValueError("JWT secret is not set")
         now = datetime.now(timezone.utc)
-        exp = now + timedelta(minutes=settings.jwt_expires_minutes)
+        exp = now + timedelta(minutes=self.settings.jwt_expires_minutes)
         payload = {"sub": str(user_id), "iat": int(now.timestamp()), "exp": int(exp.timestamp())}
-        return jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
+        return jwt.encode(payload, self.settings.jwt_secret, algorithm="HS256")

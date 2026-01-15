@@ -6,14 +6,15 @@ import sys
 
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from src.infrastructure.config.settings import settings
-from src.infrastructure.datastore.sqlalchemy import models
+from src.infrastructure.config.settings import build_settings
 from src.infrastructure.datastore.sqlalchemy.base import Base
-
+import src.infrastructure.datastore.sqlalchemy.models
 
 # ---------- helpers ----------
 
 def _require_db_settings() -> None:
+    if settings is None:
+        raise Exception("settings is not set")
     missing = [
         name for name, value in {
             "DB_HOST": settings.db_host,
@@ -31,6 +32,8 @@ def _require_db_settings() -> None:
 
 
 async def _create_tables() -> None:
+    if settings is None:
+        raise Exception("settings is not set")
     engine = create_async_engine(settings.database_url)
 
     async with engine.begin() as conn:
@@ -41,6 +44,8 @@ async def _create_tables() -> None:
 
 
 async def _drop_tables() -> None:
+    if settings is None:
+        raise Exception("settings is not set")
     engine = create_async_engine(settings.database_url)
 
     async with engine.begin() as conn:
@@ -80,4 +85,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    settings = build_settings()
     main()
