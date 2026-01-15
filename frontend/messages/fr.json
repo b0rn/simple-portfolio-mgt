@@ -1,0 +1,153 @@
+{
+    "Navbar": {
+        "dark_mode": "Mode Sombre",
+        "app_name": "Simple Portfolio App",
+        "about": "À Propos",
+        "login": "Connexion",
+        "logout": "Déconnexion",
+        "language": "Langue",
+        "dashboard": "Tableau de Bord",
+        "portfolios": "Portefeuilles"
+    },
+    "Footer": {
+        "about_us": "À Propos",
+        "copyright": "© {year} Simple Portfolio App. Tous droits réservés."
+    },
+    "HomePage": {
+        "title": "Simple Portfolio App",
+        "description": "Une application simple de gestion de portefeuille construite avec Next.js, TypeScript et shadcn.",
+        "login": "Connexion",
+        "sign_up": "Créer un compte"
+    },
+    "LoginForm": {
+        "login_failed": "Échec de la connexion",
+        "login_failed_unauthorized": "Identifiants invalides",
+        "login_failed_validation_error": "Erreur de validation",
+        "error_500": "Oops, le service est indisponible. Veuillez réessayer plus tard.",
+        "form_title": "Se connecter à Simple Portfolio App",
+        "form_description": "Gérez vos portefeuilles avec Simple Portfolio App",
+        "email": "Email",
+        "email_required": "Email obligatoire",
+        "password": "Mot de passe",
+        "password_error": "Le mot de passe doit comprendre entre 12 et 128 caractères",
+        "forgot_password": "Mot de passe oublié ?",
+        "login": "Connexion",
+        "dont_have_an_account": "Vous n'avez pas de compte ?",
+        "sign_up": "Créer un compte"
+    },
+    "SignupForm": {
+        "form_title": "Bienvenue",
+        "form_description": "Inscrivez vous à Simple Portfolio App",
+        "email": "Email",
+        "email_required": "Email obligatoire",
+        "password": "Mot de passe",
+        "password_error": "Votre mot de passe doit comprendre entre 12 et 128 caractères",
+        "confirm_password": "Confirmez votre mot de passe",
+        "confirm_password_error": "Les deux mots de passe doivent être identiques",
+        "login": "Connexion",
+        "already_have_account": "Vous avez déjà un compte ?",
+        "sign_up": "S'inscrire",
+        "sign_in": "Se connecter",
+        "password_weak": "Faible",
+        "password_fair": "Modéré",
+        "password_good": "Bon",
+        "password_strong": "Fort",
+        "signup_failed": "Échec de l'inscription",
+        "signup_failed_description": "L'email est obligatoire. Le mot de passe doit faired entre 12 et 128 caractères.",
+        "signup_failed_duplicate_email": "Email déjà enregistré",
+        "error_500": "Oops, le service est indisponible. Veuillez réessayer plus tard."
+    },
+    "Portfolios": {
+        "portfolio_delete_failed": "Échec de la suppression",
+        "portfolio_deleted_successfully": "Portefeuille supprimé",
+        "portfolios": "Portefeuilles",
+        "add": "Ajouter",
+        "edit_portfolio": "Modifier le portefeuille",
+        "create_portfolio": "Créer un portefeuille",
+        "close": "Fermer",
+        "edit_portfolio_description": "Vous pouvez modifier le nom du portefeuille",
+        "create_portfolio_description": "Créez un portefeuille pour gérer vos actifs",
+        "delete_portfolio_confirmation_title": "Supprimer le portefeuille",
+        "delete_portfolio_confirmation_description": "Êtes-vous sûr de vouloir supprimer {portfolioTitle} ? Cette action est irréversible.",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+    },
+    "Portfolio": {
+        "not_found": "Portefeuille introuvable",
+        "list_valuation_lines": "Lister les lignes d'estimations",
+        "valuation_lines": "Lignes d'estimations",
+        "valuation_lines_description": "Liste des estimations de vos actifs en USD.",
+        "assets": "Actifs",
+        "edit_portfolio": "Modifier le portefeuille",
+        "edit_portfolio_description": "Vous pouvez modifier le nom du portefeuille.",
+        "delete_portfolio_confirmation_title": "Supprimer le portefeuille",
+        "delete_portfolio_confirmation_description": "Êtes-vous sûr de vouloir supprimer {portfolioTitle} ? Cette action est irréversible.",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "add_asset": "Ajouter un actif",
+        "add_asset_description": "Ajoutez un actif à votre portefeuille"
+    },
+    "ValuationTable": {
+        "symbol": "Symbole",
+        "price": "Prix",
+        "quantity": "Quantité",
+        "valuation": "Estimation",
+        "no_data": "Pas de données",
+        "unknown_symbols": "Symboles inconnus"
+    },
+    "AssetTable": {
+        "error_500": "Oops, le service est indisponible. Veuillez réessayer plus tard.",
+        "delete_success": "Actif supprimé",
+        "symbol": "Symbole",
+        "quantity": "Quantité",
+        "created_at": "Crée le",
+        "actions": "Actions",
+        "title": "Tableau des actifs"
+    },
+    "AssetForm": {
+        "symbol_required": "Le symbole doit être entre 1 et 16 caractères",
+        "quantity_required": "La quantité est obligatoire",
+        "create_failed": "Échec de la création",
+        "create_failed_validation_error": "Erreur de validation",
+        "error_500": "Oops, le service est indisponible. Veuillez réessayer plus tard.",
+        "asset_created": "Actif créé",
+        "symbol": "Symbole",
+        "select_symbol": "Selectionner le symbole",
+        "search_symbol": "Rechercher le symbole",
+        "no_results": "Aucun résultats",
+        "quantity": "Quantité",
+        "create": "Créer"
+    },
+    "PortfolioForm": {
+        "name_required": "Le nom doit être entre 1 et 100 caractères",
+        "name_placeholder": "Le nom de votre portefeuille",
+        "create_failed": "Échec de la création",
+        "create_failed_validation_error": "Erreur de validation",
+        "error_500": "Oops, le service est indisponible. Veuillez réessayer plus tard.",
+        "portfolio_created": "Portefeuille créé",
+        "update_failed": "Échec de la mise à jour",
+        "update_failed_validation_error": "Erreur de validation",
+        "portfolio_updated": "Portefeuille mis à jour",
+        "name": "Nom",
+        "create": "Créer",
+        "edit": "Modifier"
+    },
+    "PortfolioTiles": {
+        "no_results": "Aucun résultats",
+        "list_valuation_lines": "Lister les lignes d'estimations",
+        "valuation_lines": "Lignes d'estimations",
+        "valuation_lines_description": "Liste des estimations de vos actifs en USD.",
+        "assets": "Actifs",
+        "assets_description": "Gérez vos actifs",
+        "created_at": "Crée le"
+    },
+    "Pagination": {
+        "previous": "Précédent",
+        "next": "Suivant",
+        "more_pages": "Plus de pages"
+    },
+    "Metadata": {
+        "title": "Simple Portfolio App",
+        "description": "Une application simple de gestion de portefeuille construite avec Next.js et TypeScript."
+    }
+}

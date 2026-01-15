@@ -1,0 +1,154 @@
+{
+    "Navbar": {
+        "dark_mode": "Dark Mode",
+        "app_name": "Simple Portfolio App",
+        "about": "About",
+        "login": "Login",
+        "logout": "Logout",
+        "language": "Language",
+        "dashboard": "Dashboard",
+        "portfolios": "Portfolios"
+    },
+    "Footer": {
+        "about_us": "About Us",
+        "copyright": "© {year} Simple Portfolio App. All rights reserved."
+    },
+    "HomePage": {
+        "title": "Simple Portfolio App",
+        "description": "A simple portfolio management application built with Next.js, TypeScript et shadcn.",
+        "login": "Login",
+        "sign_up": "Sign up"
+    },
+    "LoginForm": {
+        "login_failed": "Login failed",
+        "login_failed_unauthorized": "Invalid credentials",
+        "login_failed_validation_error": "Your data couldn't be validated",
+        "error_500": "Oops, le service est indisponible. Veuillez réessayer plus tard.",
+        "form_title": "Login to Simple Portfolio App",
+        "form_description": "Handle your portfolios with Simple Portfolio App",
+        "invalid_credentials": "Invalid credentials",
+        "email": "Email",
+        "email_required": "Email required",
+        "password": "Password",
+        "password_error": "The password must be between 12 and 128 caracters",
+        "forgot_password": "Forgot password ?",
+        "login": "Login",
+        "dont_have_an_account": "Don't have an account ?",
+        "sign_up": "Sign up"
+    },
+    "SignupForm": {
+        "form_title": "Welcome",
+        "form_description": "Signup to Simple Portfolio App",
+        "email": "Email",
+        "email_required": "Email required",
+        "password": "Password",
+        "password_error": "Your password must be between 12 and 128 caracters",
+        "confirm_password": "Confirm your password",
+        "confirm_password_error": "Both passwords must be identical",
+        "login": "Login",
+        "already_have_account": "Already have an account ?",
+        "sign_up": "Signup",
+        "sign_in": "Login",
+        "password_weak": "Weak",
+        "password_fair": "Fair",
+        "password_good": "Good",
+        "password_strong": "Strong",
+        "signup_failed": "Signup failed",
+        "signup_failed_description": "Email is required. Password must be between 12 and 128 caracters.",
+        "signup_failed_duplicate_email": "Email already registered",
+        "error_500": "Oops, the service is unavailable. Please, retry later."
+    },
+    "Portfolios": {
+        "portfolio_delete_failed": "Delete failed",
+        "portfolio_deleted_successfully": "Portfolio deleted",
+        "portfolios": "Portfolios",
+        "add": "Add",
+        "edit_portfolio": "Edit portfolio",
+        "create_portfolio": "Create portfolio",
+        "close": "Close",
+        "edit_portfolio_description": "You can edit the portfolio's name",
+        "create_portfolio_description": "Create a portfolio to manage your assets",
+        "delete_portfolio_confirmation_title": "Delete portfolio",
+        "delete_portfolio_confirmation_description": "Are you sure you want to delete {portfolioTitle} ? This cannot be undone.",
+        "cancel": "Cancel",
+        "delete": "Delete"
+    },
+    "Portfolio": {
+        "not_found": "Portfolio not found",
+        "list_valuation_lines": "List valuation lines",
+        "valuation_lines": "Valuation lines",
+        "valuation_lines_description": "List of valuation of your assets in USD",
+        "assets": "Assets",
+        "edit_portfolio": "Edit portfolio",
+        "edit_portfolio_description": "You can edit the portfolio's name.",
+        "delete_portfolio_confirmation_title": "Delete portfolio",
+        "delete_portfolio_confirmation_description": "Are you sure you want to delete {portfolioTitle} ? This cannot be undone.",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "add_asset": "Add asset",
+        "add_asset_description": "Add an asset to your portfolio"
+    },
+    "ValuationTable" : {
+        "symbol" : "Symbol",
+        "price" : "Price",
+        "quantity" : "Quantity",
+        "valuation" : "Valuation",
+        "no_data" : "No data",
+        "unknown_symbols" : "Unknown symbols"
+    },
+    "AssetTable": {
+        "error_500" : "Oops, the service is unavailable. Please, retry later.",
+        "delete_success" : "Asset deleted",
+        "symbol": "Symbol",
+        "quantity": "Quantity",
+        "created_at": "Created at",
+        "actions" : "Actions",
+        "title": "Assets table"
+    },
+    "AssetForm": {
+        "symbol_required" : "Symbol required",
+        "quantity_required" : "Quantity required",
+        "create_failed": "Creation failed",
+        "create_failed_validation_error": "Validation error",
+        "error_500": "Oops, the service is unavailable. Please, retry later.",
+        "asset_created": "Asset created",
+        "symbol": "Symbol",
+        "select_symbol": "Select symbol",
+        "search_symbol": "Search symbol",
+        "no_results": "No results",
+        "quantity": "Quantity",
+        "create": "Create"
+    },
+    "PortfolioForm": {
+        "name_required": "The name must be between 1 and 100 caracters",
+        "name_placeholder": "Your portfolio's name",
+        "create_failed": "Creation failed",
+        "create_failed_validation_error": "Validation error",
+        "error_500": "Oops, the service is unavailable. Please, retry later.",
+        "portfolio_created": "Portfolio created",
+        "update_failed": "Update failed",
+        "update_failed_validation_error": "Validation error",
+        "portfolio_updated": "Portfolio updated",
+        "name": "Name",
+        "create": "Create",
+        "edit": "Edit"
+    },
+    "PortfolioTiles": {
+        "no_results": "No results",
+        "list_valuation_lines": "List valuation lines",
+        "valuation_lines": "Valuation lines",
+        "valuation_lines_description": "List of valuation of your assets in USD",
+        "assets": "Assets",
+        "assets_description": "Manage your assets",
+        "created_at": "Created at"
+    },
+    "Pagination" : {
+        "previous" : "Previous",
+        "next" : "Next",
+        "more_pages" : "More pages"
+    },
+    "Metadata": {
+        "title": "Simple Portfolio App",
+        "description": "A simple portfolio management application built with Next.js and TypeScript."
+    }
+}
