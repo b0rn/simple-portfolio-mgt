@@ -14,4 +14,3 @@ class PortfolioUpdate:
 class AssetCreate:
     symbol: str
     quantity: float
-    buy_price: float    

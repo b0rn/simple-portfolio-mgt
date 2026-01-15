@@ -47,13 +47,16 @@ class SQLAlchemyDataService(DbDataService):
             kwargs = {}
             if payload.name:
                 kwargs["name"] = payload.name
-                
+            
             res = await db.execute(
-                update(PortfolioModel).where(
+                update(PortfolioModel)
+                .returning(PortfolioModel)
+                .where(
                     PortfolioModel.owner_id == owner_id,
                     PortfolioModel.id == portfolio_id
-                ).values(**kwargs)
+                ).values(name=payload.name)
             )
+            await db.commit()
             model = res.scalar_one_or_none()
             if model:
                 return Portfolio(id=model.id, owner_id=model.owner_id, name=model.name, created_at=model.created_at)
@@ -96,7 +99,6 @@ class SQLAlchemyDataService(DbDataService):
         model = AssetModel(
             symbol=payload.symbol,
             quantity=payload.quantity,
-            buy_price=payload.buy_price,
             portfolio_id=portfolio_id
         )
         async with session_scope() as db:
@@ -107,7 +109,6 @@ class SQLAlchemyDataService(DbDataService):
             id=model.id,
             symbol=model.symbol,
             quantity=model.quantity,
-            buy_price=model.buy_price,
             portfolio_id=model.portfolio_id,
             created_at=model.created_at
         )
@@ -140,7 +141,6 @@ class SQLAlchemyDataService(DbDataService):
                     id=model.id,
                     symbol=model.symbol,
                     quantity=model.quantity,
-                    buy_price=model.buy_price,
                     portfolio_id=model.portfolio_id,
                     created_at=model.created_at
                 )
@@ -159,7 +159,6 @@ class SQLAlchemyDataService(DbDataService):
                     id=model.id,
                     symbol=model.symbol,
                     quantity=model.quantity,
-                    buy_price=model.buy_price,
                     portfolio_id=model.portfolio_id,
                     created_at=model.created_at
                 )

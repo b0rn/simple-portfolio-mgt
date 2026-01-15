@@ -20,7 +20,6 @@ class Asset(Base):
     )
     symbol: Mapped[str] = mapped_column(String(10), nullable=False, index=True)
     quantity: Mapped[float] = mapped_column(Float, nullable=False)
-    buy_price: Mapped[float] = mapped_column(Float, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),

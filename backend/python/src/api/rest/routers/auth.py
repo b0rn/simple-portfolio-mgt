@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, Response
 
 from src.infrastructure.config.settings import settings
+from src.domain.aggregates.exceptions.auth import InvalidCredentialsError
 from src.domain.usecases.usecases import UseCases
 from src.api.rest.dependencies import get_usecases,get_current_user
 from src.api.rest.schemas.auth import (
@@ -46,7 +47,7 @@ def _clear_auth_cookie(resp: Response) -> None:
     else:
         resp.delete_cookie(key="access_token", path="/")
 
-@router.post("/register", response_model=MeResponse)
+@router.post("/register", response_model=MeResponse, status_code=201)
 async def register(payload: RegisterRequest, resp: Response, ucs : UseCases = Depends(get_usecases)):
     uc = ucs.AuthMgt
     try:
@@ -65,6 +66,8 @@ async def login(payload: LoginRequest, resp: Response, ucs : UseCases = Depends(
     try:
         user, token = await uc.login(payload.email, payload.password)
     except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    except InvalidCredentialsError as e:
         raise HTTPException(status_code=401, detail=str(e))
 
     _set_auth_cookie(resp, token)

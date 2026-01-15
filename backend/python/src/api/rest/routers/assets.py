@@ -10,6 +10,13 @@ from src.infrastructure.utils.pagination import PaginationRequest
 
 router = APIRouter(tags=["assets"])
 
+@router.get("/prices", response_model=dict[str,float], status_code=200)
+async def get_prices(
+    user=Depends(get_current_user),
+    ucs:UseCases=Depends(get_usecases)
+):
+    uc = ucs.PortfolioMgt
+    return uc.get_assets_prices()
 
 @router.post("/portfolios/{portfolio_id}/assets", response_model=AssetResponse, status_code=201)
 async def add_asset(
@@ -26,7 +33,6 @@ async def add_asset(
     a = await ucs.PortfolioMgt.create_asset(payload=AssetCreate(
         symbol=payload.symbol,
         quantity=payload.quantity,
-        buy_price=payload.buy_price,
     ), portfolio_id=portfolio_id)
 
     return AssetResponse(
@@ -34,7 +40,6 @@ async def add_asset(
         portfolio_id=a.portfolio_id,
         symbol=a.symbol,
         quantity=a.quantity,
-        buy_price=a.buy_price,
         created_at=a.created_at,
     )
 
@@ -43,7 +48,7 @@ async def add_asset(
 async def list_assets(
     portfolio_id: int,
     page: int = Query(1, ge=1),
-    itemsPerPage: int = Query(20, ge=1, le=100),
+    items_per_page: int = Query(20, ge=1, le=100),
     user=Depends(get_current_user),
     ucs: UseCases = Depends(get_usecases)
 ):
@@ -52,7 +57,7 @@ async def list_assets(
     if not p:
         raise HTTPException(status_code=404, detail="Portfolio not found")
 
-    items, page_res = await ucs.PortfolioMgt.list_assets_paginated(portfolio_id=portfolio_id, pagination_request=PaginationRequest(page=page, items_per_page=itemsPerPage))
+    items, page_res = await ucs.PortfolioMgt.list_assets_paginated(portfolio_id=portfolio_id, pagination_request=PaginationRequest(page=page, items_per_page=items_per_page))
 
     return ListResponse(
         items=[
@@ -61,7 +66,6 @@ async def list_assets(
                 portfolio_id=a.portfolio_id,
                 symbol=a.symbol,
                 quantity=a.quantity,
-                buy_price=a.buy_price,
                 created_at=a.created_at,
             )
             for a in items

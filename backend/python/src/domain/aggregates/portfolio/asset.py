@@ -8,5 +8,4 @@ class Asset:
     portfolio_id: int
     symbol: str
     quantity: float
-    buy_price: float
     created_at: datetime
