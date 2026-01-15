@@ -1,0 +1,638 @@
+---
+openapi: 3.1.0
+info:
+  title: Simple Portfolio App API
+  version: 1.0.0
+paths:
+  "/auth/register":
+    post:
+      tags:
+      - auth
+      summary: Register
+      operationId: register_auth_register_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RegisterRequest"
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/MeResponse"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/auth/login":
+    post:
+      tags:
+      - auth
+      summary: Login
+      operationId: login_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/LoginRequest"
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/MeResponse"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/auth/logout":
+    post:
+      tags:
+      - auth
+      summary: Logout
+      operationId: logout_auth_logout_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  "/auth/me":
+    get:
+      tags:
+      - auth
+      summary: Me
+      operationId: me_auth_me_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/MeResponse"
+  "/portfolios":
+    post:
+      tags:
+      - portfolios
+      summary: Create Portfolio
+      operationId: create_portfolio_portfolios_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PortfolioCreateRequest"
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PortfolioResponse"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+    get:
+      tags:
+      - portfolios
+      summary: List Portfolios
+      operationId: list_portfolios_portfolios_get
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: items_per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Items Per Page
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ListResponse_PortfolioResponse_"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/portfolios/{portfolio_id}":
+    get:
+      tags:
+      - portfolios
+      summary: Get Portfolio
+      operationId: get_portfolio_portfolios__portfolio_id__get
+      parameters:
+      - name: portfolio_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Portfolio Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PortfolioResponse"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+    patch:
+      tags:
+      - portfolios
+      summary: Update Portfolio
+      operationId: update_portfolio_portfolios__portfolio_id__patch
+      parameters:
+      - name: portfolio_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Portfolio Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PortfolioPatchRequest"
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PortfolioResponse"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+    delete:
+      tags:
+      - portfolios
+      summary: Delete Portfolio
+      operationId: delete_portfolio_portfolios__portfolio_id__delete
+      parameters:
+      - name: portfolio_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Portfolio Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/portfolios/{portfolio_id}/valuation":
+    get:
+      tags:
+      - portfolios
+      summary: Get Portfolio Valutation
+      operationId: get_portfolio_valutation_portfolios__portfolio_id__valuation_get
+      parameters:
+      - name: portfolio_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Portfolio Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PortfolioValuationResponse"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/prices":
+    get:
+      tags:
+      - assets
+      summary: Get Prices
+      operationId: get_prices_prices_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: number
+                type: object
+                title: Response Get Prices Prices Get
+  "/portfolios/{portfolio_id}/assets":
+    post:
+      tags:
+      - assets
+      summary: Add Asset
+      operationId: add_asset_portfolios__portfolio_id__assets_post
+      parameters:
+      - name: portfolio_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Portfolio Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/AssetCreateRequest"
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/AssetResponse"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+    get:
+      tags:
+      - assets
+      summary: List Assets
+      operationId: list_assets_portfolios__portfolio_id__assets_get
+      parameters:
+      - name: portfolio_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Portfolio Id
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: items_per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Items Per Page
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ListResponse_AssetResponse_"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/portfolios/{portfolio_id}/assets/{asset_id}":
+    delete:
+      tags:
+      - assets
+      summary: Delete Asset
+      operationId: delete_asset_portfolios__portfolio_id__assets__asset_id__delete
+      parameters:
+      - name: portfolio_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Portfolio Id
+      - name: asset_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Asset Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+components:
+  schemas:
+    AssetCreateRequest:
+      properties:
+        symbol:
+          type: string
+          maxLength: 16
+          minLength: 1
+          title: Symbol
+        quantity:
+          type: number
+          exclusiveMinimum: 0
+          title: Quantity
+      type: object
+      required:
+      - symbol
+      - quantity
+      title: AssetCreateRequest
+    AssetResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        portfolio_id:
+          type: integer
+          title: Portfolio Id
+        symbol:
+          type: string
+          title: Symbol
+        quantity:
+          type: number
+          title: Quantity
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - portfolio_id
+      - symbol
+      - quantity
+      - created_at
+      title: AssetResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            "$ref": "#/components/schemas/ValidationError"
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ListResponse_AssetResponse_:
+      properties:
+        items:
+          items:
+            "$ref": "#/components/schemas/AssetResponse"
+          type: array
+          title: Items
+        pagination_response:
+          "$ref": "#/components/schemas/PaginationResponse"
+      type: object
+      required:
+      - items
+      - pagination_response
+      title: ListResponse[AssetResponse]
+    ListResponse_PortfolioResponse_:
+      properties:
+        items:
+          items:
+            "$ref": "#/components/schemas/PortfolioResponse"
+          type: array
+          title: Items
+        pagination_response:
+          "$ref": "#/components/schemas/PaginationResponse"
+      type: object
+      required:
+      - items
+      - pagination_response
+      title: ListResponse[PortfolioResponse]
+    LoginRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        password:
+          type: string
+          maxLength: 128
+          minLength: 12
+          title: Password
+      type: object
+      required:
+      - email
+      - password
+      title: LoginRequest
+    MeResponse:
+      properties:
+        user:
+          "$ref": "#/components/schemas/UserResponse"
+      type: object
+      required:
+      - user
+      title: MeResponse
+    PaginationResponse:
+      properties:
+        total_items:
+          type: integer
+          title: Total Items
+        total_pages:
+          type: integer
+          title: Total Pages
+        current_page:
+          type: integer
+          title: Current Page
+        items_per_page:
+          type: integer
+          title: Items Per Page
+      type: object
+      required:
+      - total_items
+      - total_pages
+      - current_page
+      - items_per_page
+      title: PaginationResponse
+    PortfolioCreateRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Name
+      type: object
+      required:
+      - name
+      title: PortfolioCreateRequest
+    PortfolioPatchRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 100
+            minLength: 1
+          - type: 'null'
+          title: Name
+      type: object
+      title: PortfolioPatchRequest
+    PortfolioResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        owner_id:
+          type: string
+          format: uuid
+          title: Owner Id
+        name:
+          type: string
+          title: Name
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - owner_id
+      - name
+      - created_at
+      title: PortfolioResponse
+    PortfolioValuationLine:
+      properties:
+        symbol:
+          type: string
+          title: Symbol
+        quantity:
+          type: number
+          title: Quantity
+        price:
+          type: number
+          title: Price
+        value:
+          type: number
+          title: Value
+      type: object
+      required:
+      - symbol
+      - quantity
+      - price
+      - value
+      title: PortfolioValuationLine
+    PortfolioValuationResponse:
+      properties:
+        portfolio_id:
+          type: integer
+          title: Portfolio Id
+        total_value:
+          type: number
+          title: Total Value
+        lines:
+          items:
+            "$ref": "#/components/schemas/PortfolioValuationLine"
+          type: array
+          title: Lines
+        unknown_symbols:
+          items:
+            type: string
+          type: array
+          title: Unknown Symbols
+      type: object
+      required:
+      - portfolio_id
+      - total_value
+      - lines
+      - unknown_symbols
+      title: PortfolioValuationResponse
+    RegisterRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        password:
+          type: string
+          maxLength: 128
+          minLength: 12
+          title: Password
+      type: object
+      required:
+      - email
+      - password
+      title: RegisterRequest
+    UserResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        email:
+          type: string
+          format: email
+          title: Email
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - email
+      - created_at
+      title: UserResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
