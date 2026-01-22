@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 from src.infrastructure.dataservice.auth_local.local import LocalAuthDataService
 from src.domain.aggregates.auth.user import User
-from src.domain.aggregates.exceptions.auth import EmailAlreadyExistsError
+from src.domain.aggregates.exceptions.auth import EmailAlreadyExistsError, InvalidCredentialsError
 
 @pytest.mark.integration
 @pytest.mark.asyncio
@@ -37,6 +37,10 @@ class TestLocal:
         assert read.id == user.id
         assert read.email == user.email
         assert token != ""
+        
+        # Invalid password
+        with pytest.raises(InvalidCredentialsError):
+            await dataservice_auth_local.login(user.email, "foo")
         
     async def test_get_user_from_token(self, dataservice_auth_local : LocalAuthDataService, dataservice_auth_local_user : tuple[User, str, str]):
         user, _, token = dataservice_auth_local_user

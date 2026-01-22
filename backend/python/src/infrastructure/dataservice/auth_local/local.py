@@ -8,7 +8,7 @@ from jose import jwt
 from src.infrastructure.config.settings import Settings
 from src.infrastructure.datastore.sqlalchemy.base import session_scope
 from src.infrastructure.datastore.sqlalchemy.models.user import User as UserModel
-from passlib.context import CryptContext
+from argon2 import PasswordHasher
 from ..authdataservice import AuthDataService
 from src.domain.aggregates.auth.user import User
 from src.domain.aggregates.exceptions.auth import EmailAlreadyExistsError, InvalidCredentialsError
@@ -19,7 +19,7 @@ class LocalAuthDataService(AuthDataService):
     def __init__(self, settings: Settings) -> None:
         super().__init__()
         self.settings = settings
-        self.pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+        self.password_hasher = PasswordHasher()
         self.JWT_ALG = "HS256"
 
     async def health_check(self) -> Health:
@@ -93,10 +93,14 @@ class LocalAuthDataService(AuthDataService):
             return res.rowcount > 0
     
     def __hash_password(self, password: str) -> str:
-        return self.pwd_context.hash(password)
+        return self.password_hasher.hash(password)
     
     def __verify_password(self, password: str, password_hash: str) -> bool:
-        return self.pwd_context.verify(password, password_hash)
+        try:
+            self.password_hasher.verify(password_hash, password)
+            return True
+        except:
+            return False
     
     def __create_access_token(self, user_id: uuid.UUID) -> str:
         if not self.settings.jwt_secret:
