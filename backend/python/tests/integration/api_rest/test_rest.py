@@ -4,7 +4,7 @@ Integration tests for the REST API
 from __future__ import annotations
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from httpx import AsyncClient
+from httpx import AsyncClient, Cookies
 from uuid import uuid4
 from datetime import datetime
 
@@ -132,7 +132,7 @@ class TestREST:
         portfolio_uc.get_assets_prices = MagicMock()
         portfolio_uc.get_assets_prices.return_value = prices
         
-        res = await client.get("/prices", cookies=self._get_authed_cookies())
+        res = await client.get("/prices")
         data = res.json()
         
         assert res.status_code == 200
@@ -140,6 +140,7 @@ class TestREST:
         portfolio_uc.get_assets_prices.assert_called_once()
         
         # No token
+        client.cookies = Cookies()
         res = await client.get("/prices")
         
         assert res.status_code == 401
@@ -249,12 +250,13 @@ class TestREST:
         auth_uc.get_user_from_token = AsyncMock()
         auth_uc.get_user_from_token.return_value = user
         
-        res = await client.get("/auth/me", cookies=self._get_authed_cookies())
+        res = await client.get("/auth/me")
         
         assert res.status_code == 200
         auth_uc.get_user_from_token.assert_awaited_once_with("token")
         
         # No token, expect 401
+        client.cookies = Cookies()
         res = await client.get("/auth/me")
         
         assert res.status_code == 401
@@ -268,7 +270,7 @@ class TestREST:
         portfolio_uc.create_portfolio.return_value = portfolio
 
         payload = { "name" : "foo" }
-        res = await client.post("/portfolios", json=payload, cookies=self._get_authed_cookies())
+        res = await client.post("/portfolios", json=payload)
         data = res.json()
         
         assert res.status_code == 201
@@ -279,17 +281,19 @@ class TestREST:
         portfolio_uc.create_portfolio.assert_awaited_once_with(owner_id=portfolio.owner_id,payload=PortfolioCreate(name=portfolio.name))
         
         # No token
+        cookies = client.cookies
+        client.cookies = Cookies()
         res = await client.post("/portfolios",json=payload)
-        
+        client.cookies = cookies
         assert res.status_code == 401
         
         # No name
-        res = await client.post("/portfolios", json={}, cookies={ "access_token" : "token" })
+        res = await client.post("/portfolios", json={})
         
         assert res.status_code == 422
         
         # Name too long
-        res = await client.post("/portfolios", json={ "name" : "a" * 101 }, cookies={ "access_token" : "token" })
+        res = await client.post("/portfolios", json={ "name" : "a" * 101 })
         
         assert res.status_code == 422
     
@@ -301,7 +305,7 @@ class TestREST:
         portfolio_uc.list_portfolios_paginated = AsyncMock()
         portfolio_uc.list_portfolios_paginated.return_value = portfolios , page_res 
         
-        res = await client.get("/portfolios", cookies=self._get_authed_cookies())
+        res = await client.get("/portfolios")
         data = res.json()
         
         assert res.status_code == 200
@@ -325,7 +329,10 @@ class TestREST:
         portfolio_uc.list_portfolios_paginated.assert_awaited_once_with(owner_id=user.id,pagination_request=PaginationRequest(page=1,items_per_page=20))
         
         # No token
+        cookies = client.cookies
+        client.cookies = Cookies()
         res = await client.get("/portfolios")
+        client.cookies = cookies
         
         assert res.status_code == 401
         
@@ -333,7 +340,7 @@ class TestREST:
         page_res = PaginationResponse(total_items=58, total_pages=900, current_page=8,items_per_page=12) 
         portfolio_uc.list_portfolios_paginated.return_value = portfolios, page_res
         portfolio_uc.list_portfolios_paginated.reset_mock()
-        res = await client.get(f"/portfolios?items_per_page={page_res.items_per_page}&page={page_res.current_page}", cookies=self._get_authed_cookies())
+        res = await client.get(f"/portfolios?items_per_page={page_res.items_per_page}&page={page_res.current_page}")
         data = res.json()
         
         assert res.status_code == 200
@@ -346,17 +353,17 @@ class TestREST:
         portfolio_uc.list_portfolios_paginated.assert_awaited_once_with(owner_id=user.id,pagination_request=PaginationRequest(page=page_res.current_page,items_per_page=page_res.items_per_page))
         
         # Invalid page
-        res = await client.get("/portfolios?page=invalid", cookies=self._get_authed_cookies())
+        res = await client.get("/portfolios?page=invalid")
         
         assert res.status_code == 422
         
         # Invalid items per page
-        res = await client.get("/portfolios?items_per_page=invalid", cookies=self._get_authed_cookies())
+        res = await client.get("/portfolios?items_per_page=invalid")
         
         assert res.status_code == 422
         
         # Max items per page
-        res = await client.get("/portfolios?items_per_page=101", cookies=self._get_authed_cookies())
+        res = await client.get("/portfolios?items_per_page=101")
         
         assert res.status_code == 422
         
@@ -368,7 +375,7 @@ class TestREST:
         portfolio_uc.get_portfolio.return_value = portfolio
         
         id = 54
-        res = await client.get(f"/portfolios/{id}", cookies=self._get_authed_cookies())
+        res = await client.get(f"/portfolios/{id}")
         data = res.json()
         
         assert res.status_code == 200
@@ -379,7 +386,10 @@ class TestREST:
         portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=id)
         
         # No token
+        cookies = client.cookies
+        client.cookies = Cookies()
         res = await client.get(f"/portfolios/{id}")
+        client.cookies = cookies
         
         assert res.status_code == 401
         
@@ -388,13 +398,13 @@ class TestREST:
         portfolio_uc.get_portfolio.reset_mock()
         
         id = 500
-        res = await client.get(f"/portfolios/{id}", cookies=self._get_authed_cookies())
+        res = await client.get(f"/portfolios/{id}")
         
         assert res.status_code == 404
         portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=500)
         
         # Invalid id
-        res = await client.get("/portfolios/invalid", cookies=self._get_authed_cookies())
+        res = await client.get("/portfolios/invalid")
         
         assert res.status_code == 422
     
@@ -407,7 +417,7 @@ class TestREST:
         
         payload = { "name" : "bar" }
         id = 14
-        res = await client.patch(f"/portfolios/{id}", cookies=self._get_authed_cookies(), json=payload)
+        res = await client.patch(f"/portfolios/{id}", json=payload)
         data = res.json()
         
         assert res.status_code == 200
@@ -418,18 +428,21 @@ class TestREST:
         portfolio_uc.update_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=id, payload=PortfolioUpdate(name=payload["name"]))
         
         # No token
+        cookies = client.cookies
+        client.cookies = Cookies()
         res = await client.patch(f"/portfolios/{id}", json=payload)
+        client.cookies = cookies
         
         assert res.status_code == 401
         
         # Name max length
         payload = { "name" : "a" * 101 }
-        res = await client.patch(f"/portfolios/{id}", cookies=self._get_authed_cookies(), json=payload)
+        res = await client.patch(f"/portfolios/{id}", json=payload)
         
         assert res.status_code == 422
         
         # Invalid id
-        res = await client.patch("/portfolios/invalid", cookies=self._get_authed_cookies(), json=payload)
+        res = await client.patch("/portfolios/invalid", json=payload)
         
         assert res.status_code == 422
         
@@ -440,18 +453,21 @@ class TestREST:
         portfolio_uc.delete_portfolio.return_value = True
         
         id = 2102
-        res = await client.delete(f"/portfolios/{id}", cookies=self._get_authed_cookies())
+        res = await client.delete(f"/portfolios/{id}")
         
         assert res.status_code == 204
         portfolio_uc.delete_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=id)
         
         # No token
+        cookies = client.cookies
+        client.cookies = Cookies()
         res = await client.delete("/portfolios/{id}")
+        client.cookies = cookies
         
         assert res.status_code == 401
         
         # Invalid ID
-        res = await client.delete("/portfolios/invalid", cookies=self._get_authed_cookies())
+        res = await client.delete("/portfolios/invalid")
         
         assert res.status_code == 422
         
@@ -459,7 +475,7 @@ class TestREST:
         portfolio_uc.delete_portfolio.return_value = None
         portfolio_uc.delete_portfolio.reset_mock()
         
-        res = await client.delete(f"/portfolios/{id}", cookies=self._get_authed_cookies())
+        res = await client.delete(f"/portfolios/{id}")
         
         assert res.status_code == 404
         
@@ -475,7 +491,7 @@ class TestREST:
         portfolio_uc.compute_portfolio_valuation.return_value = portfolio_valuation
         
         id = 5612
-        res = await client.get(f"/portfolios/{id}/valuation", cookies=self._get_authed_cookies())
+        res = await client.get(f"/portfolios/{id}/valuation")
         data = res.json()
         
         assert res.status_code == 200
@@ -496,12 +512,15 @@ class TestREST:
         portfolio_uc.compute_portfolio_valuation.assert_awaited_once_with(portfolio_id=id)
         
         # No token
+        cookies = client.cookies
+        client.cookies = Cookies()
         res = await client.get(f"/portfolios/{id}/valuation")
+        client.cookies = cookies
         
         assert res.status_code == 401
         
         # Invalid ID
-        res = await client.get("portfolios/invalid/valuation", cookies=self._get_authed_cookies())
+        res = await client.get("portfolios/invalid/valuation")
         
         assert res.status_code == 422
         
@@ -510,7 +529,7 @@ class TestREST:
         portfolio_uc.get_portfolio.reset_mock()
         portfolio_uc.compute_portfolio_valuation.reset_mock()
         
-        res = await client.get(f"/portfolios/{id}/valuation", cookies=self._get_authed_cookies())
+        res = await client.get(f"/portfolios/{id}/valuation")
         
         assert res.status_code == 404
         portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=id)
@@ -530,7 +549,7 @@ class TestREST:
         portfolio_uc.create_asset.return_value = asset
         
         payload = { "symbol" : "BTC", "quantity" : 0.0078 }
-        res = await client.post("/portfolios/1007/assets", cookies=self._get_authed_cookies(),json=payload)
+        res = await client.post("/portfolios/1007/assets",json=payload)
         data = res.json()
         
         assert res.status_code == 201
@@ -543,40 +562,43 @@ class TestREST:
         portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=1007)
         portfolio_uc.create_asset.assert_awaited_once_with(payload=AssetCreate(symbol=payload["symbol"], quantity=payload["quantity"]), portfolio_id=1007)
         
-        # No token 
+        # No token
+        cookies = client.cookies
+        client.cookies = Cookies() 
         res = await client.post("/portfolios/0/assets", json=payload)
+        client.cookies = cookies
         
         assert res.status_code == 401
         
         # Invalid ID
-        res = await client.post("/portfolios/invalid/assets", cookies=self._get_authed_cookies(), json=payload)
+        res = await client.post("/portfolios/invalid/assets", json=payload)
         
         assert res.status_code == 422
         
         # Invalid symbol
         payload["symbol"] = ""
-        res = await client.post("/portfolios/0/assets", cookies=self._get_authed_cookies(), json=payload)
+        res = await client.post("/portfolios/0/assets", json=payload)
         
         assert res.status_code == 422
         
         payload["symbol"] = "a" * 17
-        res = await client.post("/portfolios/0/assets", cookies=self._get_authed_cookies(), json=payload)
+        res = await client.post("/portfolios/0/assets", json=payload)
         
         assert res.status_code == 422
         
         payload["symbol"] = 8
-        res = await client.post("/portfolios/0/assets", cookies=self._get_authed_cookies(), json=payload)
+        res = await client.post("/portfolios/0/assets", json=payload)
         
         assert res.status_code == 422
         
         # Invalid quantity
         payload["quantity"] = 0
-        res = await client.post("/portfolios/0/assets", cookies=self._get_authed_cookies(), json=payload)
+        res = await client.post("/portfolios/0/assets", json=payload)
         
         assert res.status_code == 422
         
         payload["quantity"] = "test"
-        res = await client.post("/portfolios/0/assets", cookies=self._get_authed_cookies(), json=payload)
+        res = await client.post("/portfolios/0/assets", json=payload)
         
         assert res.status_code == 422
         
@@ -586,7 +608,7 @@ class TestREST:
         portfolio_uc.create_asset.reset_mock()
         
         payload = { "symbol" : "BTC", "quantity" : 0.004 }
-        res = await client.post("/portfolios/0/assets", cookies=self._get_authed_cookies(), json=payload)
+        res = await client.post("/portfolios/0/assets", json=payload)
         
         assert res.status_code == 404
         portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=0)
@@ -603,7 +625,7 @@ class TestREST:
         portfolio_uc.list_assets_paginated = AsyncMock()
         portfolio_uc.list_assets_paginated.return_value = assets, page_res
         
-        res = await client.get("/portfolios/877/assets", cookies=self._get_authed_cookies())
+        res = await client.get("/portfolios/877/assets")
         data = res.json()
         
         assert res.status_code == 200
@@ -625,12 +647,15 @@ class TestREST:
         portfolio_uc.list_assets_paginated.assert_awaited_once_with(portfolio_id=877, pagination_request=PaginationRequest(page=1, items_per_page=20))
         
         # No token
+        cookies = client.cookies
+        client.cookies = Cookies()
         res = await client.get("/portfolios/45/assets")
+        client.cookies = cookies
         
         assert res.status_code == 401
         
         # Invalid ID
-        res = await client.get("/portfolios/invalid/assets", cookies=self._get_authed_cookies())
+        res = await client.get("/portfolios/invalid/assets")
         
         assert res.status_code == 422
         
@@ -639,27 +664,27 @@ class TestREST:
         portfolio_uc.list_assets_paginated.reset_mock()
         
         id, page, items_per_page = 84, 7, 45
-        res = await client.get(f"/portfolios/{id}/assets?page={page}&items_per_page={items_per_page}", cookies=self._get_authed_cookies())
+        res = await client.get(f"/portfolios/{id}/assets?page={page}&items_per_page={items_per_page}")
         
         assert res.status_code == 200
         portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=84)
         portfolio_uc.list_assets_paginated.assert_awaited_once_with(portfolio_id=84, pagination_request=PaginationRequest(items_per_page=items_per_page, page=page))
         
         # Invalid page
-        res = await client.get(f"/portfolios/{id}/assets?page=foo", cookies=self._get_authed_cookies())
+        res = await client.get(f"/portfolios/{id}/assets?page=foo")
         
         assert res.status_code == 422
         
-        res = await client.get(f"/portfolios/{id}/assets?page=0", cookies=self._get_authed_cookies())
+        res = await client.get(f"/portfolios/{id}/assets?page=0")
         
         assert res.status_code == 422
         
         # Invalid items_per_page
-        res = await client.get(f"/portfolios/{id}/assets?items_per_page=foo", cookies=self._get_authed_cookies())
+        res = await client.get(f"/portfolios/{id}/assets?items_per_page=foo")
         
         assert res.status_code == 422
         
-        res = await client.get(f"/portfolios/{id}/assets?items_per_page=0", cookies=self._get_authed_cookies())
+        res = await client.get(f"/portfolios/{id}/assets?items_per_page=0")
         
         assert res.status_code == 422
         
@@ -673,14 +698,17 @@ class TestREST:
         portfolio_uc.delete_asset.return_value = True
         
         p_id, a_id = 551, 48
-        res = await client.delete(f"/portfolios/{p_id}/assets/{a_id}", cookies=self._get_authed_cookies())
+        res = await client.delete(f"/portfolios/{p_id}/assets/{a_id}")
         
         assert res.status_code == 204
         portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=p_id)
         portfolio_uc.delete_asset.assert_awaited_once_with(asset_id=a_id)
         
         # No token
+        cookies = client.cookies
+        client.cookies = Cookies()
         res = await client.delete(f"/portfolios/{p_id}/assets/{a_id}")
+        client.cookies = cookies
         
         assert res.status_code == 401
         
@@ -688,7 +716,7 @@ class TestREST:
         portfolio_uc.get_portfolio.reset_mock()
         portfolio_uc.get_portfolio.return_value = None
         
-        res = await client.delete(f"/portfolios/{p_id}/assets/{a_id}", cookies=self._get_authed_cookies())
+        res = await client.delete(f"/portfolios/{p_id}/assets/{a_id}")
         
         assert res.status_code == 404
         portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=p_id)
@@ -699,7 +727,7 @@ class TestREST:
         portfolio_uc.delete_asset.reset_mock()
         portfolio_uc.delete_asset.return_value = False
         
-        res = await client.delete(f"/portfolios/{p_id}/assets/{a_id}", cookies=self._get_authed_cookies())
+        res = await client.delete(f"/portfolios/{p_id}/assets/{a_id}")
         
         assert res.status_code == 404
         portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=p_id)

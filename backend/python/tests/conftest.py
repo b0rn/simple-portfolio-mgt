@@ -5,16 +5,11 @@ from __future__ import annotations
 
 import os
 import pytest
-from typing import AsyncGenerator
 from unittest.mock import AsyncMock, MagicMock
 
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
 )
-from sqlalchemy.pool import StaticPool
-
 from httpx import ASGITransport, AsyncClient, MockTransport, Request, Response
 from uuid import uuid4
 from datetime import datetime, timezone
@@ -112,7 +107,7 @@ def mock_portfolio_mgt():
 async def rest_client(mock_auth_uc: AuthMgt, mock_portfolio_mgt : PortfolioMgt):
     ucs = UseCases(AuthMgt=mock_auth_uc, PortfolioMgt=mock_portfolio_mgt)
     app = create_app(settings=build_settings(), usecases=ucs)
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", cookies={ "access_token" : "token" }) as ac:
         yield ac, mock_auth_uc, mock_portfolio_mgt
 
 @pytest.fixture
