@@ -17,9 +17,14 @@ class TestSQLAlchemy:
     async def test_create_portfolio(self, dataservice_db_sqlalchemy: DbDataService):
         owner_id = uuid4()
         portfolio = await dataservice_db_sqlalchemy.create_portfolio(owner_id=str(owner_id), payload=PortfolioCreate(name="foo"))
+
         assert portfolio.id >= 0
         assert portfolio.name == "foo"
         assert portfolio.owner_id == owner_id
+
+        # Invalid owner_id
+        with pytest.raises(Exception):
+            await dataservice_db_sqlalchemy.create_portfolio(owner_id="invalid", payload=PortfolioCreate(name="foo"))
 
     async def test_get_portfolio(self, dataservice_db_sqlalchemy: DbDataService):
         # Create portfolio
@@ -33,6 +38,11 @@ class TestSQLAlchemy:
         assert read.id == created.id
         assert read.name == "foo"
         assert read.owner_id == owner_id
+
+        # Unknown portfolio
+        read = await dataservice_db_sqlalchemy.get_portfolio(owner_id=str(owner_id), portfolio_id=9999)
+
+        assert read is None
 
     async def test_update_portfolio(self, dataservice_db_sqlalchemy: DbDataService):
         # Create portfolio
@@ -48,11 +58,14 @@ class TestSQLAlchemy:
         assert updated.name == "bar"
         assert updated.owner_id == owner_id
 
-        # Read portfolio (to assert that it really updated in db)
+        # Read portfolio (to assert that it was really updated in db)
         read = await dataservice_db_sqlalchemy.get_portfolio(owner_id=str(owner_id), portfolio_id=created.id)
 
         assert read is not None
         assert read.name == "bar"
+
+        # Unknown portfolio
+        read = await dataservice_db_sqlalchemy.update_portfolio(owner_id=str(owner_id), portfolio_id=9999, payload=PortfolioUpdate(name="test"))
 
     async def test_delete_portfolio(self, dataservice_db_sqlalchemy: DbDataService):
         # Create portfolio
@@ -69,6 +82,11 @@ class TestSQLAlchemy:
 
         assert read is None
 
+        # Unknown portfolio
+        deleted = await dataservice_db_sqlalchemy.delete_portfolio(owner_id=str(owner_id), portfolio_id=9999)
+
+        assert deleted == False
+
     async def test_list_portfolios_paginated(self, dataservice_db_sqlalchemy: DbDataService):
         owner_id = uuid4()
         for i in range(10):
@@ -83,6 +101,15 @@ class TestSQLAlchemy:
         assert page_res.total_items == 10
         assert page_res.total_pages == 2
 
+        # No results
+        portfolios, page_res = await dataservice_db_sqlalchemy.list_portfolios_paginated(owner_id=str(uuid4()), pagination_request=pagination_request)
+
+        assert len(portfolios) == 0
+        assert page_res.current_page == pagination_request.page
+        assert page_res.items_per_page == pagination_request.items_per_page
+        assert page_res.total_items == 0
+        assert page_res.total_pages == 0
+
     async def test_create_asset(self, dataservice_db_sqlalchemy: DbDataService):
         # Create portfolio
         owner_id = uuid4()
@@ -95,6 +122,10 @@ class TestSQLAlchemy:
         assert asset.symbol == "BTC"
         assert asset.quantity == 0.001
         assert asset.portfolio_id == portfolio.id
+
+        # Unknown portfolio
+        with pytest.raises(Exception):
+            await dataservice_db_sqlalchemy.create_asset(portfolio_id=9999, payload=AssetCreate(symbol="BTC", quantity=0.005))
 
     async def test_delete_asset(self, dataservice_db_sqlalchemy: DbDataService):
         # Create portfolio
@@ -113,6 +144,11 @@ class TestSQLAlchemy:
         assets = await dataservice_db_sqlalchemy.list_assets(portfolio_id=portfolio.id)
 
         assert len(assets) == 0
+
+        # Unknown asset
+        deleted = await dataservice_db_sqlalchemy.delete_asset(asset_id=9999)
+
+        assert deleted == False
 
     async def test_list_assets_paginated(self, dataservice_db_sqlalchemy: DbDataService):
         # Create portfolio
