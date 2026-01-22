@@ -11,7 +11,7 @@ from src.infrastructure.utils.pagination import PaginationRequest
 router = APIRouter(tags=["assets"])
 
 @router.get("/prices", response_model=dict[str,float], status_code=200)
-async def get_prices(
+def get_prices(
     user=Depends(get_current_user),
     ucs:UseCases=Depends(get_usecases)
 ):
