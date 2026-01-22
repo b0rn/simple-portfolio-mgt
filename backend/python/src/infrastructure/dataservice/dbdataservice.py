@@ -3,13 +3,14 @@ from abc import ABC,abstractmethod
 from typing import Optional
 from src.domain.aggregates.portfolio.portfolio import Portfolio
 from src.domain.aggregates.portfolio.asset import Asset
+from src.domain.aggregates.health.health import Health
 from src.domain.usecases.portfoliomgt.payloads import PortfolioCreate, PortfolioUpdate, AssetCreate
 from src.infrastructure.utils.pagination import PaginationRequest, PaginationResponse
 
 class DbDataService(ABC):
     
     @abstractmethod
-    async def health_check(self) -> bool:
+    async def health_check(self) -> Health:
         pass
     
     # ----------------- Portfolio Methods -----------------

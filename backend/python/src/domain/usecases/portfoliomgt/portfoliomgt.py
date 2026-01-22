@@ -4,6 +4,7 @@ from cachetools import TTLCache
 from src.domain.aggregates.portfolio.portfolio import Portfolio
 from src.domain.aggregates.portfolio.asset import Asset
 from src.domain.aggregates.portfolio.portfolio_valuation import PortfolioValuation, ValuationLine
+from src.domain.aggregates.health.health import Health
 from src.infrastructure.dataservice.dbdataservice import DbDataService
 from src.infrastructure.utils.pagination import PaginationRequest, PaginationResponse
 from .payloads import PortfolioCreate, PortfolioUpdate, AssetCreate
@@ -23,7 +24,7 @@ class PortfolioMgt:
         self.data_service = data_service
         self.valuation_cache = TTLCache(maxsize=10_000,ttl=30)
         
-    async def health_check(self) -> bool:
+    async def health_check(self) -> Health:
         return await self.data_service.health_check()
     
     def get_assets_prices(self) -> dict[str,float]:

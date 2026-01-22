@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Optional
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime, timezone, timedelta
 import uuid
@@ -12,6 +12,7 @@ from passlib.context import CryptContext
 from ..authdataservice import AuthDataService
 from src.domain.aggregates.auth.user import User
 from src.domain.aggregates.exceptions.auth import EmailAlreadyExistsError, InvalidCredentialsError
+from src.domain.aggregates.health.health import Health
 
 class LocalAuthDataService(AuthDataService):
     
@@ -21,15 +22,18 @@ class LocalAuthDataService(AuthDataService):
         self.pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
         self.JWT_ALG = "HS256"
 
-    async def health_check(self) -> bool:
+    async def health_check(self) -> Health:
+        errors : list[str] = []
+        warnings : list[str] = []
         if not self.settings.jwt_secret:
-            return False
+            errors.append("JWT_SECRET is not set")
         async with session_scope() as db:
             try:
                 await db.execute(select(UserModel).limit(1))
-                return True
+                return Health(errors=errors,warnings=warnings)
             except Exception:
-                return False
+                errors.append("could not connect to database")
+                return Health(errors=errors,warnings=warnings)
 
     async def register(self, email: str, password: str) -> tuple[User, str]:
         hash_password = self.__hash_password(password)
@@ -78,6 +82,15 @@ class LocalAuthDataService(AuthDataService):
             if not model:
                 return None
             return User(id=model.id, email=model.email, created_at=model.created_at)
+    
+    async def delete_user(self, email : str) -> bool:
+        async with session_scope() as db:
+            res = await db.execute(
+                delete(UserModel)
+                .where(UserModel.email == email)
+            )
+            await db.commit()
+            return res.rowcount > 0
     
     def __hash_password(self, password: str) -> str:
         return self.pwd_context.hash(password)

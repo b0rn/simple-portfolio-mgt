@@ -3,6 +3,7 @@ from typing import Optional
 from sqlalchemy import select,update,delete, func
 from src.domain.aggregates.portfolio.portfolio import Portfolio
 from src.domain.aggregates.portfolio.asset import Asset
+from src.domain.aggregates.health.health import Health
 from src.domain.usecases.portfoliomgt.payloads import PortfolioCreate, PortfolioUpdate, AssetCreate
 from src.infrastructure.dataservice.dbdataservice import DbDataService
 from src.infrastructure.datastore.sqlalchemy.models.portfolio import Portfolio as PortfolioModel
@@ -12,13 +13,16 @@ from src.infrastructure.utils.pagination import PaginationRequest, create_pagina
 
 class SQLAlchemyDataService(DbDataService):    
     
-    async def health_check(self) -> bool:
+    async def health_check(self) -> Health:
+        errors : list[str] = []
+        warnings : list[str] = []
         async with session_scope() as db:
             try:
                 await db.execute(select(PortfolioModel).limit(1))
-                return True
+                return Health(errors=errors, warnings=warnings)
             except Exception:
-                return False
+                errors.append("could not connect to database")
+                return Health(errors, warnings=warnings)
     
     # ----------------- Portfolio Methods -----------------    
     async def create_portfolio(self, owner_id: str, payload: PortfolioCreate) -> Portfolio:

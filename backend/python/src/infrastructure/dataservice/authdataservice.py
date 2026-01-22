@@ -2,11 +2,12 @@ from __future__ import annotations
 from abc import ABC,abstractmethod
 from typing import Optional
 from src.domain.aggregates.auth.user import User
+from src.domain.aggregates.health.health import Health
 
 class AuthDataService(ABC):
     
     @abstractmethod
-    async def health_check(self) -> bool:
+    async def health_check(self) -> Health:
         pass
     
     # ----------------- User Methods -----------------
