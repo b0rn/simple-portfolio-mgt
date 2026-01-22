@@ -26,6 +26,7 @@ class TestLocal:
         assert str(user.id) != ""
         assert token != ""
 
+        # Register with same email
         with pytest.raises(EmailAlreadyExistsError):
             await dataservice_auth_local.register(email, password)
 
@@ -52,3 +53,8 @@ class TestLocal:
         assert read_user is not None
         assert read_user.id == user.id
         assert read_user.email == user.email
+
+        # Invalid token
+        read_user = await dataservice_auth_local.get_user_from_token("foobar")
+
+        assert read_user is None
