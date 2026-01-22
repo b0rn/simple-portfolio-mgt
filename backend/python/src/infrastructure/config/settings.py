@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from urllib.parse import quote_plus
-from typing import Literal, Optional
+from typing import Literal
 from pydantic import Field,field_validator,model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -10,7 +10,7 @@ SameSite = Literal["lax", "strict", "none"]
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=os.getenv("ENV_FILE", ".env"),
+        env_file=None,
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -133,4 +133,5 @@ class Settings(BaseSettings):
 
 
 def build_settings():
-    return Settings()
+    env_file = os.getenv("ENV_FILE", ".env")
+    return Settings(_env_file=env_file) # type: ignore[call-arg]
