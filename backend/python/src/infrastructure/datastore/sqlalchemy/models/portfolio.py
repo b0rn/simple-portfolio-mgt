@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 from ..base import Base
 
+
 class Portfolio(Base):
     __tablename__ = "portfolios"
 
@@ -24,7 +25,7 @@ class Portfolio(Base):
     )
 
     assets: Mapped[list["Asset"]] = relationship(
-        back_populates="portfolio", # so the Asset model can reference back
-        cascade="all, delete-orphan", # delete assets when portfolio is deleted
-        lazy="selectin", # optimize loading with selectin loading (avoids N+1 problem, loads assets in one query)
+        back_populates="portfolio",  # so the Asset model can reference back
+        cascade="all, delete-orphan",  # delete assets when portfolio is deleted
+        lazy="selectin",  # optimize loading with selectin loading (avoids N+1 problem, loads assets in one query)
     )

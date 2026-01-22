@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Optional
-from sqlalchemy import select,update,delete, func
+from sqlalchemy import select, update, delete, func
 from src.domain.aggregates.portfolio.portfolio import Portfolio
 from src.domain.aggregates.portfolio.asset import Asset
 from src.domain.aggregates.health.health import Health
@@ -11,11 +11,12 @@ from src.infrastructure.datastore.sqlalchemy.models.asset import Asset as AssetM
 from src.infrastructure.datastore.sqlalchemy.base import session_scope
 from src.infrastructure.utils.pagination import PaginationRequest, create_pagination_response
 
-class SQLAlchemyDataService(DbDataService):    
-    
+
+class SQLAlchemyDataService(DbDataService):
+
     async def health_check(self) -> Health:
-        errors : list[str] = []
-        warnings : list[str] = []
+        errors: list[str] = []
+        warnings: list[str] = []
         async with session_scope() as db:
             try:
                 await db.execute(select(PortfolioModel).limit(1))
@@ -23,10 +24,10 @@ class SQLAlchemyDataService(DbDataService):
             except Exception:
                 errors.append("could not connect to database")
                 return Health(errors, warnings=warnings)
-    
-    # ----------------- Portfolio Methods -----------------    
+
+    # ----------------- Portfolio Methods -----------------
     async def create_portfolio(self, owner_id: str, payload: PortfolioCreate) -> Portfolio:
-        model = PortfolioModel(name=payload.name,owner_id=owner_id)
+        model = PortfolioModel(name=payload.name, owner_id=owner_id)
         async with session_scope() as db:
             db.add(model)
             await db.commit()
@@ -45,13 +46,13 @@ class SQLAlchemyDataService(DbDataService):
             if model:
                 return Portfolio(id=model.id, owner_id=model.owner_id, name=model.name, created_at=model.created_at)
             return None
-        
-    async def update_portfolio(self, owner_id: str, portfolio_id: int, payload : PortfolioUpdate):
+
+    async def update_portfolio(self, owner_id: str, portfolio_id: int, payload: PortfolioUpdate):
         async with session_scope() as db:
             kwargs = {}
             if payload.name:
                 kwargs["name"] = payload.name
-            
+
             res = await db.execute(
                 update(PortfolioModel)
                 .returning(PortfolioModel)
@@ -65,7 +66,7 @@ class SQLAlchemyDataService(DbDataService):
             if model:
                 return Portfolio(id=model.id, owner_id=model.owner_id, name=model.name, created_at=model.created_at)
             return None
-    
+
     async def delete_portfolio(self, owner_id: str, portfolio_id: int) -> bool:
         async with session_scope() as db:
             res = await db.execute(delete(PortfolioModel).where(
@@ -74,8 +75,7 @@ class SQLAlchemyDataService(DbDataService):
             ))
             await db.commit()
             return res.rowcount > 0
-    
-    
+
     async def list_portfolios_paginated(self, owner_id: str, pagination_request: PaginationRequest):
         async with session_scope() as db:
             total_res = await db.execute(
@@ -96,9 +96,9 @@ class SQLAlchemyDataService(DbDataService):
                 for model in items
             ]
             return portfolios, create_pagination_response(count, pagination_request)
-    
-    
+
     # ----------------- Asset Methods -----------------
+
     async def create_asset(self, portfolio_id: int, payload: AssetCreate) -> Asset:
         model = AssetModel(
             symbol=payload.symbol,
@@ -116,7 +116,7 @@ class SQLAlchemyDataService(DbDataService):
             portfolio_id=model.portfolio_id,
             created_at=model.created_at
         )
-       
+
     async def delete_asset(self, asset_id: int) -> bool:
         async with session_scope() as db:
             res = await db.execute(delete(AssetModel).where(
@@ -124,8 +124,8 @@ class SQLAlchemyDataService(DbDataService):
             ))
             await db.commit()
             return res.rowcount > 0
-    
-    async def list_assets_paginated(self, portfolio_id: int, pagination_request : PaginationRequest):
+
+    async def list_assets_paginated(self, portfolio_id: int, pagination_request: PaginationRequest):
         async with session_scope() as db:
             total_res = await db.execute(
                 select(func.count(AssetModel.id)).where(AssetModel.portfolio_id == portfolio_id)
@@ -151,7 +151,7 @@ class SQLAlchemyDataService(DbDataService):
                 for model in items
             ]
             return assets, create_pagination_response(count, pagination_request)
-    
+
     async def list_assets(self, portfolio_id: int) -> list[Asset]:
         async with session_scope() as db:
             res = await db.execute(

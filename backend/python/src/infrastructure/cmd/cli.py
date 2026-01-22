@@ -12,6 +12,7 @@ import src.infrastructure.datastore.sqlalchemy.models
 
 # ---------- helpers ----------
 
+
 def _require_db_settings() -> None:
     if settings is None:
         raise Exception("settings is not set")
@@ -70,7 +71,7 @@ def main() -> None:
         sys.exit(0)
 
     _require_db_settings()
-    
+
     if not Base.metadata.tables:
         raise RuntimeError("No SQLAlchemy models registered")
 

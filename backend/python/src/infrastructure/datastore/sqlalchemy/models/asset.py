@@ -9,14 +9,15 @@ if TYPE_CHECKING:
 
 from ..base import Base
 
+
 class Asset(Base):
     __tablename__ = "assets"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     portfolio_id: Mapped[int] = mapped_column(
-        ForeignKey("portfolios.id", ondelete="CASCADE"), # cascade delete
-        nullable=False, # an asset must belong to a portfolio
-        index=True, # for faster lookups
+        ForeignKey("portfolios.id", ondelete="CASCADE"),  # cascade delete
+        nullable=False,  # an asset must belong to a portfolio
+        index=True,  # for faster lookups
     )
     symbol: Mapped[str] = mapped_column(String(10), nullable=False, index=True)
     quantity: Mapped[float] = mapped_column(Float, nullable=False)
@@ -26,4 +27,4 @@ class Asset(Base):
         nullable=False,
     )
 
-    portfolio: Mapped["Portfolio"] = relationship(back_populates="assets") # link back to Portfolio
+    portfolio: Mapped["Portfolio"] = relationship(back_populates="assets")  # link back to Portfolio

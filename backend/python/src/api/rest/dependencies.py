@@ -3,8 +3,10 @@ from fastapi import Request, HTTPException
 from src.infrastructure.config.settings import Settings
 from src.domain.usecases.usecases import UseCases
 
+
 def get_settings(request: Request) -> Settings:
     return request.app.state.settings
+
 
 def get_usecases(request: Request) -> UseCases:
     return request.app.state.usecases

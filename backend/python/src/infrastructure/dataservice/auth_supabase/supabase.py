@@ -12,13 +12,14 @@ from src.infrastructure.config.settings import Settings
 from ..authdataservice import AuthDataService
 from src.domain.aggregates.exceptions.auth import InvalidCredentialsError
 
+
 class SupabaseAuthDataService(AuthDataService):
     """
     Uses Supabase Auth REST API (email+password).
     This provider DOES NOT support get_by_email without Admin API.
     """
 
-    def __init__(self, settings : Settings, client : Optional[httpx.AsyncClient]) -> None:
+    def __init__(self, settings: Settings, client: Optional[httpx.AsyncClient]) -> None:
         super().__init__()
         self._settings = settings
         self._client = client if client is not None else httpx.AsyncClient(timeout=10.0)
@@ -30,21 +31,21 @@ class SupabaseAuthDataService(AuthDataService):
             "apikey": self._settings.supabase_anon_key,
             "Content-Type": "application/json",
         }
-        
+
     async def health_check(self) -> Health:
-        errors : list[str] = []
-        warnings : list[str] = []
+        errors: list[str] = []
+        warnings: list[str] = []
         if not self._settings.supabase_url:
             errors.append("SUPABASE_URL is not set")
         if not self._settings.supabase_anon_key:
             errors.append("SUPABASE_ANON_KEY is not set")
-        return Health(errors=errors,warnings=warnings) 
-    
+        return Health(errors=errors, warnings=warnings)
+
     async def register(self, email: str, password: str) -> tuple[User, str]:
         if not self._settings.supabase_url:
             raise ValueError("Supabase URL is not set in settings")
         url = f"{self._settings.supabase_url.rstrip('/')}/auth/v1/signup"
-            
+
         r = await self._client.post(
             url,
             headers=self._base_headers(),

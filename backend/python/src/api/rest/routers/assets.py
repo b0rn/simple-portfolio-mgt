@@ -10,13 +10,15 @@ from src.infrastructure.utils.pagination import PaginationRequest
 
 router = APIRouter(tags=["assets"])
 
-@router.get("/prices", response_model=dict[str,float], status_code=200)
+
+@router.get("/prices", response_model=dict[str, float], status_code=200)
 def get_prices(
     user=Depends(get_current_user),
-    ucs:UseCases=Depends(get_usecases)
+    ucs: UseCases = Depends(get_usecases)
 ):
     uc = ucs.PortfolioMgt
     return uc.get_assets_prices()
+
 
 @router.post("/portfolios/{portfolio_id}/assets", response_model=AssetResponse, status_code=201)
 async def add_asset(
@@ -84,7 +86,7 @@ async def delete_asset(
     p = await ucs.PortfolioMgt.get_portfolio(owner_id=user.id, portfolio_id=portfolio_id)
     if not p:
         raise HTTPException(status_code=404, detail="Portfolio not found")
-    
+
     ok = await ucs.PortfolioMgt.delete_asset(asset_id=asset_id)
     if not ok:
         raise HTTPException(status_code=404, detail="Asset not found")

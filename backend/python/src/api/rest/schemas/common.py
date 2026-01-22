@@ -5,6 +5,7 @@ from src.infrastructure.utils.pagination import PaginationResponse
 
 T = TypeVar("T")
 
+
 class PaginationParams(BaseModel):
     page: int = Field(1, ge=1, description="Page number")
     items_per_page: int = Field(
@@ -13,6 +14,7 @@ class PaginationParams(BaseModel):
         le=100,
         description="Number of items per page",
     )
+
 
 class ListResponse(BaseModel, Generic[T]):
     items: List[T]

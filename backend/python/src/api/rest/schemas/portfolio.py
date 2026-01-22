@@ -10,8 +10,10 @@ from pydantic import BaseModel, Field
 class PortfolioCreateRequest(BaseModel):
     name: str = Field(min_length=1, max_length=100)
 
+
 class PortfolioPatchRequest(BaseModel):
     name: Optional[str] = Field(min_length=1, max_length=100, default=None)
+
 
 class PortfolioResponse(BaseModel):
     id: int

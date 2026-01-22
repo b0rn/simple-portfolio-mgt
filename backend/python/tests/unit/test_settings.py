@@ -9,6 +9,7 @@ from pydantic import ValidationError
 from src.infrastructure.config.settings import build_settings
 import os
 
+
 @pytest.mark.unit
 class TestSettings:
     """Test settings validation and properties."""
@@ -33,7 +34,7 @@ class TestSettings:
         monkeypatch.delenv("COOKIE_DOMAIN", raising=False)
         monkeypatch.delenv("SUPABASE_URL", raising=False)
         monkeypatch.delenv("SUPABASE_ANON_KEY", raising=False)
-        monkeypatch.setenv("JWT_SECRET","foobar")
+        monkeypatch.setenv("JWT_SECRET", "foobar")
         settings = build_settings()
         assert settings.app_name == "Simple Portfolio App API"
         assert settings.app_env == "dev"
@@ -54,13 +55,13 @@ class TestSettings:
     def test_database_url_property(self, monkeypatch):
         """Test database_url property construction."""
         monkeypatch.setenv("ENV_FILE", "/nonexistent/.env")
-        monkeypatch.setenv("JWT_SECRET","foobar")
+        monkeypatch.setenv("JWT_SECRET", "foobar")
         monkeypatch.setenv("DB_USER", "testuser")
         monkeypatch.setenv("DB_PASSWORD", "test@pass#word")
         monkeypatch.setenv("DB_HOST", "db.example.com")
         monkeypatch.setenv("DB_PORT", "5433")
         monkeypatch.setenv("DB_NAME", "testdb")
-        
+
         settings = build_settings()
         url = settings.database_url
         assert "testuser" in url
@@ -73,24 +74,23 @@ class TestSettings:
     def test_asyncpg_ssl_property(self, monkeypatch):
         """Test asyncpg_ssl property mapping."""
         monkeypatch.setenv("ENV_FILE", "/nonexistent/.env")
-        monkeypatch.setenv("JWT_SECRET","foobar")
-        
-        
+        monkeypatch.setenv("JWT_SECRET", "foobar")
+
         # Test "require" -> True
         monkeypatch.setenv("DB_SSLMODE", "require")
         settings = build_settings()
         assert settings.asyncpg_ssl is True
-        
+
         # Test "prefer" -> True
         monkeypatch.setenv("DB_SSLMODE", "prefer")
         settings = build_settings()
         assert settings.asyncpg_ssl is True
-        
+
         # Test "disable" -> False
         monkeypatch.setenv("DB_SSLMODE", "disable")
         settings = build_settings()
         assert settings.asyncpg_ssl is False
-        
+
         # Test "allow" -> False
         monkeypatch.setenv("DB_SSLMODE", "allow")
         settings = build_settings()
@@ -126,24 +126,23 @@ class TestSettings:
     def test_validate_db_port_range(self, monkeypatch):
         """Test that DB_PORT validation enforces valid range."""
         monkeypatch.setenv("ENV_FILE", "/nonexistent/.env")
-        monkeypatch.setenv("JWT_SECRET","foobar")
-        
-        
+        monkeypatch.setenv("JWT_SECRET", "foobar")
+
         # Test too low
         monkeypatch.setenv("DB_PORT", "0")
         with pytest.raises(ValidationError):
             build_settings()
-        
+
         # Test too high
         monkeypatch.setenv("DB_PORT", "65536")
         with pytest.raises(ValidationError):
             build_settings()
-        
+
         # Test valid ports
         monkeypatch.setenv("DB_PORT", "1")
         settings = build_settings()
         assert settings.db_port == 1
-        
+
         monkeypatch.setenv("DB_PORT", "65535")
         settings = build_settings()
         assert settings.db_port == 65535

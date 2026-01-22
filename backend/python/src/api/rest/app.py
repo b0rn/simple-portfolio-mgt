@@ -10,12 +10,13 @@ from src.api.rest.routers.auth import router as auth_router
 from src.api.rest.routers.portfolios import router as portfolios_router
 from src.api.rest.routers.assets import router as assets_router
 
-def create_app(settings : Settings, usecases : UseCases) -> FastAPI:
+
+def create_app(settings: Settings, usecases: UseCases) -> FastAPI:
     app = FastAPI(
         title=settings.app_name,
         version="1.0.0",
     )
-    
+
     app.state.settings = settings
     app.state.usecases = usecases
 

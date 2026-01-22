@@ -26,10 +26,12 @@ from src.domain.usecases.usecases import UseCases
 from src.domain.usecases.authmgt.authmgt import AuthMgt
 from src.domain.usecases.portfoliomgt.portfoliomgt import PortfolioMgt
 
+
 @pytest.fixture
 def dataservice_db_sqlalchemy() -> DbDataService:
     build_engine(settings=build_settings())
     return SQLAlchemyDataService()
+
 
 @pytest.fixture
 def dataservice_auth_local():
@@ -37,15 +39,17 @@ def dataservice_auth_local():
     build_engine(settings=settings)
     return LocalAuthDataService(settings=settings)
 
+
 @pytest.fixture
-async def dataservice_auth_local_user(dataservice_auth_local : LocalAuthDataService):
+async def dataservice_auth_local_user(dataservice_auth_local: LocalAuthDataService):
     email = f"test-{uuid4()}@test.com"
     password = "password123!"
     user, token = await dataservice_auth_local.register(email, password)
-    
+
     yield user, password, token
-    
+
     await dataservice_auth_local.delete_user(email)
+
 
 @pytest.fixture
 def dataservice_auth_supabase():
@@ -53,21 +57,22 @@ def dataservice_auth_supabase():
     id = uuid4()
     email = "foo@bar.com"
     created_at = datetime.now(tz=timezone.utc)
-    async def handler(request : Request):
+
+    async def handler(request: Request):
         if request.url.path == "/auth/v1/signup":
             return Response(
                 status_code=201,
-                json={"access_token" : access_token}
+                json={"access_token": access_token}
             )
         elif request.url.path == "/auth/v1/user":
             return Response(
                 status_code=200,
-                json={"id" : str(id), "email" : email, "created_at" : created_at.isoformat()}
+                json={"id": str(id), "email": email, "created_at": created_at.isoformat()}
             )
         elif request.url.path == "/auth/v1/token":
             return Response(
                 status_code=200,
-                json={"access_token" : access_token}
+                json={"access_token": access_token}
             )
         return Response(
             status_code=404
@@ -78,6 +83,7 @@ def dataservice_auth_supabase():
     ds._settings.supabase_anon_key = "anonkey"
     yield ds, access_token, id, email, created_at
 
+
 @pytest.fixture
 def mock_auth_uc():
     uc = AsyncMock(spec=AuthMgt)
@@ -86,6 +92,7 @@ def mock_auth_uc():
     uc.login = AsyncMock()
     uc.get_user_from_token = AsyncMock()
     return uc
+
 
 @pytest.fixture
 def mock_portfolio_mgt():
@@ -103,12 +110,14 @@ def mock_portfolio_mgt():
     uc.list_assets_paginated = AsyncMock()
     return uc
 
+
 @pytest.fixture
-async def rest_client(mock_auth_uc: AuthMgt, mock_portfolio_mgt : PortfolioMgt):
+async def rest_client(mock_auth_uc: AuthMgt, mock_portfolio_mgt: PortfolioMgt):
     ucs = UseCases(AuthMgt=mock_auth_uc, PortfolioMgt=mock_portfolio_mgt)
     app = create_app(settings=build_settings(), usecases=ucs)
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", cookies={ "access_token" : "token" }) as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", cookies={"access_token": "token"}) as ac:
         yield ac, mock_auth_uc, mock_portfolio_mgt
+
 
 @pytest.fixture
 def mock_db_session():
@@ -123,6 +132,7 @@ def mock_db_session():
     session.rollback = AsyncMock()
     return session
 
+
 @pytest.fixture
 def mock_db_dataservice():
     db_dataservice = AsyncMock(spec=DbDataService)
@@ -136,6 +146,7 @@ def mock_db_dataservice():
     db_dataservice.list_assets_paginated = AsyncMock()
     db_dataservice.list_assets = AsyncMock()
     return db_dataservice
+
 
 @pytest.fixture
 def mock_auth_dataservice():

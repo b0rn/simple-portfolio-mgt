@@ -3,10 +3,11 @@ from __future__ import annotations
 import os
 from urllib.parse import quote_plus
 from typing import Literal
-from pydantic import Field,field_validator,model_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 SameSite = Literal["lax", "strict", "none"]
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -51,21 +52,21 @@ class Settings(BaseSettings):
         if not v:
             raise ValueError("DB_HOST must not be empty")
         return v
-    
+
     @field_validator("db_name")
     @classmethod
-    def validate_db_name(cls, v: str) -> str:   
+    def validate_db_name(cls, v: str) -> str:
         if not v:
             raise ValueError("DB_NAME must not be empty")
         return v
-    
+
     @field_validator("db_user")
     @classmethod
     def validate_user(cls, v: str) -> str:
         if not v:
             raise ValueError("DB_USER must not be empty")
         return v
-    
+
     @field_validator("db_port")
     @classmethod
     def validate_port(cls, v: int) -> int:
@@ -102,7 +103,6 @@ class Settings(BaseSettings):
         # comma-separated -> list, trimmed, no empties
         return [o.strip() for o in self.cors_origins_raw.split(",") if o.strip()]
 
-
     @field_validator("cookie_samesite")
     @classmethod
     def validate_samesite(cls, v: str) -> str:
@@ -134,4 +134,4 @@ class Settings(BaseSettings):
 
 def build_settings():
     env_file = os.getenv("ENV_FILE", ".env")
-    return Settings(_env_file=env_file) # type: ignore[call-arg]
+    return Settings(_env_file=env_file)  # type: ignore[call-arg]

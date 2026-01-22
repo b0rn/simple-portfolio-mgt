@@ -12,10 +12,11 @@ from sqlalchemy.orm import DeclarativeBase
 
 from src.infrastructure.config.settings import Settings
 
-engine : Optional[AsyncEngine] = None
-SessionLocal : Optional[async_sessionmaker] = None
+engine: Optional[AsyncEngine] = None
+SessionLocal: Optional[async_sessionmaker] = None
 
-def build_engine(settings : Settings):
+
+def build_engine(settings: Settings):
     global engine
     global SessionLocal
     engine = create_async_engine(
@@ -36,9 +37,9 @@ def build_engine(settings : Settings):
         expire_on_commit=False,
         class_=AsyncSession,
     )
-    
 
-def set_engine(new_engine : AsyncEngine) -> async_sessionmaker:
+
+def set_engine(new_engine: AsyncEngine) -> async_sessionmaker:
     global engine
     global SessionLocal
     engine = new_engine
@@ -49,6 +50,7 @@ def set_engine(new_engine : AsyncEngine) -> async_sessionmaker:
     )
     return SessionLocal
 
+
 class Base(DeclarativeBase):
     pass
 
@@ -58,6 +60,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         raise Exception("base has not been built")
     async with SessionLocal() as session:
         yield session
+
 
 @asynccontextmanager
 async def session_scope() -> AsyncGenerator[AsyncSession, None]:
