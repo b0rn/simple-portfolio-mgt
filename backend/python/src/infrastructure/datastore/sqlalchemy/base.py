@@ -36,7 +36,18 @@ def build_engine(settings : Settings):
         expire_on_commit=False,
         class_=AsyncSession,
     )
+    
 
+def set_engine(new_engine : AsyncEngine) -> async_sessionmaker:
+    global engine
+    global SessionLocal
+    engine = new_engine
+    SessionLocal = async_sessionmaker(
+        bind=engine,
+        expire_on_commit=False,
+        class_=AsyncSession,
+    )
+    return SessionLocal
 
 class Base(DeclarativeBase):
     pass

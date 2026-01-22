@@ -15,82 +15,108 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.pool import StaticPool
 
-from httpx import ASGITransport, AsyncClient
+from httpx import ASGITransport, AsyncClient, MockTransport, Request, Response
+from uuid import uuid4
+from datetime import datetime, timezone
 
-from src.database import Base, get_db
-import src.main
-from src.main import app
-
-
-# Test database URL - using SQLite in-memory for faster tests
-# Can be overridden with TEST_DATABASE_URL environment variable
-TEST_DATABASE_URL = os.getenv(
-    "TEST_DATABASE_URL",
-    "sqlite+aiosqlite:///:memory:"
-)
-
-# Create test engine
-test_engine = create_async_engine(
-    TEST_DATABASE_URL,
-    echo=False,
-    connect_args={"check_same_thread": False} if "sqlite" in TEST_DATABASE_URL else {},
-    poolclass=StaticPool if "sqlite" in TEST_DATABASE_URL else None,
-)
-
-TestSessionLocal = async_sessionmaker(
-    bind=test_engine,
-    expire_on_commit=False,
-    class_=AsyncSession,
-)
-
-
-@pytest.fixture(scope="function")
-async def db_session() -> AsyncGenerator[AsyncSession, None]:
-    """
-    Create a fresh database session for each test.
-    Creates and drops all tables before/after each test.
-    """
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    
-    async with TestSessionLocal() as session:
-        yield session
-        await session.rollback()
-    
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-
+from src.infrastructure.config.settings import build_settings
+from src.infrastructure.dataservice.dbdataservice import DbDataService
+from src.infrastructure.dataservice.authdataservice import AuthDataService
+from src.infrastructure.dataservice.db_sqlalchemy.sqlalchemy import SQLAlchemyDataService
+from src.infrastructure.dataservice.auth_local.local import LocalAuthDataService
+from src.infrastructure.dataservice.auth_supabase.supabase import SupabaseAuthDataService
+from src.infrastructure.datastore.sqlalchemy.base import Base, get_db, build_engine
+from src.api.rest.app import create_app
+from src.domain.usecases.usecases import UseCases
+from src.domain.usecases.authmgt.authmgt import AuthMgt
+from src.domain.usecases.portfoliomgt.portfoliomgt import PortfolioMgt
 
 @pytest.fixture
-async def async_client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
-    """
-    Create an async test client for FastAPI.
-    This is the preferred client for testing async endpoints.
-    """
-    async def _get_db() -> AsyncGenerator[AsyncSession, None]:
-        yield db_session
-    
-    app.dependency_overrides[get_db] = _get_db
-    
-    # Override the engine in main module for health check endpoint
-    # The health endpoint uses engine.connect() directly, so we need to patch it
-    
-    original_engine = src.main.engine
-    src.main.engine = test_engine
-    
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
-        yield ac
-    
-    # Cleanup
-    app.dependency_overrides.clear()
-    src.main.engine = original_engine
+def dataservice_db_sqlalchemy() -> DbDataService:
+    build_engine(settings=build_settings())
+    return SQLAlchemyDataService()
 
+@pytest.fixture
+def dataservice_auth_local():
+    settings = build_settings()
+    build_engine(settings=settings)
+    return LocalAuthDataService(settings=settings)
+
+@pytest.fixture
+async def dataservice_auth_local_user(dataservice_auth_local : LocalAuthDataService):
+    email = f"test-{uuid4()}@test.com"
+    password = "password123!"
+    user, token = await dataservice_auth_local.register(email, password)
+    
+    yield user, password, token
+    
+    await dataservice_auth_local.delete_user(email)
+
+@pytest.fixture
+def dataservice_auth_supabase():
+    access_token = "my_access_token"
+    id = uuid4()
+    email = "foo@bar.com"
+    created_at = datetime.now(tz=timezone.utc)
+    async def handler(request : Request):
+        if request.url.path == "/auth/v1/signup":
+            return Response(
+                status_code=201,
+                json={"access_token" : access_token}
+            )
+        elif request.url.path == "/auth/v1/user":
+            return Response(
+                status_code=200,
+                json={"id" : str(id), "email" : email, "created_at" : created_at.isoformat()}
+            )
+        elif request.url.path == "/auth/v1/token":
+            return Response(
+                status_code=200,
+                json={"access_token" : access_token}
+            )
+        return Response(
+            status_code=404
+        )
+    client = AsyncClient(transport=MockTransport(handler=handler))
+    ds = SupabaseAuthDataService(settings=build_settings(), client=client)
+    ds._settings.supabase_url = "https://test.com"
+    ds._settings.supabase_anon_key = "anonkey"
+    yield ds, access_token, id, email, created_at
+
+@pytest.fixture
+def mock_auth_uc():
+    uc = AsyncMock(spec=AuthMgt)
+    uc.health_check = AsyncMock()
+    uc.register = AsyncMock()
+    uc.login = AsyncMock()
+    uc.get_user_from_token = AsyncMock()
+    return uc
+
+@pytest.fixture
+def mock_portfolio_mgt():
+    uc = AsyncMock(spec=PortfolioMgt)
+    uc.health_check = AsyncMock()
+    uc.get_assets_prices = MagicMock()
+    uc.create_portfolio = AsyncMock()
+    uc.get_portfolio = AsyncMock()
+    uc.update_portfolio = AsyncMock()
+    uc.delete_portfolio = AsyncMock()
+    uc.list_portfolios_paginated = AsyncMock()
+    uc.compute_portfolio_valuation = AsyncMock()
+    uc.create_asset = AsyncMock()
+    uc.delete_asset = AsyncMock()
+    uc.list_assets_paginated = AsyncMock()
+    return uc
+
+@pytest.fixture
+async def rest_client(mock_auth_uc: AuthMgt, mock_portfolio_mgt : PortfolioMgt):
+    ucs = UseCases(AuthMgt=mock_auth_uc, PortfolioMgt=mock_portfolio_mgt)
+    app = create_app(settings=build_settings(), usecases=ucs)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        yield ac, mock_auth_uc, mock_portfolio_mgt
 
 @pytest.fixture
 def mock_db_session():
-    """
-    Create a mock database session for unit tests.
-    """
     session = AsyncMock(spec=AsyncSession)
     session.execute = AsyncMock()
     session.scalar = AsyncMock()
@@ -102,3 +128,25 @@ def mock_db_session():
     session.rollback = AsyncMock()
     return session
 
+@pytest.fixture
+def mock_db_dataservice():
+    db_dataservice = AsyncMock(spec=DbDataService)
+    db_dataservice.health_check = AsyncMock()
+    db_dataservice.create_portfolio = AsyncMock()
+    db_dataservice.update_portfolio = AsyncMock()
+    db_dataservice.delete_portfolio = AsyncMock()
+    db_dataservice.list_portfolios_paginated = AsyncMock()
+    db_dataservice.create_asset = AsyncMock()
+    db_dataservice.delete_asset = AsyncMock()
+    db_dataservice.list_assets_paginated = AsyncMock()
+    db_dataservice.list_assets = AsyncMock()
+    return db_dataservice
+
+@pytest.fixture
+def mock_auth_dataservice():
+    auth_ds = AsyncMock(spec=AuthDataService)
+    auth_ds.health_check = AsyncMock()
+    auth_ds.register = AsyncMock()
+    auth_ds.login = AsyncMock()
+    auth_ds.get_user_from_token = AsyncMock()
+    return auth_ds
