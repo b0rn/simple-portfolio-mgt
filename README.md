@@ -222,7 +222,79 @@ Coming soon
 ---
 
 ## 🚀 Getting Started
-Coming soon
+
+### Prerequisites
+- Docker & Docker Compose (recommended)
+- PostgreSQL 14+ (if running locally)
+- golang-migrate CLI or Docker (for database migrations)
+
+### Quick Start
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/b0rn/simple-portfolio-mgt.git
+   cd simple-portfolio-mgt
+   ```
+
+2. **Set up the database:**
+   ```bash
+   # Start PostgreSQL (via Docker)
+   docker-compose up -d postgres
+
+   # Run database migrations
+   cd database
+   ./migrate.sh up
+   ```
+
+3. **Start the backend (choose one):** see ./backend/[languague]/README.md
+
+4. **Start the frontend:**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+5. **Access the application:**
+   - Frontend: http://localhost:3000
+   - API: http://localhost:8000
+   - API Docs: http://localhost:8000/docs
+
+### Database Migrations
+
+This project uses [golang-migrate](https://github.com/golang-migrate/migrate) for backend-agnostic database migrations with raw SQL files.
+
+**Quick Migration Commands:**
+
+```bash
+cd database
+
+# Apply all pending migrations
+./migrate.sh up
+
+# Rollback last migration
+./migrate.sh down 1
+
+# Check current migration version
+./migrate.sh version
+
+# Create new migration
+./migrate.sh create add_new_feature
+```
+
+**Features:**
+- Backend-agnostic (pure SQL, works with any backend implementation)
+- Works with CLI or Docker (no installation required)
+- Automatic environment loading from `backend/.env`
+- Safe rollback support with `.down.sql` files
+
+For detailed migration documentation, see [database/README.md](database/README.md), which includes:
+- Installation instructions for golang-migrate
+- Complete command reference
+- CI/CD integration examples (GitHub Actions, GitLab CI)
+- Migration best practices
+- Troubleshooting guide
+- Database schema overview
 
 ## 📚 Documentation
 
