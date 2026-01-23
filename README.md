@@ -3,7 +3,7 @@
 > A production-grade portfolio management application demonstrating full-stack development, polyglot backend architecture, and enterprise-level best practices.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Go](https://img.shields.io/badge/Go-1.21+-00ADD8.svg)](https://golang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
@@ -49,25 +49,25 @@ Simple Portfolio App is a financial portfolio management system that allows user
 ## 💡 What This Project Demonstrates
 
 ### Backend Engineering
-- ✅ **Polyglot Architecture**: Same RESTful API implemented in 5 languages (Python, Go, Java, Node.js, PHP)
+- **Polyglot Architecture**: Same RESTful API implemented in 5 languages (Python, Go, Java, Node.js, PHP)
 - ✅ **Clean Architecture**: Domain-Driven Design (DDD) with clear separation of concerns
 - ✅ **API-First Development**: OpenAPI 3.1 specification with consistent responses across all implementations
 - ✅ **Database Expertise**: PostgreSQL with efficient querying, connection pooling
 - ✅ **Authentication & Security**: JWT-based auth with HttpOnly cookies, secure password hashing (bcrypt/argon2)
 
 ### DevOps & Infrastructure
-- ✅ **CI/CD Pipelines**: Automated testing, building, and deployment with GitHub Actions
-- ✅ **Multiple Deployment Patterns**: Docker containers, Terraform, AWS CloudFormation, K8s, PM2 clusters
-- ✅ **Infrastructure as Code**: Terraform for cloud, Ansible for VPS automation and AWS CloudFormation for AWS
-- ✅ **Observability**: Structured logging, Prometheus metrics, Grafana dashboards, OpenTelemetry tracing
+- **CI/CD Pipelines**: Automated testing, building, and deployment with GitHub Actions
+- **Multiple Deployment Patterns**: Docker containers, Terraform, AWS CloudFormation, K8s, PM2 clusters
+- **Infrastructure as Code**: Terraform for cloud, Ansible for VPS automation and AWS CloudFormation for AWS
+- **Observability**: Structured logging, Prometheus metrics, Grafana dashboards, OpenTelemetry tracing
 
 ### Security & Quality
-- ✅ **Security-First Mindset**: SAST/DAST with SonarQube, dependency scanning with Snyk, security headers
-- ✅ **Comprehensive Testing**: Unit tests (>80% coverage), integration tests, E2E tests with Playwright
-- ✅ **Production Hardening**: Rate limiting, input validation, SQL injection prevention, CSRF protection
+- **Security-First Mindset**: SAST/DAST with SonarQube, dependency scanning with Snyk, security headers
+- **Comprehensive Testing**: Unit tests (>80% coverage), integration tests, E2E tests with Playwright
+- **Production Hardening**: Rate limiting, input validation, SQL injection prevention, CSRF protection
 
 ### Performance & Scalability
-- ✅ **Caching Strategy**: Redis for response caching, connection pooling optimization
+- **Caching Strategy**: Using a cache for expensive queries, connection pooling optimization
 - ✅ **Load Testing**: Performance benchmarks under realistic load scenarios
 - ✅ **Performance Monitoring**: Real-time metrics, alerting, SLO tracking
 
