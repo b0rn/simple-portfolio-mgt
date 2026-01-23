@@ -1,6 +1,7 @@
 """
 Unit tests for settings validation and configuration.
 """
+
 from __future__ import annotations
 
 import pytest

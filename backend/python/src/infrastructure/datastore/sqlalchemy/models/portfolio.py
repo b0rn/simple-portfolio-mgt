@@ -6,6 +6,7 @@ from sqlalchemy import DateTime, Integer, String, UUID, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .asset import Asset
 

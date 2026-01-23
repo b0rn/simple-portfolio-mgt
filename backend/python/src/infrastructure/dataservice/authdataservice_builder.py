@@ -10,7 +10,11 @@ def build_auth_dataservice(settings: Settings) -> AuthDataService:
         raise Exception("settings is not set")
     if settings.auth_mode == "local":
         from src.infrastructure.dataservice.auth_local.local import LocalAuthDataService
+
         return LocalAuthDataService(settings=settings)
 
-    from src.infrastructure.dataservice.auth_supabase.supabase import SupabaseAuthDataService
+    from src.infrastructure.dataservice.auth_supabase.supabase import (
+        SupabaseAuthDataService,
+    )
+
     return SupabaseAuthDataService()

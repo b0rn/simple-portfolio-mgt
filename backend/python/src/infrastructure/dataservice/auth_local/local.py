@@ -11,7 +11,10 @@ from src.infrastructure.datastore.sqlalchemy.models.user import User as UserMode
 from argon2 import PasswordHasher
 from ..authdataservice import AuthDataService
 from src.domain.aggregates.auth.user import User
-from src.domain.aggregates.exceptions.auth import EmailAlreadyExistsError, InvalidCredentialsError
+from src.domain.aggregates.exceptions.auth import (
+    EmailAlreadyExistsError,
+    InvalidCredentialsError,
+)
 from src.domain.aggregates.health.health import Health
 
 
@@ -53,9 +56,7 @@ class LocalAuthDataService(AuthDataService):
 
     async def login(self, email: str, password: str) -> tuple[User, str]:
         async with session_scope() as db:
-            res = await db.execute(
-                select(UserModel).where(UserModel.email == email)
-            )
+            res = await db.execute(select(UserModel).where(UserModel.email == email))
             model = res.scalar_one_or_none()
             if not model or not self.__verify_password(password, model.password_hash):
                 raise InvalidCredentialsError
@@ -67,7 +68,9 @@ class LocalAuthDataService(AuthDataService):
         if not self.settings.jwt_secret:
             raise ValueError("JWT secret is not set")
         try:
-            data = jwt.decode(access_token, self.settings.jwt_secret, algorithms=[self.JWT_ALG])
+            data = jwt.decode(
+                access_token, self.settings.jwt_secret, algorithms=[self.JWT_ALG]
+            )
             sub = data.get("sub")
             if not sub:
                 return None
@@ -76,9 +79,7 @@ class LocalAuthDataService(AuthDataService):
             return None
 
         async with session_scope() as db:
-            res = await db.execute(
-                select(UserModel).where(UserModel.id == user_id)
-            )
+            res = await db.execute(select(UserModel).where(UserModel.id == user_id))
             model = res.scalar_one_or_none()
             if not model:
                 return None
@@ -86,10 +87,7 @@ class LocalAuthDataService(AuthDataService):
 
     async def delete_user(self, email: str) -> bool:
         async with session_scope() as db:
-            res = await db.execute(
-                delete(UserModel)
-                .where(UserModel.email == email)
-            )
+            res = await db.execute(delete(UserModel).where(UserModel.email == email))
             await db.commit()
             return res.rowcount > 0
 
@@ -108,5 +106,9 @@ class LocalAuthDataService(AuthDataService):
             raise ValueError("JWT secret is not set")
         now = datetime.now(timezone.utc)
         exp = now + timedelta(minutes=self.settings.jwt_expires_minutes)
-        payload = {"sub": str(user_id), "iat": int(now.timestamp()), "exp": int(exp.timestamp())}
+        payload = {
+            "sub": str(user_id),
+            "iat": int(now.timestamp()),
+            "exp": int(exp.timestamp()),
+        }
         return jwt.encode(payload, self.settings.jwt_secret, algorithm="HS256")

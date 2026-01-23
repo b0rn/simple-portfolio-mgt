@@ -49,8 +49,12 @@ def _clear_auth_cookie(settings: Settings, resp: Response) -> None:
 
 
 @router.post("/register", response_model=MeResponse, status_code=201)
-async def register(payload: RegisterRequest, resp: Response, settings: Settings = Depends(
-        get_settings), ucs: UseCases = Depends(get_usecases)):
+async def register(
+    payload: RegisterRequest,
+    resp: Response,
+    settings: Settings = Depends(get_settings),
+    ucs: UseCases = Depends(get_usecases),
+):
     uc = ucs.AuthMgt
     try:
         user, token = await uc.register(payload.email, payload.password)
@@ -59,12 +63,18 @@ async def register(payload: RegisterRequest, resp: Response, settings: Settings 
     except EmailAlreadyExistsError as e:
         raise HTTPException(status_code=409, detail=str(e))
     _set_auth_cookie(settings, resp, token)
-    return MeResponse(user=UserResponse(id=user.id, email=user.email, created_at=user.created_at))
+    return MeResponse(
+        user=UserResponse(id=user.id, email=user.email, created_at=user.created_at)
+    )
 
 
 @router.post("/login", response_model=MeResponse)
-async def login(payload: LoginRequest, resp: Response, settings: Settings = Depends(
-        get_settings), ucs: UseCases = Depends(get_usecases)):
+async def login(
+    payload: LoginRequest,
+    resp: Response,
+    settings: Settings = Depends(get_settings),
+    ucs: UseCases = Depends(get_usecases),
+):
     uc = ucs.AuthMgt
     try:
         user, token = await uc.login(payload.email, payload.password)
@@ -74,7 +84,9 @@ async def login(payload: LoginRequest, resp: Response, settings: Settings = Depe
         raise HTTPException(status_code=401, detail=str(e))
 
     _set_auth_cookie(settings, resp, token)
-    return MeResponse(user=UserResponse(id=user.id, email=user.email, created_at=user.created_at))
+    return MeResponse(
+        user=UserResponse(id=user.id, email=user.email, created_at=user.created_at)
+    )
 
 
 @router.post("/logout")
@@ -85,4 +97,6 @@ async def logout(resp: Response, settings: Settings = Depends(get_settings)):
 
 @router.get("/me", response_model=MeResponse)
 async def me(user=Depends(get_current_user)):
-    return MeResponse(user=UserResponse(id=user.id, email=user.email, created_at=user.created_at))
+    return MeResponse(
+        user=UserResponse(id=user.id, email=user.email, created_at=user.created_at)
+    )

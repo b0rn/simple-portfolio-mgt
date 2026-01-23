@@ -60,7 +60,9 @@ class SupabaseAuthDataService(AuthDataService):
         access_token = data.get("access_token")
         if not access_token:
             # This commonly happens if email confirmation is enabled
-            raise Exception("Signup succeeded but no access_token returned (email confirmation may be enabled)")
+            raise Exception(
+                "Signup succeeded but no access_token returned (email confirmation may be enabled)"
+            )
 
         user = await self.get_user_from_token(access_token)
         if not user:

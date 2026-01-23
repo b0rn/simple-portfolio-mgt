@@ -4,7 +4,11 @@ from typing import Optional
 from src.domain.aggregates.portfolio.portfolio import Portfolio
 from src.domain.aggregates.portfolio.asset import Asset
 from src.domain.aggregates.health.health import Health
-from src.domain.usecases.portfoliomgt.payloads import PortfolioCreate, PortfolioUpdate, AssetCreate
+from src.domain.usecases.portfoliomgt.payloads import (
+    PortfolioCreate,
+    PortfolioUpdate,
+    AssetCreate,
+)
 from src.infrastructure.utils.pagination import PaginationRequest, PaginationResponse
 
 
@@ -16,15 +20,21 @@ class DbDataService(ABC):
 
     # ----------------- Portfolio Methods -----------------
     @abstractmethod
-    async def create_portfolio(self, owner_id: str, payload: PortfolioCreate) -> Portfolio:
+    async def create_portfolio(
+        self, owner_id: str, payload: PortfolioCreate
+    ) -> Portfolio:
         pass
 
     @abstractmethod
-    async def get_portfolio(self, owner_id: str, portfolio_id: int) -> Optional[Portfolio]:
+    async def get_portfolio(
+        self, owner_id: str, portfolio_id: int
+    ) -> Optional[Portfolio]:
         pass
 
     @abstractmethod
-    async def update_portfolio(self, owner_id: str, portfolio_id: int, payload: PortfolioUpdate) -> Optional[Portfolio]:
+    async def update_portfolio(
+        self, owner_id: str, portfolio_id: int, payload: PortfolioUpdate
+    ) -> Optional[Portfolio]:
         pass
 
     @abstractmethod
@@ -33,7 +43,8 @@ class DbDataService(ABC):
 
     @abstractmethod
     async def list_portfolios_paginated(
-            self, owner_id: str, pagination_request: PaginationRequest) -> tuple[list[Portfolio], PaginationResponse]:
+        self, owner_id: str, pagination_request: PaginationRequest
+    ) -> tuple[list[Portfolio], PaginationResponse]:
         pass
 
     # ----------------- Asset Methods -----------------
@@ -46,8 +57,9 @@ class DbDataService(ABC):
         pass
 
     @abstractmethod
-    async def list_assets_paginated(self, portfolio_id: int,
-                                    pagination_request: PaginationRequest) -> tuple[list[Asset], PaginationResponse]:
+    async def list_assets_paginated(
+        self, portfolio_id: int, pagination_request: PaginationRequest
+    ) -> tuple[list[Asset], PaginationResponse]:
         pass
 
     @abstractmethod

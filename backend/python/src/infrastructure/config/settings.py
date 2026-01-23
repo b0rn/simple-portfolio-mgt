@@ -37,7 +37,9 @@ class Settings(BaseSettings):
     jwt_secret: str | None = Field(default=None, alias="JWT_SECRET")
     jwt_expires_minutes: int = Field(default=60, alias="JWT_EXPIRES_MINUTES")
     cookie_secure: bool = Field(default=False, alias="COOKIE_SECURE")
-    cookie_samesite: SameSite = Field(default="lax", alias="COOKIE_SAMESITE")  # lax|strict|none
+    cookie_samesite: SameSite = Field(
+        default="lax", alias="COOKIE_SAMESITE"
+    )  # lax|strict|none
     cookie_domain: str | None = Field(default=None, alias="COOKIE_DOMAIN")
     # Supabase (required if auth_mode == "supabase")
     supabase_url: str | None = Field(default=None, alias="SUPABASE_URL")
@@ -123,7 +125,9 @@ class Settings(BaseSettings):
                 raise ValueError("JWT_SECRET is required when AUTH_MODE=local")
         else:
             if not self.supabase_url or not self.supabase_anon_key:
-                raise ValueError("SUPABASE_URL and SUPABASE_ANON_KEY are required when AUTH_MODE=supabase")
+                raise ValueError(
+                    "SUPABASE_URL and SUPABASE_ANON_KEY are required when AUTH_MODE=supabase"
+                )
 
         # If SameSite=None, cookies must be Secure in modern browsers
         if self.cookie_samesite == "none" and not self.cookie_secure:

@@ -17,7 +17,8 @@ def _require_db_settings() -> None:
     if settings is None:
         raise Exception("settings is not set")
     missing = [
-        name for name, value in {
+        name
+        for name, value in {
             "DB_HOST": settings.db_host,
             "DB_PORT": settings.db_port,
             "DB_USER": settings.db_user,
@@ -58,11 +59,14 @@ async def _drop_tables() -> None:
 
 # ---------- main ----------
 
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Database management CLI")
 
     parser.add_argument("--drop-tables", action="store_true", help="Drop all tables")
-    parser.add_argument("--create-tables", action="store_true", help="Create all tables")
+    parser.add_argument(
+        "--create-tables", action="store_true", help="Create all tables"
+    )
 
     args = parser.parse_args()
 

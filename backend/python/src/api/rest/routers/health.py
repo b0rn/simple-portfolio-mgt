@@ -15,10 +15,9 @@ async def get_health(ucs: UseCases = Depends(get_usecases)):
     portfolio_health = await ucs.PortfolioMgt.health_check()
 
     health = Health(
-        errors=auth_health.errors +
-        portfolio_health.errors,
-        warnings=auth_health.warnings +
-        portfolio_health.warnings)
+        errors=auth_health.errors + portfolio_health.errors,
+        warnings=auth_health.warnings + portfolio_health.warnings,
+    )
 
     if len(auth_health.errors) > 0 or len(portfolio_health.errors) > 0:
         json_content = jsonable_encoder(health)

@@ -1,6 +1,7 @@
 """
 Shared test fixtures for unit and integration tests.
 """
+
 from __future__ import annotations
 
 import os
@@ -17,9 +18,13 @@ from datetime import datetime, timezone
 from src.infrastructure.config.settings import build_settings
 from src.infrastructure.dataservice.dbdataservice import DbDataService
 from src.infrastructure.dataservice.authdataservice import AuthDataService
-from src.infrastructure.dataservice.db_sqlalchemy.sqlalchemy import SQLAlchemyDataService
+from src.infrastructure.dataservice.db_sqlalchemy.sqlalchemy import (
+    SQLAlchemyDataService,
+)
 from src.infrastructure.dataservice.auth_local.local import LocalAuthDataService
-from src.infrastructure.dataservice.auth_supabase.supabase import SupabaseAuthDataService
+from src.infrastructure.dataservice.auth_supabase.supabase import (
+    SupabaseAuthDataService,
+)
 from src.infrastructure.datastore.sqlalchemy.base import Base, get_db, build_engine
 from src.api.rest.app import create_app
 from src.domain.usecases.usecases import UseCases
@@ -60,23 +65,20 @@ def dataservice_auth_supabase():
 
     async def handler(request: Request):
         if request.url.path == "/auth/v1/signup":
-            return Response(
-                status_code=201,
-                json={"access_token": access_token}
-            )
+            return Response(status_code=201, json={"access_token": access_token})
         elif request.url.path == "/auth/v1/user":
             return Response(
                 status_code=200,
-                json={"id": str(id), "email": email, "created_at": created_at.isoformat()}
+                json={
+                    "id": str(id),
+                    "email": email,
+                    "created_at": created_at.isoformat(),
+                },
             )
         elif request.url.path == "/auth/v1/token":
-            return Response(
-                status_code=200,
-                json={"access_token": access_token}
-            )
-        return Response(
-            status_code=404
-        )
+            return Response(status_code=200, json={"access_token": access_token})
+        return Response(status_code=404)
+
     client = AsyncClient(transport=MockTransport(handler=handler))
     ds = SupabaseAuthDataService(settings=build_settings(), client=client)
     ds._settings.supabase_url = "https://test.com"
@@ -115,7 +117,11 @@ def mock_portfolio_mgt():
 async def rest_client(mock_auth_uc: AuthMgt, mock_portfolio_mgt: PortfolioMgt):
     ucs = UseCases(AuthMgt=mock_auth_uc, PortfolioMgt=mock_portfolio_mgt)
     app = create_app(settings=build_settings(), usecases=ucs)
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", cookies={"access_token": "token"}) as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test",
+        cookies={"access_token": "token"},
+    ) as ac:
         yield ac, mock_auth_uc, mock_portfolio_mgt
 
 

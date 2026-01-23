@@ -1,6 +1,7 @@
 """
 Unit tests for authMgt usecase
 """
+
 from __future__ import annotations
 import pytest
 from unittest.mock import AsyncMock

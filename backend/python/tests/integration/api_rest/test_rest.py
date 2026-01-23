@@ -1,6 +1,7 @@
 """
 Integration tests for the REST API
 """
+
 from __future__ import annotations
 import pytest
 from unittest.mock import AsyncMock, MagicMock
@@ -12,7 +13,10 @@ from src.domain.usecases.authmgt.authmgt import AuthMgt
 from src.domain.usecases.portfoliomgt.portfoliomgt import PortfolioMgt
 from src.domain.aggregates.auth.user import User
 from src.domain.aggregates.portfolio.portfolio import Portfolio
-from src.domain.aggregates.portfolio.portfolio_valuation import PortfolioValuation, ValuationLine
+from src.domain.aggregates.portfolio.portfolio_valuation import (
+    PortfolioValuation,
+    ValuationLine,
+)
 from src.domain.aggregates.portfolio.asset import Asset
 from src.domain.aggregates.health.health import Health
 from src.infrastructure.utils.pagination import PaginationRequest, PaginationResponse
@@ -23,7 +27,7 @@ from src.domain.usecases.portfoliomgt.payloads import AssetCreate
 @pytest.mark.integration
 @pytest.mark.asyncio
 class TestREST:
-    """ Test REST API """
+    """Test REST API"""
 
     def __set_authed_uc(self, auth_uc: AuthMgt) -> User:
         user = User(id=uuid4(), email="foo@bar.com", created_at=datetime.now())
@@ -35,10 +39,14 @@ class TestREST:
         return {"access_token": "token"}
 
     # ----------------------- Global ---------------------------
-    async def test_health_check(self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]):
+    async def test_health_check(
+        self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]
+    ):
         client, auth_uc, portfolio_uc = rest_client
         auth_health = Health(errors=["aerr1", "aerr2"], warnings=["awarr1", "awarr2"])
-        portfolio_health = Health(errors=["perr1", "perr2"], warnings=["pwarn1", "pwarn2"])
+        portfolio_health = Health(
+            errors=["perr1", "perr2"], warnings=["pwarn1", "pwarn2"]
+        )
         auth_uc.health_check = AsyncMock()
         auth_uc.health_check.return_value = auth_health
         portfolio_uc.health_check = AsyncMock()
@@ -50,7 +58,9 @@ class TestREST:
         assert res.status_code == 500
         assert isinstance(data, dict)
         assert isinstance(data["errors"], list)
-        assert len(data["errors"]) == len(auth_health.errors) + len(portfolio_health.errors)
+        assert len(data["errors"]) == len(auth_health.errors) + len(
+            portfolio_health.errors
+        )
         for p_err in portfolio_health.errors:
             assert p_err in data["errors"]
         for p_warn in portfolio_health.warnings:
@@ -94,7 +104,9 @@ class TestREST:
         assert isinstance(data["errors"], list)
         assert len(data["errors"]) == 0
         assert isinstance(data["warnings"], list)
-        assert len(data["warnings"]) == len(auth_health.warnings) + len(portfolio_health.warnings)
+        assert len(data["warnings"]) == len(auth_health.warnings) + len(
+            portfolio_health.warnings
+        )
         for a_warn in auth_health.warnings:
             assert a_warn in data["warnings"]
         for p_warn in portfolio_health.warnings:
@@ -116,7 +128,9 @@ class TestREST:
         assert res.status_code == 500
         assert isinstance(data, dict)
         assert isinstance(data["errors"], list)
-        assert len(data["errors"]) == len(auth_health.errors) + len(portfolio_health.errors)
+        assert len(data["errors"]) == len(auth_health.errors) + len(
+            portfolio_health.errors
+        )
         for a_err in auth_health.errors:
             assert a_err in data["errors"]
         for p_err in portfolio_health.warnings:
@@ -126,7 +140,9 @@ class TestREST:
         auth_uc.health_check.assert_awaited_once()
         portfolio_uc.health_check.assert_awaited_once()
 
-    async def test_get_prices(self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]):
+    async def test_get_prices(
+        self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]
+    ):
         client, auth_uc, portfolio_uc = rest_client
         self.__set_authed_uc(auth_uc)
         prices: dict[str, float] = {"BTC": 98000.54, "ETH": 35440.0}
@@ -147,7 +163,9 @@ class TestREST:
         assert res.status_code == 401
 
     # ----------------------- Auth routes --------------------
-    async def test_auth_register(self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]):
+    async def test_auth_register(
+        self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]
+    ):
         client, auth_uc, _ = rest_client
         auth_uc.register = AsyncMock()
         user = User(id=uuid4(), email="foo@bar.com", created_at=datetime.now())
@@ -188,7 +206,9 @@ class TestREST:
 
         assert res.status_code == 422
 
-    async def test_auth_login(self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]):
+    async def test_auth_login(
+        self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]
+    ):
         client, auth_uc, _ = rest_client
         auth_uc.login = AsyncMock()
         user = User(id=uuid4(), email="foo@bar.com", created_at=datetime.now())
@@ -261,10 +281,14 @@ class TestREST:
         assert res.status_code == 401
 
     # ----------------------- Portfolios route ----------------
-    async def test_portfolio_create(self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]):
+    async def test_portfolio_create(
+        self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]
+    ):
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
-        portfolio = Portfolio(id=0, owner_id=user.id, name="foo", created_at=datetime.now())
+        portfolio = Portfolio(
+            id=0, owner_id=user.id, name="foo", created_at=datetime.now()
+        )
         portfolio_uc.create_portfolio = AsyncMock()
         portfolio_uc.create_portfolio.return_value = portfolio
 
@@ -278,7 +302,8 @@ class TestREST:
         assert data.get("name") == portfolio.name
         assert data.get("created_at") == portfolio.created_at.isoformat()
         portfolio_uc.create_portfolio.assert_awaited_once_with(
-            owner_id=portfolio.owner_id, payload=PortfolioCreate(name=portfolio.name))
+            owner_id=portfolio.owner_id, payload=PortfolioCreate(name=portfolio.name)
+        )
 
         # No token
         cookies = client.cookies
@@ -297,11 +322,17 @@ class TestREST:
 
         assert res.status_code == 422
 
-    async def test_portfolio_list(self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]):
+    async def test_portfolio_list(
+        self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]
+    ):
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
-        portfolios = [Portfolio(id=0, owner_id=user.id, name="test", created_at=datetime.now())]
-        page_res = PaginationResponse(total_items=1, total_pages=1, current_page=1, items_per_page=20)
+        portfolios = [
+            Portfolio(id=0, owner_id=user.id, name="test", created_at=datetime.now())
+        ]
+        page_res = PaginationResponse(
+            total_items=1, total_pages=1, current_page=1, items_per_page=20
+        )
         portfolio_uc.list_portfolios_paginated = AsyncMock()
         portfolio_uc.list_portfolios_paginated.return_value = portfolios, page_res
 
@@ -327,7 +358,9 @@ class TestREST:
         assert pagination_response["current_page"] == page_res.current_page
         assert pagination_response["items_per_page"] == page_res.items_per_page
         portfolio_uc.list_portfolios_paginated.assert_awaited_once_with(
-            owner_id=user.id, pagination_request=PaginationRequest(page=1, items_per_page=20))
+            owner_id=user.id,
+            pagination_request=PaginationRequest(page=1, items_per_page=20),
+        )
 
         # No token
         cookies = client.cookies
@@ -338,10 +371,14 @@ class TestREST:
         assert res.status_code == 401
 
         # Non-default page request
-        page_res = PaginationResponse(total_items=58, total_pages=900, current_page=8, items_per_page=12)
+        page_res = PaginationResponse(
+            total_items=58, total_pages=900, current_page=8, items_per_page=12
+        )
         portfolio_uc.list_portfolios_paginated.return_value = portfolios, page_res
         portfolio_uc.list_portfolios_paginated.reset_mock()
-        res = await client.get(f"/portfolios?items_per_page={page_res.items_per_page}&page={page_res.current_page}")
+        res = await client.get(
+            f"/portfolios?items_per_page={page_res.items_per_page}&page={page_res.current_page}"
+        )
         data = res.json()
 
         assert res.status_code == 200
@@ -352,8 +389,11 @@ class TestREST:
         assert pagination_response["current_page"] == page_res.current_page
         assert pagination_response["items_per_page"] == page_res.items_per_page
         portfolio_uc.list_portfolios_paginated.assert_awaited_once_with(
-            owner_id=user.id, pagination_request=PaginationRequest(
-                page=page_res.current_page, items_per_page=page_res.items_per_page))
+            owner_id=user.id,
+            pagination_request=PaginationRequest(
+                page=page_res.current_page, items_per_page=page_res.items_per_page
+            ),
+        )
 
         # Invalid page
         res = await client.get("/portfolios?page=invalid")
@@ -370,10 +410,14 @@ class TestREST:
 
         assert res.status_code == 422
 
-    async def test_portfolio_get(self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]):
+    async def test_portfolio_get(
+        self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]
+    ):
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
-        portfolio = Portfolio(id=0, owner_id=user.id, name="foo", created_at=datetime.now())
+        portfolio = Portfolio(
+            id=0, owner_id=user.id, name="foo", created_at=datetime.now()
+        )
         portfolio_uc.get_portfolio = AsyncMock()
         portfolio_uc.get_portfolio.return_value = portfolio
 
@@ -386,7 +430,9 @@ class TestREST:
         assert data["owner_id"] == str(user.id)
         assert data["name"] == portfolio.name
         assert data["created_at"] == portfolio.created_at.isoformat()
-        portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=id)
+        portfolio_uc.get_portfolio.assert_awaited_once_with(
+            owner_id=user.id, portfolio_id=id
+        )
 
         # No token
         cookies = client.cookies
@@ -404,17 +450,23 @@ class TestREST:
         res = await client.get(f"/portfolios/{id}")
 
         assert res.status_code == 404
-        portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=500)
+        portfolio_uc.get_portfolio.assert_awaited_once_with(
+            owner_id=user.id, portfolio_id=500
+        )
 
         # Invalid id
         res = await client.get("/portfolios/invalid")
 
         assert res.status_code == 422
 
-    async def test_portfolio_patch(self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]):
+    async def test_portfolio_patch(
+        self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]
+    ):
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
-        portfolio = Portfolio(id=0, owner_id=user.id, name="foo", created_at=datetime.now())
+        portfolio = Portfolio(
+            id=0, owner_id=user.id, name="foo", created_at=datetime.now()
+        )
         portfolio_uc.update_portfolio = AsyncMock()
         portfolio_uc.update_portfolio.return_value = portfolio
 
@@ -429,7 +481,10 @@ class TestREST:
         assert data["name"] == portfolio.name
         assert data["created_at"] == portfolio.created_at.isoformat()
         portfolio_uc.update_portfolio.assert_awaited_once_with(
-            owner_id=user.id, portfolio_id=id, payload=PortfolioUpdate(name=payload["name"]))
+            owner_id=user.id,
+            portfolio_id=id,
+            payload=PortfolioUpdate(name=payload["name"]),
+        )
 
         # No token
         cookies = client.cookies
@@ -450,7 +505,9 @@ class TestREST:
 
         assert res.status_code == 422
 
-    async def test_portfolio_delete(self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]):
+    async def test_portfolio_delete(
+        self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]
+    ):
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
         portfolio_uc.delete_portfolio = AsyncMock()
@@ -460,7 +517,9 @@ class TestREST:
         res = await client.delete(f"/portfolios/{id}")
 
         assert res.status_code == 204
-        portfolio_uc.delete_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=id)
+        portfolio_uc.delete_portfolio.assert_awaited_once_with(
+            owner_id=user.id, portfolio_id=id
+        )
 
         # No token
         cookies = client.cookies
@@ -483,30 +542,28 @@ class TestREST:
 
         assert res.status_code == 404
 
-    async def test_portfolio_get_valuation(self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]):
+    async def test_portfolio_get_valuation(
+        self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]
+    ):
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
-        portfolio = Portfolio(id=0, owner_id=user.id, name="foo", created_at=datetime.now())
+        portfolio = Portfolio(
+            id=0, owner_id=user.id, name="foo", created_at=datetime.now()
+        )
         valuation_lines = [
             ValuationLine(
-                symbol="BTC",
-                quantity=0.005,
-                price=98_000,
-                value=0.005 *
-                98_000),
+                symbol="BTC", quantity=0.005, price=98_000, value=0.005 * 98_000
+            ),
             ValuationLine(
-                symbol="ETH",
-                quantity=0.08,
-                price=38_000,
-                value=0.08 *
-                38_000)]
+                symbol="ETH", quantity=0.08, price=38_000, value=0.08 * 38_000
+            ),
+        ]
         portfolio_valuation = PortfolioValuation(
             portfolio_id=portfolio.id,
             total_value=78255,
             lines=valuation_lines,
-            unknown_symbols=[
-                "ABC",
-                "DEF"])
+            unknown_symbols=["ABC", "DEF"],
+        )
         portfolio_uc.get_portfolio = AsyncMock()
         portfolio_uc.get_portfolio.return_value = portfolio
         portfolio_uc.compute_portfolio_valuation = AsyncMock()
@@ -530,8 +587,12 @@ class TestREST:
         assert len(data["unknown_symbols"]) == len(portfolio_valuation.unknown_symbols)
         for i in range(len(data["unknown_symbols"])):
             assert data["unknown_symbols"][i] == portfolio_valuation.unknown_symbols[i]
-        portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=id)
-        portfolio_uc.compute_portfolio_valuation.assert_awaited_once_with(portfolio_id=id)
+        portfolio_uc.get_portfolio.assert_awaited_once_with(
+            owner_id=user.id, portfolio_id=id
+        )
+        portfolio_uc.compute_portfolio_valuation.assert_awaited_once_with(
+            portfolio_id=id
+        )
 
         # No token
         cookies = client.cookies
@@ -554,18 +615,30 @@ class TestREST:
         res = await client.get(f"/portfolios/{id}/valuation")
 
         assert res.status_code == 404
-        portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=id)
+        portfolio_uc.get_portfolio.assert_awaited_once_with(
+            owner_id=user.id, portfolio_id=id
+        )
         portfolio_uc.compute_portfolio_valuation.assert_not_awaited()
 
     # ----------------------- Assets route --------------------
 
-    async def test_asset_add(self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]):
+    async def test_asset_add(
+        self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]
+    ):
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
-        portfolio = Portfolio(id=0, owner_id=user.id, name="foo", created_at=datetime.now())
+        portfolio = Portfolio(
+            id=0, owner_id=user.id, name="foo", created_at=datetime.now()
+        )
         portfolio_uc.get_portfolio = AsyncMock()
         portfolio_uc.get_portfolio.return_value = portfolio
-        asset = Asset(id=0, portfolio_id=portfolio.id, symbol="BTC", quantity=0.008, created_at=datetime.now())
+        asset = Asset(
+            id=0,
+            portfolio_id=portfolio.id,
+            symbol="BTC",
+            quantity=0.008,
+            created_at=datetime.now(),
+        )
         portfolio_uc.create_asset = AsyncMock()
         portfolio_uc.create_asset.return_value = asset
 
@@ -580,12 +653,13 @@ class TestREST:
         assert data["symbol"] == asset.symbol
         assert data["quantity"] == asset.quantity
         assert data["created_at"] == asset.created_at.isoformat()
-        portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=1007)
+        portfolio_uc.get_portfolio.assert_awaited_once_with(
+            owner_id=user.id, portfolio_id=1007
+        )
         portfolio_uc.create_asset.assert_awaited_once_with(
-            payload=AssetCreate(
-                symbol=payload["symbol"],
-                quantity=payload["quantity"]),
-            portfolio_id=1007)
+            payload=AssetCreate(symbol=payload["symbol"], quantity=payload["quantity"]),
+            portfolio_id=1007,
+        )
 
         # No token
         cookies = client.cookies
@@ -636,13 +710,19 @@ class TestREST:
         res = await client.post("/portfolios/0/assets", json=payload)
 
         assert res.status_code == 404
-        portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=0)
+        portfolio_uc.get_portfolio.assert_awaited_once_with(
+            owner_id=user.id, portfolio_id=0
+        )
         portfolio_uc.create_asset.assert_not_awaited()
 
-    async def test_asset_list(self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]):
+    async def test_asset_list(
+        self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]
+    ):
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
-        portfolio = Portfolio(id=0, owner_id=user.id, name="foo", created_at=datetime.now())
+        portfolio = Portfolio(
+            id=0, owner_id=user.id, name="foo", created_at=datetime.now()
+        )
         portfolio_uc.get_portfolio = AsyncMock()
         portfolio_uc.get_portfolio.return_value = portfolio
         assets = [
@@ -651,14 +731,19 @@ class TestREST:
                 portfolio_id=portfolio.id,
                 symbol="BTC",
                 quantity=0.008,
-                created_at=datetime.now()),
+                created_at=datetime.now(),
+            ),
             Asset(
                 id=1,
                 portfolio_id=portfolio.id,
                 symbol="ETH",
                 quantity=0.04,
-                created_at=datetime.now())]
-        page_res = PaginationResponse(total_items=37, total_pages=2, current_page=1, items_per_page=20)
+                created_at=datetime.now(),
+            ),
+        ]
+        page_res = PaginationResponse(
+            total_items=37, total_pages=2, current_page=1, items_per_page=20
+        )
         portfolio_uc.list_assets_paginated = AsyncMock()
         portfolio_uc.list_assets_paginated.return_value = assets, page_res
 
@@ -680,9 +765,13 @@ class TestREST:
         assert data["pagination_response"]["total_pages"] == page_res.total_pages
         assert data["pagination_response"]["current_page"] == page_res.current_page
         assert data["pagination_response"]["items_per_page"] == page_res.items_per_page
-        portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=877)
+        portfolio_uc.get_portfolio.assert_awaited_once_with(
+            owner_id=user.id, portfolio_id=877
+        )
         portfolio_uc.list_assets_paginated.assert_awaited_once_with(
-            portfolio_id=877, pagination_request=PaginationRequest(page=1, items_per_page=20))
+            portfolio_id=877,
+            pagination_request=PaginationRequest(page=1, items_per_page=20),
+        )
 
         # No token
         cookies = client.cookies
@@ -702,13 +791,20 @@ class TestREST:
         portfolio_uc.list_assets_paginated.reset_mock()
 
         id, page, items_per_page = 84, 7, 45
-        res = await client.get(f"/portfolios/{id}/assets?page={page}&items_per_page={items_per_page}")
+        res = await client.get(
+            f"/portfolios/{id}/assets?page={page}&items_per_page={items_per_page}"
+        )
 
         assert res.status_code == 200
-        portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=84)
+        portfolio_uc.get_portfolio.assert_awaited_once_with(
+            owner_id=user.id, portfolio_id=84
+        )
         portfolio_uc.list_assets_paginated.assert_awaited_once_with(
-            portfolio_id=84, pagination_request=PaginationRequest(
-                items_per_page=items_per_page, page=page))
+            portfolio_id=84,
+            pagination_request=PaginationRequest(
+                items_per_page=items_per_page, page=page
+            ),
+        )
 
         # Invalid page
         res = await client.get(f"/portfolios/{id}/assets?page=foo")
@@ -728,10 +824,14 @@ class TestREST:
 
         assert res.status_code == 422
 
-    async def test_asset_delete(self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]):
+    async def test_asset_delete(
+        self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]
+    ):
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
-        portfolio = Portfolio(id=0, owner_id=user.id, name="foo", created_at=datetime.now())
+        portfolio = Portfolio(
+            id=0, owner_id=user.id, name="foo", created_at=datetime.now()
+        )
         portfolio_uc.get_portfolio = AsyncMock()
         portfolio_uc.get_portfolio.return_value = portfolio
         portfolio_uc.delete_asset = AsyncMock()
@@ -741,7 +841,9 @@ class TestREST:
         res = await client.delete(f"/portfolios/{p_id}/assets/{a_id}")
 
         assert res.status_code == 204
-        portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=p_id)
+        portfolio_uc.get_portfolio.assert_awaited_once_with(
+            owner_id=user.id, portfolio_id=p_id
+        )
         portfolio_uc.delete_asset.assert_awaited_once_with(asset_id=a_id)
 
         # No token
@@ -759,7 +861,9 @@ class TestREST:
         res = await client.delete(f"/portfolios/{p_id}/assets/{a_id}")
 
         assert res.status_code == 404
-        portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=p_id)
+        portfolio_uc.get_portfolio.assert_awaited_once_with(
+            owner_id=user.id, portfolio_id=p_id
+        )
 
         # Delete not OK
         portfolio_uc.get_portfolio.reset_mock()
@@ -770,5 +874,7 @@ class TestREST:
         res = await client.delete(f"/portfolios/{p_id}/assets/{a_id}")
 
         assert res.status_code == 404
-        portfolio_uc.get_portfolio.assert_awaited_once_with(owner_id=user.id, portfolio_id=p_id)
+        portfolio_uc.get_portfolio.assert_awaited_once_with(
+            owner_id=user.id, portfolio_id=p_id
+        )
         portfolio_uc.delete_asset.assert_awaited_once_with(asset_id=a_id)

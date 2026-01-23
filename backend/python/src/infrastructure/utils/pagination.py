@@ -21,11 +21,13 @@ class PaginationResponse:
     items_per_page: int
 
 
-def create_pagination_response(total_items: int, pagination_request: PaginationRequest) -> PaginationResponse:
+def create_pagination_response(
+    total_items: int, pagination_request: PaginationRequest
+) -> PaginationResponse:
     total_pages = ceil(total_items / pagination_request.items_per_page)
     return PaginationResponse(
         total_items=total_items,
         total_pages=total_pages,
         current_page=pagination_request.page,
-        items_per_page=pagination_request.items_per_page
+        items_per_page=pagination_request.items_per_page,
     )

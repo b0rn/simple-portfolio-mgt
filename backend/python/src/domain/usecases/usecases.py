@@ -4,7 +4,9 @@ from dataclasses import dataclass
 from src.infrastructure.config.settings import Settings
 from .authmgt.authmgt import AuthMgt
 from .portfoliomgt.portfoliomgt import PortfolioMgt
-from src.infrastructure.dataservice.authdataservice_builder import build_auth_dataservice
+from src.infrastructure.dataservice.authdataservice_builder import (
+    build_auth_dataservice,
+)
 from src.infrastructure.dataservice.dbdataservice_builder import build_db_dataservice
 
 
