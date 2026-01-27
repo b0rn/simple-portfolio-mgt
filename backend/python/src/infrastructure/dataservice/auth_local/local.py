@@ -19,7 +19,6 @@ from src.domain.aggregates.health.health import Health
 
 
 class LocalAuthDataService(AuthDataService):
-
     def __init__(self, settings: Settings) -> None:
         super().__init__()
         self.settings = settings

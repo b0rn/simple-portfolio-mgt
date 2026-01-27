@@ -6,7 +6,6 @@ from src.domain.aggregates.health.health import Health
 
 
 class AuthDataService(ABC):
-
     @abstractmethod
     async def health_check(self) -> Health:
         pass

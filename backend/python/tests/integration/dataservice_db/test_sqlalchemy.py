@@ -132,10 +132,11 @@ class TestSQLAlchemy:
             )
 
         pagination_request = PaginationRequest(items_per_page=5, page=1)
-        portfolios, page_res = (
-            await dataservice_db_sqlalchemy.list_portfolios_paginated(
-                owner_id=str(owner_id), pagination_request=pagination_request
-            )
+        (
+            portfolios,
+            page_res,
+        ) = await dataservice_db_sqlalchemy.list_portfolios_paginated(
+            owner_id=str(owner_id), pagination_request=pagination_request
         )
 
         assert len(portfolios) == 5
@@ -145,10 +146,11 @@ class TestSQLAlchemy:
         assert page_res.total_pages == 2
 
         # No results
-        portfolios, page_res = (
-            await dataservice_db_sqlalchemy.list_portfolios_paginated(
-                owner_id=str(uuid4()), pagination_request=pagination_request
-            )
+        (
+            portfolios,
+            page_res,
+        ) = await dataservice_db_sqlalchemy.list_portfolios_paginated(
+            owner_id=str(uuid4()), pagination_request=pagination_request
         )
 
         assert len(portfolios) == 0

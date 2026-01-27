@@ -22,7 +22,6 @@ from src.infrastructure.utils.pagination import (
 
 
 class SQLAlchemyDataService(DbDataService):
-
     async def health_check(self) -> Health:
         errors: list[str] = []
         warnings: list[str] = []

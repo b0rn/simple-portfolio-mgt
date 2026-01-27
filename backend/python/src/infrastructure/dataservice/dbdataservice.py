@@ -13,7 +13,6 @@ from src.infrastructure.utils.pagination import PaginationRequest, PaginationRes
 
 
 class DbDataService(ABC):
-
     @abstractmethod
     async def health_check(self) -> Health:
         pass
