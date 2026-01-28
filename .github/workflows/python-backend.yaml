@@ -221,7 +221,7 @@ jobs:
 
       - name: Run database migrations
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash -s <<'MIGRATE_SCRIPT'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} <<'MIGRATE_SCRIPT'
             set -euo pipefail
 
             export DB_HOST="${DB_HOST:-${{ secrets.DB_HOST }}}"
@@ -232,14 +232,13 @@ jobs:
             export DB_SSLMODE="${DB_SSLMODE:-${{ secrets.DB_SSLMODE }}}"
             export AUTH_MODE="${AUTH_MODE:-${{ secrets.AUTH_MODE }}}"
 
-            cd /opt/helm/database
-            chmod +x migrate.sh
-            ./migrate.sh up
+            chmod +x /opt/helm/database/migrate.sh
+            migrate.sh up
           MIGRATE_SCRIPT
 
       - name: Deploy via SSH
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash -s <<'DEPLOY_SCRIPT'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} <<'DEPLOY_SCRIPT'
             set -euo pipefail
 
             RELEASE_NAME="python-backend"
@@ -259,7 +258,7 @@ jobs:
               --timeout 5m"
 
             # Include secrets override file if it exists
-            if [ -f "${VALUES_OVERRIDE}" ]; then
+            if test -f "${VALUES_OVERRIDE}"; then
               HELM_CMD="${HELM_CMD} -f ${VALUES_OVERRIDE}"
             else
               echo "WARNING: ${VALUES_OVERRIDE} not found, deploying without secret overrides"
