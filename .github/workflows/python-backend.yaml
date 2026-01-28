@@ -9,7 +9,7 @@ on:
       - 'backend/python/**'
       - 'helm/python-backend/**'
       - 'database/**'
-      - '.github/workflows/python-backend.yml'
+      - '.github/workflows/python-backend.yaml'
   pull_request:
     branches: [main]
     paths:
