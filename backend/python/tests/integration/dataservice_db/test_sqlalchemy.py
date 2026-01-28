@@ -6,6 +6,7 @@ from __future__ import annotations
 import pytest
 from uuid import uuid4
 from src.infrastructure.dataservice.dbdataservice import DbDataService
+from src.infrastructure.datastore.sqlalchemy.models.user import User as UserModel
 from src.domain.usecases.portfoliomgt.payloads import (
     PortfolioCreate,
     PortfolioUpdate,
@@ -19,8 +20,12 @@ from src.infrastructure.utils.pagination import PaginationRequest
 class TestSQLAlchemy:
     """Test database dataservice : SQLAlchemy"""
 
-    async def test_create_portfolio(self, dataservice_db_sqlalchemy: DbDataService):
-        owner_id = uuid4()
+    async def test_create_portfolio(
+        self,
+        dataservice_db_sqlalchemy: DbDataService,
+        dataservice_auth_local_user: tuple[UserModel, str, str],
+    ):
+        owner_id = dataservice_auth_local_user[0].id
         portfolio = await dataservice_db_sqlalchemy.create_portfolio(
             owner_id=str(owner_id), payload=PortfolioCreate(name="foo")
         )
@@ -29,15 +34,19 @@ class TestSQLAlchemy:
         assert portfolio.name == "foo"
         assert portfolio.owner_id == owner_id
 
-        # Invalid owner_id
+        # Invalid owner_id (non-existent user)
         with pytest.raises(Exception):
             await dataservice_db_sqlalchemy.create_portfolio(
-                owner_id="invalid", payload=PortfolioCreate(name="foo")
+                owner_id=str(uuid4()), payload=PortfolioCreate(name="foo")
             )
 
-    async def test_get_portfolio(self, dataservice_db_sqlalchemy: DbDataService):
+    async def test_get_portfolio(
+        self,
+        dataservice_db_sqlalchemy: DbDataService,
+        dataservice_auth_local_user: tuple[UserModel, str, str],
+    ):
         # Create portfolio
-        owner_id = uuid4()
+        owner_id = dataservice_auth_local_user[0].id
         created = await dataservice_db_sqlalchemy.create_portfolio(
             owner_id=str(owner_id), payload=PortfolioCreate(name="foo")
         )
@@ -59,9 +68,13 @@ class TestSQLAlchemy:
 
         assert read is None
 
-    async def test_update_portfolio(self, dataservice_db_sqlalchemy: DbDataService):
+    async def test_update_portfolio(
+        self,
+        dataservice_db_sqlalchemy: DbDataService,
+        dataservice_auth_local_user: tuple[UserModel, str, str],
+    ):
         # Create portfolio
-        owner_id = uuid4()
+        owner_id = dataservice_auth_local_user[0].id
         created = await dataservice_db_sqlalchemy.create_portfolio(
             owner_id=str(owner_id), payload=PortfolioCreate(name="foo")
         )
@@ -94,9 +107,13 @@ class TestSQLAlchemy:
             payload=PortfolioUpdate(name="test"),
         )
 
-    async def test_delete_portfolio(self, dataservice_db_sqlalchemy: DbDataService):
+    async def test_delete_portfolio(
+        self,
+        dataservice_db_sqlalchemy: DbDataService,
+        dataservice_auth_local_user: tuple[UserModel, str, str],
+    ):
         # Create portfolio
-        owner_id = uuid4()
+        owner_id = dataservice_auth_local_user[0].id
         created = await dataservice_db_sqlalchemy.create_portfolio(
             owner_id=str(owner_id), payload=PortfolioCreate(name="foo")
         )
@@ -123,9 +140,11 @@ class TestSQLAlchemy:
         assert not deleted
 
     async def test_list_portfolios_paginated(
-        self, dataservice_db_sqlalchemy: DbDataService
+        self,
+        dataservice_db_sqlalchemy: DbDataService,
+        dataservice_auth_local_user: tuple[UserModel, str, str],
     ):
-        owner_id = uuid4()
+        owner_id = dataservice_auth_local_user[0].id
         for i in range(10):
             await dataservice_db_sqlalchemy.create_portfolio(
                 owner_id=str(owner_id), payload=PortfolioCreate(name=f"foo{i}")
@@ -159,9 +178,13 @@ class TestSQLAlchemy:
         assert page_res.total_items == 0
         assert page_res.total_pages == 0
 
-    async def test_create_asset(self, dataservice_db_sqlalchemy: DbDataService):
+    async def test_create_asset(
+        self,
+        dataservice_db_sqlalchemy: DbDataService,
+        dataservice_auth_local_user: tuple[UserModel, str, str],
+    ):
         # Create portfolio
-        owner_id = uuid4()
+        owner_id = dataservice_auth_local_user[0].id
         portfolio = await dataservice_db_sqlalchemy.create_portfolio(
             owner_id=str(owner_id), payload=PortfolioCreate(name="foo")
         )
@@ -182,9 +205,13 @@ class TestSQLAlchemy:
                 portfolio_id=9999, payload=AssetCreate(symbol="BTC", quantity=0.005)
             )
 
-    async def test_delete_asset(self, dataservice_db_sqlalchemy: DbDataService):
+    async def test_delete_asset(
+        self,
+        dataservice_db_sqlalchemy: DbDataService,
+        dataservice_auth_local_user: tuple[UserModel, str, str],
+    ):
         # Create portfolio
-        owner_id = uuid4()
+        owner_id = dataservice_auth_local_user[0].id
         portfolio = await dataservice_db_sqlalchemy.create_portfolio(
             owner_id=str(owner_id), payload=PortfolioCreate(name="foo")
         )
@@ -210,10 +237,12 @@ class TestSQLAlchemy:
         assert not deleted
 
     async def test_list_assets_paginated(
-        self, dataservice_db_sqlalchemy: DbDataService
+        self,
+        dataservice_db_sqlalchemy: DbDataService,
+        dataservice_auth_local_user: tuple[UserModel, str, str],
     ):
         # Create portfolio
-        owner_id = uuid4()
+        owner_id = dataservice_auth_local_user[0].id
         portfolio = await dataservice_db_sqlalchemy.create_portfolio(
             owner_id=str(owner_id), payload=PortfolioCreate(name="foo")
         )
@@ -236,9 +265,13 @@ class TestSQLAlchemy:
         assert page_res.total_items == 10
         assert page_res.total_pages == 2
 
-    async def test_list_assets(self, dataservice_db_sqlalchemy: DbDataService):
+    async def test_list_assets(
+        self,
+        dataservice_db_sqlalchemy: DbDataService,
+        dataservice_auth_local_user: tuple[UserModel, str, str],
+    ):
         # Create portfolio
-        owner_id = uuid4()
+        owner_id = dataservice_auth_local_user[0].id
         portfolio = await dataservice_db_sqlalchemy.create_portfolio(
             owner_id=str(owner_id), payload=PortfolioCreate(name="foo")
         )
