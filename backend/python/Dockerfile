@@ -1,0 +1,18 @@
+FROM python:3.12-slim AS builder
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --target=/deps -r requirements.txt
+
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY --from=builder /deps /usr/local/lib/python3.12/site-packages
+COPY src/ src/
+
+EXPOSE 80
+
+CMD ["uvicorn", "src.infrastructure.cmd.api:app", "--host", "0.0.0.0", "--port", "80"]
+
