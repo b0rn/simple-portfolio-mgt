@@ -101,7 +101,7 @@ Coming soon
 | **Go** 🚧 | Standard Library | sqlc + pgx | systemd |
 | **Node.js** 🚧 | Fastify | Sequelize | PM2 Cluster |
 | **Java** 📋 | Spring Boot | Hibernate | Docker |
-| **PHP** 📋 | Symfony | Doctrine | PHP-FPM + Nginx |
+| **PHP** 📋 | Laravel | Eloquent | PHP-FPM + Nginx |
 
 ### Frontend
 
@@ -215,7 +215,7 @@ Coming soon
 
 #### Phase 7: Additional Stacks
 - [ ] Java/Spring Boot implementation
-- [ ] PHP/Symfony implementation
+- [ ] PHP/Laravel implementation
 - [ ] Complete comparison matrix
 - [ ] Demo video
 
@@ -381,7 +381,7 @@ For detailed migration documentation, see [database/README.md](database/README.m
 **Goal:** Full 5-language implementation
 
 - [ ] Java/Spring Boot implementation
-- [ ] PHP/Symfony implementation
+- [ ] PHP/Laravel implementation
 - [ ] Complete comparison matrix
 
 ---
