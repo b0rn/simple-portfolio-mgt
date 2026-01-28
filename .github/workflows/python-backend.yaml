@@ -1,0 +1,271 @@
+# .github/workflows/python-backend.yml
+name: Python Backend CI/CD
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+    paths:
+      - 'backend/python/**'
+      - 'helm/python-backend/**'
+      - 'database/**'
+      - '.github/workflows/python-backend.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/python/**'
+      - 'helm/python-backend/**'
+      - 'database/**'
+
+env:
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  test:
+    name: Test & Coverage
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_pass
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/python/requirements.txt
+      
+      - name: Install dependencies
+        working-directory: backend/python
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-html pytest-json-report
+          pip install ruff bandit
+      
+      # Checking code quality and security
+      - name: Check code formatting with ruff
+        working-directory: backend/python
+        run: |
+          echo "Checking code formatting with ruff..."
+          ruff check src tests || {
+            echo "❌ Code is not formatted with ruff!"
+            echo ""
+            echo "To fix locally, run:"
+            echo "  cd backend/python"
+            echo "  ruff format src tests"
+            exit 1
+          }
+          echo "✅ Code is properly formatted with ruff"
+      
+      - name: Run security analysis with Bandit
+        working-directory: backend/python
+        run: |
+          echo "Running security analysis with Bandit..."
+          bandit -r src -ll || {
+            echo "❌ Security issues found by Bandit!"
+            exit 1
+          }
+          echo "✅ No security issues found by Bandit"
+      
+      # Run tests with coverage
+      - name: Run tests with coverage
+        working-directory: backend/python
+        env:
+          DATABASE_URL: postgresql://test_user:test_pass@localhost:5432/test_db
+          JWT_SECRET_KEY: test-secret-key-for-ci
+        run: |
+          pytest \
+            --cov=src \
+            --cov-report=xml:coverage.xml \
+            --cov-report=html:htmlcov \
+            -v
+
+      # SonarQube Scan
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v3
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          projectBaseDir: backend/python
+          args: >
+            -Dsonar.projectKey=simple-portfolio-mgt-python-backend
+            -Dsonar.sources=src
+            -Dsonar.tests=tests
+            -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.python.version=3.12
+            -Dsonar.qualitygate.wait=true
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./backend/python/coverage.xml
+          flags: python-backend
+          name: python-backend-coverage
+          fail_ci_if_error: false
+      
+      - name: Archive test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-test-reports
+          path: |
+            backend/python/htmlcov/
+            backend/python/test-report.html
+          retention-days: 30
+      
+      - name: Comment PR with coverage
+        if: github.event_name == 'pull_request'
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
+          MINIMUM_GREEN: 80
+          MINIMUM_ORANGE: 70
+
+  build:
+    name: Build & Push Docker Image
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine image tag
+        id: tag
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: backend/python
+          push: true
+          tags: ghcr.io/${{ github.repository }}/python-backend:${{ steps.tag.outputs.tag }}
+
+  deploy:
+    name: Deploy to VPS
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+
+      - name: Determine image tag
+        id: tag
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sync Helm chart to VPS
+        run: |
+          rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            helm/python-backend/ \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/helm/python-backend/
+
+      - name: Sync database migrations to VPS
+        run: |
+          rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            database/ \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/helm/database/
+
+      - name: Run database migrations
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash -s <<'MIGRATE_SCRIPT'
+            set -euo pipefail
+
+            export DB_HOST="${DB_HOST:-${{ secrets.DB_HOST }}}"
+            export DB_PORT="${DB_PORT:-5432}"
+            export DB_NAME="${DB_NAME:-${{ secrets.DB_NAME }}}"
+            export DB_USER="${DB_USER:-${{ secrets.DB_USER }}}"
+            export DB_PASSWORD="${DB_PASSWORD:-${{ secrets.DB_PASSWORD }}}"
+            export DB_SSLMODE="${DB_SSLMODE:-${{ secrets.DB_SSLMODE }}}"
+            export AUTH_MODE="${AUTH_MODE:-${{ secrets.AUTH_MODE }}}"
+
+            cd /opt/helm/database
+            chmod +x migrate.sh
+            ./migrate.sh up
+          MIGRATE_SCRIPT
+
+      - name: Deploy via SSH
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash -s <<'DEPLOY_SCRIPT'
+            set -euo pipefail
+
+            RELEASE_NAME="python-backend"
+            NAMESPACE="python-backend"
+            CHART_PATH="/opt/helm/python-backend"
+            VALUES_OVERRIDE="/opt/helm/python-backend-secrets.yaml"
+
+            # Ensure namespace exists
+            microk8s kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | microk8s kubectl apply -f -
+
+            # Build helm upgrade command
+            HELM_CMD="microk8s helm3 upgrade --install ${RELEASE_NAME} ${CHART_PATH} \
+              --namespace ${NAMESPACE} \
+              --set image.repository=ghcr.io/${{ github.repository }}/python-backend \
+              --set image.tag=${{ steps.tag.outputs.tag }} \
+              --wait \
+              --timeout 5m"
+
+            # Include secrets override file if it exists
+            if [ -f "${VALUES_OVERRIDE}" ]; then
+              HELM_CMD="${HELM_CMD} -f ${VALUES_OVERRIDE}"
+            else
+              echo "WARNING: ${VALUES_OVERRIDE} not found, deploying without secret overrides"
+            fi
+
+            echo "Deploying image: ghcr.io/${{ github.repository }}/python-backend:${{ steps.tag.outputs.tag }}"
+            eval "${HELM_CMD}"
+
+            # Verify rollout
+            microk8s kubectl rollout status deployment/"${RELEASE_NAME}" \
+              --namespace "${NAMESPACE}" \
+              --timeout=120s
+
+            echo "Deployment complete"
+          DEPLOY_SCRIPT
