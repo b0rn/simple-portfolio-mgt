@@ -140,7 +140,10 @@ async def get_portfolio_valutation(
         total_value=portfolio_valuation.total_value,
         lines=[
             PortfolioValuationLine(
-                symbol=line.symbol, quantity=line.quantity, price=line.price, value=line.value
+                symbol=line.symbol,
+                quantity=line.quantity,
+                price=line.price,
+                value=line.value,
             )
             for line in portfolio_valuation.lines
         ],
