@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 import uuid
-from sqlalchemy import DateTime, Integer, String, UUID, func
+from sqlalchemy import DateTime, ForeignKey, Integer, String, UUID, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from typing import TYPE_CHECKING
@@ -18,7 +18,12 @@ class Portfolio(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    owner_id: Mapped[uuid.UUID] = mapped_column(UUID, index=True, nullable=False)
+    owner_id: Mapped[uuid.UUID] = mapped_column(
+        UUID,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
