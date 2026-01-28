@@ -217,7 +217,7 @@ jobs:
           rsync -avz --delete \
             -e "ssh -o StrictHostKeyChecking=no" \
             database/ \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/helm/database/
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/database/
 
       - name: Run database migrations
         run: |
@@ -232,7 +232,7 @@ jobs:
             export DB_SSLMODE='${{ secrets.DB_SSLMODE }}'
             export AUTH_MODE='${{ secrets.AUTH_MODE }}'
 
-            chmod +x /opt/helm/database/migrate.sh
+            chmod +x /opt/database/migrate.sh
             migrate.sh up
           MIGRATE_SCRIPT
 
