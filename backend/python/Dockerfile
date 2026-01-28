@@ -10,6 +10,7 @@ FROM python:3.12-slim
 WORKDIR /app
 
 COPY --from=builder /deps /usr/local/lib/python3.12/site-packages
+COPY --from=builder /deps/bin/* /usr/local/bin/
 COPY src/ src/
 
 EXPOSE 80
