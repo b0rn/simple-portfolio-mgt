@@ -98,10 +98,9 @@ jobs:
 
       # SonarQube Scan
       - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v3
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           projectBaseDir: backend/python
           args: >
@@ -219,7 +218,7 @@ jobs:
             set -euo pipefail
 
             export DB_HOST="${DB_HOST:-${{ secrets.DB_HOST }}}"
-            export DB_PORT="${DB_PORT:-5432}"
+            export DB_PORT="${DB_PORT:-${{ secrets.DB_PORT }}}"
             export DB_NAME="${DB_NAME:-${{ secrets.DB_NAME }}}"
             export DB_USER="${DB_USER:-${{ secrets.DB_USER }}}"
             export DB_PASSWORD="${DB_PASSWORD:-${{ secrets.DB_PASSWORD }}}"
