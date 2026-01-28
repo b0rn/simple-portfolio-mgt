@@ -118,21 +118,6 @@ jobs:
             --cov-report=html:htmlcov \
             -v
 
-      # SonarQube Scan
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v6
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: backend/python
-          args: >
-            -Dsonar.projectKey=simple-portfolio-mgt-python-backend
-            -Dsonar.sources=src
-            -Dsonar.tests=tests
-            -Dsonar.python.coverage.reportPaths=coverage.xml
-            -Dsonar.python.version=3.12
-            -Dsonar.qualitygate.wait=true
-
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:

@@ -1,0 +1,95 @@
+# .github/workflows/sonarqube.yaml
+name: SonarQube Scan
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'sonar-project.properties'
+      - '.github/workflows/sonarqube.yaml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'sonar-project.properties'
+      - '.github/workflows/sonarqube.yaml'
+
+jobs:
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_pass
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history needed for SonarQube blame data
+
+      # --- Python backend coverage ---
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: backend/python/requirements.txt
+
+      - name: Install Python dependencies
+        working-directory: backend/python
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Run database migrations
+        working-directory: database
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: test_db
+          DB_USER: test_user
+          DB_PASSWORD: test_pass
+          DB_SSLMODE: disable
+          AUTH_MODE: local
+        run: |
+          curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.1/migrate.linux-amd64.tar.gz | tar xvz
+          sudo mv migrate /usr/local/bin/migrate
+          chmod +x migrate.sh
+          ./migrate.sh up
+
+      - name: Run Python tests with coverage
+        working-directory: backend/python
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: test_db
+          DB_USER: test_user
+          DB_PASSWORD: test_pass
+          DB_SSLMODE: disable
+          AUTH_MODE: local
+          JWT_SECRET: test-secret-key-for-ci
+        run: |
+          pytest \
+            --cov=src \
+            --cov-report=xml:coverage.xml \
+            -v
+
+      # --- SonarQube scan (from repo root) ---
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
