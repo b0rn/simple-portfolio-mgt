@@ -14,6 +14,7 @@ NC='\033[0m' # No Color
 
 # Default values
 MIGRATIONS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/migrations" && pwd)"
+MIGRATIONS_SUPABASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/migrations-supabase" 2>/dev/null && pwd || echo "")"
 COMMAND="${1:-up}"
 ARGS="${@:-up}"
 
@@ -33,8 +34,14 @@ DB_SSLMODE="${DB_SSLMODE:-disable}"
 
 DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${DB_SSLMODE}"
 
+AUTH_MODE="${AUTH_MODE:-local}"
+
 echo -e "${YELLOW}Migration Configuration:${NC}"
 echo "  Migrations directory: ${MIGRATIONS_DIR}"
+echo "  Auth mode: ${AUTH_MODE}"
+if [ "${AUTH_MODE}" = "supabase" ] && [ -n "${MIGRATIONS_SUPABASE_DIR}" ]; then
+    echo "  Supabase migrations: ${MIGRATIONS_SUPABASE_DIR}"
+fi
 echo "  Database host: ${DB_HOST}:${DB_PORT}"
 echo "  Database name: ${DB_NAME}"
 echo "  Database user: ${DB_USER}"
@@ -138,4 +145,27 @@ else
 fi
 
 echo ""
-echo -e "${GREEN}Migration completed successfully!${NC}"
+echo -e "${GREEN}Base migrations completed successfully!${NC}"
+
+# Run Supabase-specific migrations if AUTH_MODE=supabase
+if [ "${AUTH_MODE}" = "supabase" ] && [ -n "${MIGRATIONS_SUPABASE_DIR}" ] && [ -d "${MIGRATIONS_SUPABASE_DIR}" ]; then
+    echo ""
+    echo -e "${YELLOW}Running Supabase-specific migrations...${NC}"
+
+    if check_migrate_cli; then
+        migrate -path "${MIGRATIONS_SUPABASE_DIR}" -database "${DATABASE_URL}" "$ARGS"
+    else
+        docker run --rm \
+            --network host \
+            -v "${MIGRATIONS_SUPABASE_DIR}:/migrations" \
+            migrate/migrate:latest \
+            -path=/migrations \
+            -database "${DATABASE_URL}" \
+            "$ARGS"
+    fi
+
+    echo -e "${GREEN}Supabase migrations completed successfully!${NC}"
+fi
+
+echo ""
+echo -e "${GREEN}All migrations completed successfully!${NC}"
