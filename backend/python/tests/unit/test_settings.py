@@ -8,7 +8,6 @@ import pytest
 from pydantic import ValidationError
 
 from src.infrastructure.config.settings import build_settings
-import os
 
 
 @pytest.mark.unit

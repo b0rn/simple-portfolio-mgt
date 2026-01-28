@@ -106,7 +106,7 @@ class TestSQLAlchemy:
             owner_id=str(owner_id), portfolio_id=created.id
         )
 
-        assert deleted == True
+        assert deleted
 
         # Read portfolio
         read = await dataservice_db_sqlalchemy.get_portfolio(
@@ -120,7 +120,7 @@ class TestSQLAlchemy:
             owner_id=str(owner_id), portfolio_id=9999
         )
 
-        assert deleted == False
+        assert not deleted
 
     async def test_list_portfolios_paginated(
         self, dataservice_db_sqlalchemy: DbDataService
@@ -197,7 +197,7 @@ class TestSQLAlchemy:
         # Delete asset
         deleted = await dataservice_db_sqlalchemy.delete_asset(asset_id=asset.id)
 
-        assert deleted == True
+        assert deleted
 
         # List assets for portfolio
         assets = await dataservice_db_sqlalchemy.list_assets(portfolio_id=portfolio.id)
@@ -207,7 +207,7 @@ class TestSQLAlchemy:
         # Unknown asset
         deleted = await dataservice_db_sqlalchemy.delete_asset(asset_id=9999)
 
-        assert deleted == False
+        assert not deleted
 
     async def test_list_assets_paginated(
         self, dataservice_db_sqlalchemy: DbDataService

@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from src.infrastructure.config.settings import build_settings
 from src.infrastructure.datastore.sqlalchemy.base import Base
-import src.infrastructure.datastore.sqlalchemy.models
 
 # ---------- helpers ----------
 

@@ -4,7 +4,6 @@ Shared test fixtures for unit and integration tests.
 
 from __future__ import annotations
 
-import os
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
@@ -25,7 +24,7 @@ from src.infrastructure.dataservice.auth_local.local import LocalAuthDataService
 from src.infrastructure.dataservice.auth_supabase.supabase import (
     SupabaseAuthDataService,
 )
-from src.infrastructure.datastore.sqlalchemy.base import Base, get_db, build_engine
+from src.infrastructure.datastore.sqlalchemy.base import build_engine
 from src.api.rest.app import create_app
 from src.domain.usecases.usecases import UseCases
 from src.domain.usecases.authmgt.authmgt import AuthMgt

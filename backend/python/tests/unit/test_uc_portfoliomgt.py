@@ -12,7 +12,6 @@ from src.domain.usecases.portfoliomgt.portfoliomgt import PortfolioMgt
 from src.infrastructure.dataservice.dbdataservice import DbDataService
 from src.domain.aggregates.health.health import Health
 from src.domain.aggregates.portfolio.portfolio import Portfolio
-from src.domain.aggregates.portfolio.portfolio_valuation import PortfolioValuation
 from src.domain.aggregates.portfolio.asset import Asset
 from src.domain.usecases.portfoliomgt.payloads import (
     PortfolioCreate,
@@ -100,7 +99,7 @@ class TestPortfolioMgtUseCase:
         p_id = 5
         res = await uc.delete_portfolio(owner_id=owner_id, portfolio_id=p_id)
 
-        assert res == True
+        assert res
         mock_db_dataservice.delete_portfolio.assert_awaited_once_with(owner_id, p_id)
 
     async def test_list_portfolios_paginated(self, mock_db_dataservice: DbDataService):
@@ -217,7 +216,7 @@ class TestPortfolioMgtUseCase:
         a_id = 8
         res = await uc.delete_asset(a_id)
 
-        assert res == True
+        assert res
         mock_db_dataservice.delete_asset.assert_awaited_once_with(a_id)
 
     async def test_list_assets_paginated(self, mock_db_dataservice: DbDataService):

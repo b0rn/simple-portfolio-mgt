@@ -3,12 +3,12 @@ from __future__ import annotations
 from datetime import datetime
 import uuid
 from sqlalchemy import DateTime, String, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .portfolio import Portfolio
+    pass
 from ..base import Base
 
 
