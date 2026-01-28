@@ -1,0 +1,65 @@
+replicaCount: 3
+
+image:
+  repository: ghcr.io/b0rn/simple-portfolio-mgt/python-backend
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+  name: ""
+
+podAnnotations: {}
+
+service:
+  type: NodePort
+  port: 80
+  nodePort: 30001
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+config:
+  APP_NAME: "Simple Portfolio App API"
+  APP_ENV: "prod"
+  APP_DEBUG: "false"
+  DB_PORT: "5432"
+  DB_NAME: "portfolio_db"
+  DB_SSLMODE: "prefer"
+  CORS_ORIGINS: "https://portfolio.local"
+  AUTH_MODE: "local"
+  JWT_EXPIRES_MINUTES: "60"
+  COOKIE_SECURE: "true"
+  COOKIE_SAMESITE: "lax"
+
+secret:
+  DB_HOST: ""
+  DB_USER: ""
+  DB_PASSWORD: ""
+  JWT_SECRET: ""
+
+probes:
+  liveness:
+    path: /health
+    initialDelaySeconds: 10
+    periodSeconds: 15
+  readiness:
+    path: /health
+    initialDelaySeconds: 5
+    periodSeconds: 10
