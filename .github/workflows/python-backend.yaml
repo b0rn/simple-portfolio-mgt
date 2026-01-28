@@ -221,7 +221,7 @@ jobs:
 
       - name: Run database migrations
         run: |
-          ssh -T -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} <<'MIGRATE_SCRIPT'
+          ssh -T -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash <<'MIGRATE_SCRIPT'
             set -euo pipefail
 
             export DB_HOST='${{ secrets.DB_HOST }}'
@@ -238,7 +238,7 @@ jobs:
 
       - name: Deploy via SSH
         run: |
-          ssh -T -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} <<'DEPLOY_SCRIPT'
+          ssh -T -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash <<'DEPLOY_SCRIPT'
             set -euo pipefail
 
             RELEASE_NAME="python-backend"
