@@ -57,7 +57,23 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-cov pytest-html pytest-json-report
           pip install ruff bandit
-      
+
+      - name: Run database migrations
+        working-directory: database
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: test_db
+          DB_USER: test_user
+          DB_PASSWORD: test_pass
+          DB_SSLMODE: disable
+          AUTH_MODE: local
+        run: |
+          curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.1/migrate.linux-amd64.tar.gz | tar xvz
+          sudo mv migrate /usr/local/bin/migrate
+          chmod +x migrate.sh
+          ./migrate.sh up
+
       # Checking code quality and security
       - name: Check code formatting with ruff
         working-directory: backend/python
