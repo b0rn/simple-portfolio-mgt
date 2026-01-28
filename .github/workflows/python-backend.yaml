@@ -87,8 +87,14 @@ jobs:
       - name: Run tests with coverage
         working-directory: backend/python
         env:
-          DATABASE_URL: postgresql://test_user:test_pass@localhost:5432/test_db
-          JWT_SECRET_KEY: test-secret-key-for-ci
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: test_db
+          DB_USER: test_user
+          DB_PASSWORD: test_pass
+          DB_SSLMODE: disable
+          AUTH_MODE: local
+          JWT_SECRET: test-secret-key-for-ci
         run: |
           pytest \
             --cov=src \
