@@ -233,7 +233,7 @@ jobs:
             export AUTH_MODE='${{ secrets.AUTH_MODE }}'
 
             chmod +x /opt/database/migrate.sh
-            migrate.sh up
+            /opt/databasemigrate.sh up
           MIGRATE_SCRIPT
 
       - name: Deploy via SSH
