@@ -97,7 +97,7 @@ jobs:
           <body>
             <h1>Test Reports</h1>
             <ul>
-              <li><a href="python/htmlcov/index.html">Python Backend</a> <span class="badge active">active</span></li>
+              <li><a href="python/index.html">Python Backend</a> <span class="badge active">active</span></li>
               <!--
               <li><a href="go/index.html">Go Backend</a> <span class="badge soon">coming soon</span></li>
               <li><a href="php/index.html">PHP Backend</a> <span class="badge soon">coming soon</span></li>
