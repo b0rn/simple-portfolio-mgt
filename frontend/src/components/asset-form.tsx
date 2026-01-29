@@ -78,7 +78,8 @@ export function AssetForm({
                     queryKey: ["assets", portfolioId]
                 });
                 queryClient.invalidateQueries({
-                    queryKey: ["valuation",portfolioId]
+                    queryKey: ["valuation",portfolioId],
+                    refetchType: "all"
                 });
                 toast.success(t("asset_created"));
                 if (onCreated)

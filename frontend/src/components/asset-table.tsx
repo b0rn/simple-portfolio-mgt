@@ -52,6 +52,7 @@ export function AssetTable({ portfolioId, page, itemsPerPage, childIfNoResults }
                 queryClient.invalidateQueries({
                     queryKey: ["assets", portfolioId]
                 });
+                queryClient.invalidateQueries({ queryKey: ["valuation", portfolioId], refetchType: "all" });
             }
         },
         onError: () => {
