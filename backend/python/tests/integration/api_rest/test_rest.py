@@ -844,7 +844,9 @@ class TestREST:
         portfolio_uc.get_portfolio.assert_awaited_once_with(
             owner_id=user.id, portfolio_id=p_id
         )
-        portfolio_uc.delete_asset.assert_awaited_once_with(asset_id=a_id)
+        portfolio_uc.delete_asset.assert_awaited_once_with(
+            portfolio_id=p_id, asset_id=a_id
+        )
 
         # No token
         cookies = client.cookies
@@ -877,4 +879,6 @@ class TestREST:
         portfolio_uc.get_portfolio.assert_awaited_once_with(
             owner_id=user.id, portfolio_id=p_id
         )
-        portfolio_uc.delete_asset.assert_awaited_once_with(asset_id=a_id)
+        portfolio_uc.delete_asset.assert_awaited_once_with(
+            portfolio_id=p_id, asset_id=a_id
+        )

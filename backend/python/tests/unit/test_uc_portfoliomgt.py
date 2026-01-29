@@ -214,7 +214,7 @@ class TestPortfolioMgtUseCase:
         uc = self.__get_uc(mock_db_dataservice)
 
         a_id = 8
-        res = await uc.delete_asset(a_id)
+        res = await uc.delete_asset(portfolio_id=3, asset_id=a_id)
 
         assert res
         mock_db_dataservice.delete_asset.assert_awaited_once_with(a_id)
