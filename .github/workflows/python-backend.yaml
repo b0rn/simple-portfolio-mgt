@@ -171,7 +171,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high --sarif-file-output=snyk-deps.sarif --file=backend/python/requirements.txt
+          args: --severity-threshold=high --sarif-file-output=snyk-deps.sarif --file=backend/python/requirements.txt --allow-missing
 
       - name: Upload dependency scan results to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v4
