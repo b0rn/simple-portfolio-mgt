@@ -166,12 +166,13 @@ jobs:
         run: pip install -r backend/python/requirements.txt
 
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/python@master
+        uses: snyk/actions/node@master
         continue-on-error: true # To make sure that SARIF upload gets called
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high --sarif-file-output=snyk-deps.sarif --file=backend/python/requirements.txt --allow-missing
+          command: test
+          args: --severity-threshold=high --sarif-file-output=snyk-deps.sarif --file=backend/python/requirements.txt
 
       - name: Upload dependency scan results to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v4
