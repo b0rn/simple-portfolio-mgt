@@ -56,15 +56,15 @@ Simple Portfolio App is a financial portfolio management system that allows user
 - ✅ **Authentication & Security**: JWT-based auth with HttpOnly cookies, secure password hashing (bcrypt/argon2)
 
 ### DevOps & Infrastructure
-- **CI/CD Pipelines**: Automated testing, building, and deployment with GitHub Actions
+- ✅ **CI/CD Pipelines**: Automated testing, building, and deployment with GitHub Actions
 - **Multiple Deployment Patterns**: Docker containers, Terraform, AWS CloudFormation, K8s, PM2 clusters
 - **Infrastructure as Code**: Terraform for cloud, Ansible for VPS automation and AWS CloudFormation for AWS
 - **Observability**: Structured logging, Prometheus metrics, Grafana dashboards, OpenTelemetry tracing
 
 ### Security & Quality
-- **Security-First Mindset**: SAST/DAST with SonarQube, dependency scanning with Snyk, security headers
-- **Comprehensive Testing**: Unit tests (>80% coverage), integration tests, E2E tests with Playwright
-- **Production Hardening**: Rate limiting, input validation, SQL injection prevention, CSRF protection
+- ✅ **Security-First Mindset**: SAST/DAST with SonarQube, dependency scanning with Snyk, security headers
+- 🚧 **Comprehensive Testing**: Unit tests (>80% coverage), integration tests, E2E tests with Playwright
+- 🚧 **Production Hardening**: Rate limiting, input validation, SQL injection prevention, CSRF protection
 
 ### Performance & Scalability
 - ✅ **Caching Strategy**: Using a cache for expensive queries, connection pooling optimization
@@ -159,11 +159,11 @@ Coming soon
 ### 🚧 In Progress
 
 #### CI/CD Pipeline
-- [ ] Backend CI workflow (tests, lint, build)
-- [ ] Frontend CI workflow
-- [ ] Docker image optimization
-- [ ] Automated deployment to VPS
-- [ ] Security scanning in CI
+- [x] Backend CI workflow (tests, lint, build)
+- [x] Frontend CI workflow
+- [x] Docker image optimization
+- [x] Automated deployment to VPS
+- [x] Security scanning in CI
 
 #### Documentation
 - [ ] Complete README
