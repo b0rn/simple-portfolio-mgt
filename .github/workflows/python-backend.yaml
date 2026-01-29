@@ -165,24 +165,16 @@ jobs:
       - name: Install dependencies
         run: pip install -r backend/python/requirements.txt
 
-      - name: Run Snyk to check for dependency vulnerabilities
-        uses: snyk/actions/python-3.10@master
-        continue-on-error: true
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/python@master
+        continue-on-error: true # To make sure that SARIF upload gets called
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high --file=backend/python/requirements.txt
-
-      - name: Run Snyk to check dependency vulnerabilities (SARIF)
-        uses: snyk/actions/python-3.10@master
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high --file=backend/python/requirements.txt --sarif-file-output=snyk-deps.sarif
+          args: --severity-threshold=high --sarif-file-output=snyk-deps.sarif --file=backend/python/requirements.txt
 
       - name: Upload dependency scan results to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: snyk-deps.sarif
