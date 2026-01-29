@@ -28,6 +28,35 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: backend/openapi.yaml
+          sparse-checkout-cone-mode: false
+
+      - name: Generate API docs
+        run: |
+          mkdir -p site/api
+          cp backend/openapi.yaml site/api/openapi.yaml
+          cat > site/api/index.html << 'APIEOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>API Documentation</title>
+            <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
+          </head>
+          <body>
+            <div id="swagger-ui"></div>
+            <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+            <script>
+              SwaggerUIBundle({ url: './openapi.yaml', dom_id: '#swagger-ui' });
+            </script>
+          </body>
+          </html>
+          APIEOF
+
       - name: Download Python test reports
         uses: actions/download-artifact@v4
         with:
@@ -95,9 +124,10 @@ jobs:
             </style>
           </head>
           <body>
-            <h1>Test Reports</h1>
+            <h1>Project Reports</h1>
             <ul>
-              <li><a href="python/index.html">Python Backend</a> <span class="badge active">active</span></li>
+              <li><a href="api/index.html">API Documentation</a> <span class="badge active">active</span></li>
+              <li><a href="python/index.html">Python Backend - Coverage</a> <span class="badge active">active</span></li>
               <!--
               <li><a href="go/index.html">Go Backend</a> <span class="badge soon">coming soon</span></li>
               <li><a href="php/index.html">PHP Backend</a> <span class="badge soon">coming soon</span></li>
