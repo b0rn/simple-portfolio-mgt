@@ -102,9 +102,11 @@ class PortfolioMgt:
 
     # ----------------- Asset Methods -----------------
     async def create_asset(self, portfolio_id: int, payload: AssetCreate) -> Asset:
+        self.valuation_cache.pop(f"valuation:{portfolio_id}", None)
         return await self.data_service.create_asset(portfolio_id, payload)
 
-    async def delete_asset(self, asset_id: int) -> bool:
+    async def delete_asset(self, portfolio_id: int, asset_id: int) -> bool:
+        self.valuation_cache.pop(f"valuation:{portfolio_id}", None)
         return await self.data_service.delete_asset(asset_id)
 
     async def list_assets_paginated(
