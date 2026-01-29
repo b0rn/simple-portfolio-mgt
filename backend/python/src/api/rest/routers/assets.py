@@ -7,13 +7,14 @@ from src.api.rest.dependencies import get_usecases, get_current_user
 from src.api.rest.schemas.asset import AssetCreateRequest, AssetResponse
 from src.api.rest.schemas.common import ListResponse
 from src.infrastructure.utils.pagination import PaginationRequest
+from src.domain.aggregates.exceptions.portfolio import PortfolioNotFound
 
 router = APIRouter(tags=["assets"])
 
 
 @router.get("/prices", response_model=dict[str, float], status_code=200)
 def get_prices(user=Depends(get_current_user), ucs: UseCases = Depends(get_usecases)):
-    uc = ucs.PortfolioMgt
+    uc = ucs.portfolio_mgt
     return uc.get_assets_prices()
 
 
@@ -27,13 +28,13 @@ async def add_asset(
     ucs: UseCases = Depends(get_usecases),
 ):
     # Ensure portfolio belongs to user
-    p = await ucs.PortfolioMgt.get_portfolio(
+    p = await ucs.portfolio_mgt.get_portfolio(
         owner_id=user.id, portfolio_id=portfolio_id
     )
     if not p:
-        raise HTTPException(status_code=404, detail="Portfolio not found")
+        raise HTTPException(status_code=404, detail=str(PortfolioNotFound()))
 
-    a = await ucs.PortfolioMgt.create_asset(
+    a = await ucs.portfolio_mgt.create_asset(
         payload=AssetCreate(
             symbol=payload.symbol,
             quantity=payload.quantity,
@@ -61,13 +62,13 @@ async def list_assets(
     ucs: UseCases = Depends(get_usecases),
 ):
     # Effectively checking if the asset's portfolio is owned by the user
-    p = await ucs.PortfolioMgt.get_portfolio(
+    p = await ucs.portfolio_mgt.get_portfolio(
         owner_id=user.id, portfolio_id=portfolio_id
     )
     if not p:
-        raise HTTPException(status_code=404, detail="Portfolio not found")
+        raise HTTPException(status_code=404, detail=str(PortfolioNotFound()))
 
-    items, page_res = await ucs.PortfolioMgt.list_assets_paginated(
+    items, page_res = await ucs.portfolio_mgt.list_assets_paginated(
         portfolio_id=portfolio_id,
         pagination_request=PaginationRequest(page=page, items_per_page=items_per_page),
     )
@@ -94,13 +95,13 @@ async def delete_asset(
     user=Depends(get_current_user),
     ucs: UseCases = Depends(get_usecases),
 ):
-    p = await ucs.PortfolioMgt.get_portfolio(
+    p = await ucs.portfolio_mgt.get_portfolio(
         owner_id=user.id, portfolio_id=portfolio_id
     )
     if not p:
-        raise HTTPException(status_code=404, detail="Portfolio not found")
+        raise HTTPException(status_code=404, detail=str(PortfolioNotFound()))
 
-    ok = await ucs.PortfolioMgt.delete_asset(
+    ok = await ucs.portfolio_mgt.delete_asset(
         portfolio_id=portfolio_id, asset_id=asset_id
     )
     if not ok:

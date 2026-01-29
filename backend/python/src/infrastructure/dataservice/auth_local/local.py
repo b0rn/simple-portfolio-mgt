@@ -9,6 +9,7 @@ from src.infrastructure.config.settings import Settings
 from src.infrastructure.datastore.sqlalchemy.base import session_scope
 from src.infrastructure.datastore.sqlalchemy.models.user import User as UserModel
 from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError, VerificationError, InvalidHashError
 from ..authdataservice import AuthDataService
 from src.domain.aggregates.auth.user import User
 from src.domain.aggregates.exceptions.auth import (
@@ -97,7 +98,7 @@ class LocalAuthDataService(AuthDataService):
         try:
             self.password_hasher.verify(password_hash, password)
             return True
-        except BaseException:
+        except (VerifyMismatchError, VerificationError, InvalidHashError):
             return False
 
     def __create_access_token(self, user_id: uuid.UUID) -> str:

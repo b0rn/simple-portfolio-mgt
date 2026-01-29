@@ -12,8 +12,8 @@ from src.infrastructure.dataservice.dbdataservice_builder import build_db_datase
 
 @dataclass(frozen=True)
 class UseCases:
-    AuthMgt: AuthMgt
-    PortfolioMgt: PortfolioMgt
+    auth_mgt: AuthMgt
+    portfolio_mgt: PortfolioMgt
 
     @staticmethod
     def build(settings: Settings) -> UseCases:
@@ -22,4 +22,4 @@ class UseCases:
         db_dataservice = build_db_dataservice(settings=settings)
         auth_uc = AuthMgt(auth_data_service=auth_dataservice)
         portfolio_uc = PortfolioMgt(data_service=db_dataservice)
-        return UseCases(AuthMgt=auth_uc, PortfolioMgt=portfolio_uc)
+        return UseCases(auth_mgt=auth_uc, portfolio_mgt=portfolio_uc)

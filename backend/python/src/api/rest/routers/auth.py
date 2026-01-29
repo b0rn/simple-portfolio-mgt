@@ -55,7 +55,7 @@ async def register(
     settings: Settings = Depends(get_settings),
     ucs: UseCases = Depends(get_usecases),
 ):
-    uc = ucs.AuthMgt
+    uc = ucs.auth_mgt
     try:
         user, token = await uc.register(payload.email, payload.password)
     except ValueError as e:
@@ -75,7 +75,7 @@ async def login(
     settings: Settings = Depends(get_settings),
     ucs: UseCases = Depends(get_usecases),
 ):
-    uc = ucs.AuthMgt
+    uc = ucs.auth_mgt
     try:
         user, token = await uc.login(payload.email, payload.password)
     except ValueError as e:

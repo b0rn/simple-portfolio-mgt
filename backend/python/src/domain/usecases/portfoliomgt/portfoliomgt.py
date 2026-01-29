@@ -95,7 +95,7 @@ class PortfolioMgt:
             portfolio_id=portfolio_id,
             total_value=total,
             lines=valuation_lines,
-            unknown_symbols=sorted(list(set(unkown_symbols))),
+            unknown_symbols=sorted(set(unkown_symbols)),
         )
         self.valuation_cache[cache_key] = value
         return value

@@ -11,8 +11,8 @@ router = APIRouter(tags=["health"])
 
 @router.get("/health", response_model=Health, status_code=200)
 async def get_health(ucs: UseCases = Depends(get_usecases)):
-    auth_health = await ucs.AuthMgt.health_check()
-    portfolio_health = await ucs.PortfolioMgt.health_check()
+    auth_health = await ucs.auth_mgt.health_check()
+    portfolio_health = await ucs.portfolio_mgt.health_check()
 
     health = Health(
         errors=auth_health.errors + portfolio_health.errors,

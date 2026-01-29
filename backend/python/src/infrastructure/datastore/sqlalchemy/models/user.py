@@ -5,10 +5,6 @@ import uuid
 from sqlalchemy import DateTime, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    pass
 from ..base import Base
 
 

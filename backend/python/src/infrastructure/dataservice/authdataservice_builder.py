@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from src.infrastructure.config.settings import Settings
 from .authdataservice import AuthDataService
+from src.infrastructure.config.exceptions import SettingsNotSetError
 
 
 def build_auth_dataservice(settings: Settings) -> AuthDataService:
     # Local imports prevent circular import at module import time
     if settings is None:
-        raise Exception("settings is not set")
+        raise SettingsNotSetError
     if settings.auth_mode == "local":
         from src.infrastructure.dataservice.auth_local.local import LocalAuthDataService
 
@@ -17,4 +18,4 @@ def build_auth_dataservice(settings: Settings) -> AuthDataService:
         SupabaseAuthDataService,
     )
 
-    return SupabaseAuthDataService()
+    return SupabaseAuthDataService(settings=settings, client=None)

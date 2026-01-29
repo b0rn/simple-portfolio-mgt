@@ -114,7 +114,7 @@ def mock_portfolio_mgt():
 
 @pytest.fixture
 async def rest_client(mock_auth_uc: AuthMgt, mock_portfolio_mgt: PortfolioMgt):
-    ucs = UseCases(AuthMgt=mock_auth_uc, PortfolioMgt=mock_portfolio_mgt)
+    ucs = UseCases(auth_mgt=mock_auth_uc, portfolio_mgt=mock_portfolio_mgt)
     app = create_app(settings=build_settings(), usecases=ucs)
     async with AsyncClient(
         transport=ASGITransport(app=app),

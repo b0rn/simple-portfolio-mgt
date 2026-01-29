@@ -15,6 +15,7 @@ from src.api.rest.schemas.portfolio_valuation import (
     PortfolioValuationResponse,
 )
 from src.infrastructure.utils.pagination import PaginationRequest
+from src.domain.aggregates.exceptions.portfolio import PortfolioNotFound
 
 router = APIRouter(prefix="/portfolios", tags=["portfolios"])
 
@@ -25,7 +26,7 @@ async def create_portfolio(
     user=Depends(get_current_user),
     ucs: UseCases = Depends(get_usecases),
 ):
-    uc = ucs.PortfolioMgt
+    uc = ucs.portfolio_mgt
     portfolio = await uc.create_portfolio(
         owner_id=user.id, payload=PortfolioCreate(name=payload.name)
     )
@@ -44,7 +45,7 @@ async def list_portfolios(
     user=Depends(get_current_user),
     ucs: UseCases = Depends(get_usecases),
 ):
-    uc = ucs.PortfolioMgt
+    uc = ucs.portfolio_mgt
     items, page_res = await uc.list_portfolios_paginated(
         owner_id=user.id,
         pagination_request=PaginationRequest(page=page, items_per_page=items_per_page),
@@ -70,11 +71,11 @@ async def get_portfolio(
     user=Depends(get_current_user),
     ucs: UseCases = Depends(get_usecases),
 ):
-    uc = ucs.PortfolioMgt
+    uc = ucs.portfolio_mgt
 
     p = await uc.get_portfolio(owner_id=user.id, portfolio_id=portfolio_id)
     if not p:
-        raise HTTPException(status_code=404, detail="Portfolio not found")
+        raise HTTPException(status_code=404, detail=str(PortfolioNotFound()))
 
     return PortfolioResponse(
         id=p.id, owner_id=p.owner_id, name=p.name, created_at=p.created_at
@@ -88,7 +89,7 @@ async def update_portfolio(
     user=Depends(get_current_user),
     ucs: UseCases = Depends(get_usecases),
 ):
-    uc = ucs.PortfolioMgt
+    uc = ucs.portfolio_mgt
 
     p = await uc.update_portfolio(
         owner_id=user.id,
@@ -96,7 +97,7 @@ async def update_portfolio(
         payload=PortfolioUpdate(name=payload.name),
     )
     if not p:
-        raise HTTPException(status_code=404, detail="Portfolio not found")
+        raise HTTPException(status_code=404, detail=str(PortfolioNotFound()))
     return PortfolioResponse(
         id=p.id, owner_id=p.owner_id, name=p.name, created_at=p.created_at
     )
@@ -108,11 +109,11 @@ async def delete_portfolio(
     user=Depends(get_current_user),
     ucs: UseCases = Depends(get_usecases),
 ):
-    uc = ucs.PortfolioMgt
+    uc = ucs.portfolio_mgt
 
     ok = await uc.delete_portfolio(owner_id=user.id, portfolio_id=portfolio_id)
     if not ok:
-        raise HTTPException(status_code=404, detail="Portfolio not found")
+        raise HTTPException(status_code=404, detail=str(PortfolioNotFound()))
     return None
 
 
@@ -126,11 +127,11 @@ async def get_portfolio_valutation(
     user=Depends(get_current_user),
     ucs: UseCases = Depends(get_usecases),
 ):
-    uc = ucs.PortfolioMgt
+    uc = ucs.portfolio_mgt
 
     portfolio = await uc.get_portfolio(owner_id=user.id, portfolio_id=portfolio_id)
     if not portfolio:
-        raise HTTPException(status_code=404, detail="Portfolio not found")
+        raise HTTPException(status_code=404, detail=str(PortfolioNotFound()))
 
     portfolio_valuation = await uc.compute_portfolio_valuation(
         portfolio_id=portfolio_id

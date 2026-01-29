@@ -11,6 +11,13 @@ from src.domain.aggregates.health.health import Health
 from src.infrastructure.config.settings import Settings
 from ..authdataservice import AuthDataService
 from src.domain.aggregates.exceptions.auth import InvalidCredentialsError
+from .exceptions import (
+    SupabaseUrlNotSetError,
+    AnonKeyNotSetError,
+    NoAccessTokenError,
+    TokenInvalidError,
+    CantFetchUserError,
+)
 
 
 class SupabaseAuthDataService(AuthDataService):
@@ -26,7 +33,7 @@ class SupabaseAuthDataService(AuthDataService):
 
     def _base_headers(self) -> dict[str, str]:
         if not self._settings.supabase_anon_key:
-            raise ValueError("Supabase anon key is not set in settings")
+            raise AnonKeyNotSetError
         return {
             "apikey": self._settings.supabase_anon_key,
             "Content-Type": "application/json",
@@ -36,14 +43,14 @@ class SupabaseAuthDataService(AuthDataService):
         errors: list[str] = []
         warnings: list[str] = []
         if not self._settings.supabase_url:
-            errors.append("SUPABASE_URL is not set")
+            errors.append(str(SupabaseUrlNotSetError))
         if not self._settings.supabase_anon_key:
-            errors.append("SUPABASE_ANON_KEY is not set")
+            errors.append(str(AnonKeyNotSetError))
         return Health(errors=errors, warnings=warnings)
 
     async def register(self, email: str, password: str) -> tuple[User, str]:
         if not self._settings.supabase_url:
-            raise ValueError("Supabase URL is not set in settings")
+            raise SupabaseUrlNotSetError
         url = f"{self._settings.supabase_url.rstrip('/')}/auth/v1/signup"
 
         r = await self._client.post(
@@ -66,13 +73,13 @@ class SupabaseAuthDataService(AuthDataService):
 
         user = await self.get_user_from_token(access_token)
         if not user:
-            raise Exception("Could not fetch user after signup")
+            raise CantFetchUserError
 
         return user, access_token
 
     async def login(self, email: str, password: str) -> tuple[User, str]:
         if not self._settings.supabase_url:
-            raise ValueError("Supabase URL is not set in settings")
+            raise SupabaseUrlNotSetError
         url = f"{self._settings.supabase_url.rstrip('/')}/auth/v1/token?grant_type=password"
 
         r = await self._client.post(
@@ -87,17 +94,17 @@ class SupabaseAuthDataService(AuthDataService):
         data = r.json()
         access_token = data.get("access_token")
         if not access_token:
-            raise Exception("Supabase login failed: no access_token")
+            raise NoAccessTokenError
 
         user = await self.get_user_from_token(access_token)
         if not user:
-            raise ValueError("Token invalid after login")
+            raise TokenInvalidError
 
         return user, access_token
 
     async def get_user_from_token(self, access_token: str) -> Optional[User]:
         if not self._settings.supabase_url:
-            raise ValueError("Supabase URL is not set in settings")
+            raise SupabaseUrlNotSetError
         url = f"{self._settings.supabase_url.rstrip('/')}/auth/v1/user"
 
         r = await self._client.get(

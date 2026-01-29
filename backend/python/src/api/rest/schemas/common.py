@@ -16,6 +16,6 @@ class PaginationParams(BaseModel):
     )
 
 
-class ListResponse(BaseModel, Generic[T]):
+class ListResponse[T](BaseModel):
     items: List[T]
     pagination_response: PaginationResponse
