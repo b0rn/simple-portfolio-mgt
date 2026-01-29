@@ -157,14 +157,14 @@ Coming soon
 - [x] Responsive design
 - [x] TypeScript types
 
-### 🚧 In Progress
-
 #### CI/CD Pipeline
 - [x] Backend CI workflow (tests, lint, build)
 - [x] Frontend CI workflow
 - [x] Docker image optimization
 - [x] Automated deployment to VPS
 - [x] Security scanning in CI
+
+### 🚧 In Progress
 
 #### Documentation
 - [ ] Complete README
