@@ -13,9 +13,10 @@
 
 ---
 
-**Live Demo:** [Coming Soon]  
-**API Documentation:** [Coming Soon]  
-**Monitoring Dashboard:** [Coming Soon]
+**Live Demo:** [spa.chronolobe.app](https://spa.chronolobe.app)
+| **API Documentation:** [OpenAPI Spec](https://b0rn.github.io/simple-portfolio-mgt/api/)
+| **Test Reports:** [Coverage Reports](https://b0rn.github.io/simple-portfolio-mgt/)
+| **Monitoring Dashboard:** Coming Soon
 
 ---
 
