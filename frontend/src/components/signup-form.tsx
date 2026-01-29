@@ -67,7 +67,7 @@ export function SignupForm({
                 setErrorTitle(t("signup_failed"));
                 setErrorDescription(t("error_500"));
             } else if(response.status === 201) {
-                router.replace("/app");
+                router.replace("/app/portfolios");
             }
         },
         onError : (data) => {
