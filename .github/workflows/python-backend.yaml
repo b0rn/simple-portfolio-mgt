@@ -132,9 +132,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-test-reports
-          path: |
-            backend/python/htmlcov/
-            backend/python/test-report.html
+          path: backend/python/htmlcov/
           retention-days: 30
       
       - name: Comment PR with coverage

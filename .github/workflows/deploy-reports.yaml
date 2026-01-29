@@ -1,0 +1,119 @@
+name: Deploy Test Reports to GitHub Pages
+
+on:
+  workflow_run:
+    workflows:
+      - "Python Backend CI/CD"
+      # - "Go Backend CI/CD"
+      # - "PHP Backend CI/CD"
+      # - "Java Backend CI/CD"
+      # - "JS Backend CI/CD"
+    types: [completed]
+    branches: [main]
+
+permissions:
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download Python test reports
+        uses: actions/download-artifact@v4
+        with:
+          name: python-test-reports
+          path: site/python
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      # - name: Download Go test reports
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: go-test-reports
+      #     path: site/go
+      #     run-id: ${{ github.event.workflow_run.id }}
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #   continue-on-error: true
+
+      # - name: Download PHP test reports
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: php-test-reports
+      #     path: site/php
+      #     run-id: ${{ github.event.workflow_run.id }}
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #   continue-on-error: true
+
+      # - name: Download Java test reports
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: java-test-reports
+      #     path: site/java
+      #     run-id: ${{ github.event.workflow_run.id }}
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #   continue-on-error: true
+
+      # - name: Download JS test reports
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: js-test-reports
+      #     path: site/js
+      #     run-id: ${{ github.event.workflow_run.id }}
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #   continue-on-error: true
+
+      - name: Generate index page
+        run: |
+          cat > site/index.html << 'INDEXEOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Test Reports</title>
+            <style>
+              body { font-family: system-ui, sans-serif; max-width: 600px; margin: 60px auto; padding: 0 20px; }
+              h1 { border-bottom: 2px solid #333; padding-bottom: 10px; }
+              ul { list-style: none; padding: 0; }
+              li { margin: 12px 0; }
+              a { color: #0366d6; text-decoration: none; font-size: 1.1em; }
+              a:hover { text-decoration: underline; }
+              .badge { font-size: 0.75em; padding: 2px 8px; border-radius: 4px; color: white; margin-left: 8px; }
+              .active { background: #28a745; }
+              .soon { background: #6c757d; }
+            </style>
+          </head>
+          <body>
+            <h1>Test Reports</h1>
+            <ul>
+              <li><a href="python/htmlcov/index.html">Python Backend</a> <span class="badge active">active</span></li>
+              <!--
+              <li><a href="go/index.html">Go Backend</a> <span class="badge soon">coming soon</span></li>
+              <li><a href="php/index.html">PHP Backend</a> <span class="badge soon">coming soon</span></li>
+              <li><a href="java/index.html">Java Backend</a> <span class="badge soon">coming soon</span></li>
+              <li><a href="js/index.html">JS Backend</a> <span class="badge soon">coming soon</span></li>
+              -->
+            </ul>
+          </body>
+          </html>
+          INDEXEOF
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
