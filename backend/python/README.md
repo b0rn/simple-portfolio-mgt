@@ -5,7 +5,7 @@ A production-grade REST API built with FastAPI and SQLAlchemy, implementing Clea
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.128.0-009688.svg)](https://fastapi.tiangolo.com/)
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0.36-red.svg)](https://www.sqlalchemy.org/)
-[![Code Coverage](https://img.shields.io/badge/Coverage-80%25+-brightgreen.svg)]()
+[![codecov](https://codecov.io/gh/b0rn/simple-portfolio-mgt/graph/badge.svg?token=Xxs3oDeSGG)](https://codecov.io/gh/b0rn/simple-portfolio-mgt)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=b0rn_simple-portfolio-mgt&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=b0rn_simple-portfolio-mgt)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 
