@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Generic, List, TypeVar
+from typing import List, TypeVar
 from pydantic import BaseModel, Field
 from src.infrastructure.utils.pagination import PaginationResponse
 
