@@ -66,7 +66,7 @@ export function PortfolioTiles({ page, itemsPerPage, className, onEditClick }: P
     if (portfoliosQuery.data?.data?.items.length === 0) {
         return (
             <div className={cn("flex grow items-center justify-center", className)}>
-                <p>{t("no_results")}</p>;
+                <p>{t("no_results")}</p>
             </div>
         );
     }
