@@ -100,7 +100,7 @@ async def delete_asset(
     if not p:
         raise HTTPException(status_code=404, detail="Portfolio not found")
 
-    ok = await ucs.PortfolioMgt.delete_asset(asset_id=asset_id)
+    ok = await ucs.PortfolioMgt.delete_asset(portfolio_id=portfolio_id, asset_id=asset_id)
     if not ok:
         raise HTTPException(status_code=404, detail="Asset not found")
     return None
