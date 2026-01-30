@@ -1,26 +1,33 @@
-import { Button } from '@/components/ui/button';
-import { Link } from '@/i18n/navigation';
+import LandingPage from '@/components/landing-page';
 import { getTranslations } from 'next-intl/server';
 
 export default async function Page() {
     const t = await getTranslations("HomePage");
 
-    return (
-        <div className='flex flex-col justify-center items-center grow gap-4'>
-            <h1 className='text-2xl font-bold'>{t("title")}</h1>
-            <p className='text-lg font-medium'>{t("description")}</p>
-            <div className='flex flex-row gap-2'>
-                <Button asChild className='text-lg font-semibold'>
-                    <Link href={"/auth/login"}>
-                        {t("login")}
-                    </Link>
-                </Button>
-                <Button asChild className='text-lg font-semibold'>
-                    <Link href={"/auth/signup"}>
-                        {t("sign_up")}
-                    </Link>
-                </Button>
-            </div>
-        </div>
-    )
+    const translations = {
+        subtitle: t("subtitle"),
+        description: t("description"),
+        sign_up: t("sign_up"),
+        login: t("login"),
+        features_title: t("features_title"),
+        features_subtitle: t("features_subtitle"),
+        feature_portfolios_title: t("feature_portfolios_title"),
+        feature_portfolios_desc: t("feature_portfolios_desc"),
+        feature_assets_title: t("feature_assets_title"),
+        feature_assets_desc: t("feature_assets_desc"),
+        feature_valuation_title: t("feature_valuation_title"),
+        feature_valuation_desc: t("feature_valuation_desc"),
+        feature_secure_title: t("feature_secure_title"),
+        feature_secure_desc: t("feature_secure_desc"),
+        feature_i18n_title: t("feature_i18n_title"),
+        feature_i18n_desc: t("feature_i18n_desc"),
+        feature_responsive_title: t("feature_responsive_title"),
+        feature_responsive_desc: t("feature_responsive_desc"),
+        cta_title: t("cta_title"),
+        cta_description: t("cta_description"),
+        cta_sign_up: t("cta_sign_up"),
+        cta_login: t("cta_login"),
+    };
+
+    return <LandingPage t={translations} />;
 }
