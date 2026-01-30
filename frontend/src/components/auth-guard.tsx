@@ -2,24 +2,29 @@
 
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { registerUnauthorizedHandler } from "@/lib/auth/events";
-import { useLocale } from "next-intl";
-
 export function AuthGard({ children } : { children : React.ReactNode }) {
     const queryClient = useQueryClient();
     const pathname = usePathname();
-    const locale = useLocale();
     const router = useRouter();
-    
+    const redirectingRef = useRef(false);
+
     useEffect(() => {
-        registerUnauthorizedHandler(() => {
-            queryClient.invalidateQueries({ queryKey : ["me"] });
-            if(pathname !== "/auth/login" ) {
-                router.replace("/auth/login");
+        redirectingRef.current = false;
+    }, [pathname]);
+
+    useEffect(() => {
+        const unregister = registerUnauthorizedHandler(() => {
+            if (redirectingRef.current || pathname === "/auth/login") {
+                return;
             }
+            redirectingRef.current = true;
+            queryClient.invalidateQueries({ queryKey : ["me"] });
+            router.replace("/auth/login");
         })
-    }, [queryClient, pathname, locale])
+        return unregister;
+    }, [queryClient, pathname, router])
 
     
     return <>{children}</>;
