@@ -300,7 +300,7 @@ For detailed migration documentation, see [database/README.md](database/README.m
 ## 📚 Documentation
 
 ### Core Documentation
-- **[API Documentation](./docs/API.md)** - Complete API reference
+- **[API Documentation](https://b0rn.github.io/simple-portfolio-mgt/api/)** - Complete API reference
 - **[Architecture Guide](./docs/ARCHITECTURE.md)** - System design and patterns
 - **[Deployment Guide](./docs/DEPLOYMENT.md)** - How to deploy to various environments
 - **[Security Documentation](./docs/SECURITY.md)** - Security practices and threat model
