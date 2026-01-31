@@ -39,7 +39,7 @@ export function Navbar() {
                         className="flex items-center gap-2">
                         <div className='rounded-full p-2 bg-gray-500'>
                             <Image
-                                src="/vercel.svg"
+                                src="/logo.svg"
                                 className="max-h-8"
                                 alt="Logo"
                                 width={32}
