@@ -22,6 +22,7 @@ from src.domain.aggregates.health.health import Health
 from src.infrastructure.utils.pagination import PaginationRequest, PaginationResponse
 from src.domain.usecases.portfoliomgt.payloads import PortfolioCreate, PortfolioUpdate
 from src.domain.usecases.portfoliomgt.payloads import AssetCreate
+from src.domain.aggregates.exceptions.auth import EmailAlreadyExistsError, InvalidCredentialsError
 
 
 @pytest.mark.integration
@@ -205,6 +206,23 @@ class TestREST:
         res = await client.post("/auth/register", json=payload)
 
         assert res.status_code == 422
+        
+        # Value error in registration
+        auth_uc.register = AsyncMock(side_effect=ValueError("bad input"))
+
+        payload = {"email": "foo@bar.com", "password": "password123!"}
+        res = await client.post("/auth/register", json=payload)
+
+        assert res.status_code == 400
+        assert res.json()["detail"] == "bad input"
+
+        # Email already exists
+        auth_uc.register = AsyncMock(side_effect=EmailAlreadyExistsError())
+
+        payload = {"email": "foo@bar.com", "password": "password123!"}
+        res = await client.post("/auth/register", json=payload)
+
+        assert res.status_code == 409
 
     async def test_auth_login(
         self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]
@@ -251,6 +269,23 @@ class TestREST:
         res = await client.post("/auth/login", json=payload)
 
         assert res.status_code == 422
+        
+        # Value error in login
+        auth_uc.login = AsyncMock(side_effect=ValueError("bad input"))
+
+        payload = {"email": "foo@bar.com", "password": "password123!"}
+        res = await client.post("/auth/login", json=payload)
+
+        assert res.status_code == 401
+        assert res.json()["detail"] == "bad input"
+        
+        # Invalid credentials
+        auth_uc.login = AsyncMock(side_effect=InvalidCredentialsError())
+
+        payload = {"email": "foo@bar.com", "password": "password123!"}
+        res = await client.post("/auth/login", json=payload)
+
+        assert res.status_code == 401
 
     async def test_logout(self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]):
         client, _, _ = rest_client
@@ -279,6 +314,7 @@ class TestREST:
         res = await client.get("/auth/me")
 
         assert res.status_code == 401
+
 
     # ----------------------- Portfolios route ----------------
     async def test_portfolio_create(
