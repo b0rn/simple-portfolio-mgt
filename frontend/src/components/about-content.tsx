@@ -159,7 +159,7 @@ export default function AboutContent({ t }: AboutContentProps) {
         { title: t.explore_source, desc: t.explore_source_desc, icon: FileCode2, href: 'https://github.com/b0rn/simple-portfolio-mgt' },
         { title: t.explore_api, desc: t.explore_api_desc, icon: BookOpen, href: 'https://b0rn.github.io/simple-portfolio-mgt/api/' },
         { title: t.explore_architecture, desc: t.explore_architecture_desc, icon: Layers, href: 'https://github.com/b0rn/simple-portfolio-mgt/blob/main/docs/ARCHITECTURE.md' },
-        { title: t.explore_live, desc: t.explore_live_desc, icon: Globe, href: 'https://spa.chronolobe.app' },
+        { title: t.explore_live, desc: t.explore_live_desc, icon: Globe, href: 'https://spa.demos.vleveneur.com' },
     ];
 
     const whyPoints = [t.why_point_1, t.why_point_2, t.why_point_3, t.why_point_4];

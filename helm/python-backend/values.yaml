@@ -42,7 +42,7 @@ config:
   DB_PORT: "5432"
   DB_NAME: "portfolio_db"
   DB_SSLMODE: "prefer"
-  CORS_ORIGINS: "https://spa.chronolobe.app"
+  CORS_ORIGINS: "https://spa.demos.vleveneur.com"
   AUTH_MODE: "local"
   JWT_EXPIRES_MINUTES: "60"
   COOKIE_SECURE: "true"

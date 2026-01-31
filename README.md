@@ -13,7 +13,7 @@
 
 ---
 
-**Live Demo:** [spa.chronolobe.app](https://spa.chronolobe.app)
+**Live Demo:** [spa.demos.vleveneur.com](https://spa.demos.vleveneur.com)
 | **API Documentation:** [OpenAPI Spec](https://b0rn.github.io/simple-portfolio-mgt/api/)
 | **Test Reports:** [Coverage Reports](https://b0rn.github.io/simple-portfolio-mgt/)
 | **Monitoring Dashboard:** Coming Soon
