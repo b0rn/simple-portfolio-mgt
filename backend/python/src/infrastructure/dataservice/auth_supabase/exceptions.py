@@ -13,12 +13,6 @@ class AnonKeyNotSetError(SupabaseAuthError):
     def __init__(self, msg="Supabase ANON KEY is not set", *args, **kwargs):
         super().__init__(msg, *args, **kwargs)
 
-
-class InvalidCredentialsError(SupabaseAuthError):
-    def __init__(self, msg="Invalid credentials", *args, **kwargs):
-        super().__init__(msg, *args, **kwargs)
-
-
 class EmailConfirmationRequiredError(SupabaseAuthError):
     def __init__(self, msg="Email confirmation required", *args, **kwargs):
         super().__init__(msg, *args, **kwargs)

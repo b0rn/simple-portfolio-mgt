@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import (
 from httpx import ASGITransport, AsyncClient, MockTransport, Request, Response
 from uuid import uuid4
 from datetime import datetime, timezone
+import json
 
 from src.infrastructure.config.settings import build_settings
 from src.infrastructure.dataservice.dbdataservice import DbDataService
@@ -63,9 +64,22 @@ def dataservice_auth_supabase():
     created_at = datetime.now(tz=timezone.utc)
 
     async def handler(request: Request):
+        contents = request.content.decode()
+        body = {}
+        if contents:
+            body = json.loads(contents)
         if request.url.path == "/auth/v1/signup":
+            # Register
+            if body["email"] == "400":
+                return Response(status_code=400)
+            elif body["email"] == "no_access_token":
+                return Response(status_code=201, json={})
             return Response(status_code=201, json={"access_token": access_token})
         elif request.url.path == "/auth/v1/user":
+            # Get user from token
+            token = request.headers.get("Authorization")
+            if "400" in token:
+                return Response(status_code=400)
             return Response(
                 status_code=200,
                 json={
@@ -75,6 +89,11 @@ def dataservice_auth_supabase():
                 },
             )
         elif request.url.path == "/auth/v1/token":
+            # Login
+            if body["email"] == "400":
+                return Response(status_code=400)
+            elif body["email"] == "no_access_token":
+                return Response(status_code=200, json={})
             return Response(status_code=200, json={"access_token": access_token})
         return Response(status_code=404)
 

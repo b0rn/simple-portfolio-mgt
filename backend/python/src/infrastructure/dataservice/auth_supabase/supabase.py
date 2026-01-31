@@ -87,7 +87,7 @@ class SupabaseAuthDataService(AuthDataService):
             headers=self._base_headers(),
             json={"email": email, "password": password},
         )
-
+        
         if r.status_code >= 400:
             raise InvalidCredentialsError
 
