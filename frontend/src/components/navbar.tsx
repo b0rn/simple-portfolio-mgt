@@ -120,7 +120,7 @@ export function Navbar() {
                                     >
                                         <div className='rounded-xl p-2 bg-primary/10 ring-1 ring-primary/20'>
                                             <Image
-                                                src="/vercel.svg"
+                                                src="/logo.svg"
                                                 className="max-h-8"
                                                 alt="Logo"
                                                 width={32}
