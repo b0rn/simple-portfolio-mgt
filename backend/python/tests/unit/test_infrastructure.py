@@ -153,7 +153,7 @@ class TestSQLAlchemyBase:
         base_mod.SessionLocal = mock_session_maker
         try:
             with pytest.raises(ValueError):
-                async with base_mod.session_scope() as session:
+                async with base_mod.session_scope() as _:
                     raise ValueError("test error")
         finally:
             base_mod.SessionLocal = original
