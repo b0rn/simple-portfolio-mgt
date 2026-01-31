@@ -162,7 +162,7 @@ export function LoginForm({
                                     />
                                 </div>
                             </div>
-                            <Button type="submit" className="w-full">
+                            <Button type="submit" className="w-full cursor-pointer" disabled={loginMutation.isPending}>
                                 {t("login")}
                             </Button>
                             <div className="text-center text-sm">
@@ -175,7 +175,7 @@ export function LoginForm({
                     </form>
                     <div className="bg-gray-500 relative hidden md:block p-2">
                         <Image
-                            src="/vercel.svg"
+                            src="/logo.svg"
                             alt="Image"
                             className="h-full w-full"
                             width={100}

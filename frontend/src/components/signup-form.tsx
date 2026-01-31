@@ -233,7 +233,7 @@ export function SignupForm({
                                     </Field>
                                 )}
                             />
-                            <Button type="submit" className="w-full">
+                            <Button type="submit" className="w-full cursor-pointer" disabled={registerMutation.isPending || confirmPasswordError}>
                                 {t("sign_up")}
                             </Button>
                             <div className="text-center text-sm">
@@ -246,7 +246,7 @@ export function SignupForm({
                     </form>
                     <div className="bg-gray-500 relative hidden md:block p-2">
                         <Image
-                            src="/vercel.svg"
+                            src="/logo.svg"
                             alt="Image"
                             className="h-full w-full"
                             width={100}
