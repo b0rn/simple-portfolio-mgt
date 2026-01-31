@@ -1,6 +1,7 @@
 fastapi[standard]==0.128.0
 SQLAlchemy==2.0.36
 asyncpg==0.30.0
+aiosqlite==0.20.0
 pydantic==2.10.3
 pydantic-settings==2.6.1
 cachetools==5.5.0
