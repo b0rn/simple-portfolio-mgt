@@ -4,7 +4,7 @@ from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime, timezone, timedelta
 import uuid
-from jose import jwt
+import jwt
 from src.infrastructure.config.settings import Settings
 from src.infrastructure.datastore.sqlalchemy.base import session_scope
 from src.infrastructure.datastore.sqlalchemy.models.user import User as UserModel
