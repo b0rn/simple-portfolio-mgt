@@ -85,7 +85,7 @@ export default function LandingPage({ t }: LandingPageProps) {
           stepDuration={0.3}
         />
 
-        <div className="flex flex-row gap-4 mt-6">
+        <div className="flex flex-col md:flex-row gap-4 mt-6">
           <StarBorder
             as={Link}
             href="/auth/signup"
@@ -161,7 +161,7 @@ export default function LandingPage({ t }: LandingPageProps) {
           <p className="text-lg text-muted-foreground">
             {t.cta_description}
           </p>
-          <div className="flex flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-4">
             <StarBorder
               as={Link}
               href="/auth/signup"
