@@ -47,6 +47,7 @@ config:
   JWT_EXPIRES_MINUTES: "60"
   COOKIE_SECURE: "true"
   COOKIE_SAMESITE: "lax"
+  COOKIE_DOMAIN: "spa.demos.vleveneur.com"
 
 secret:
   DB_HOST: ""
