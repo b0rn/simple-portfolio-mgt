@@ -173,14 +173,16 @@ export function LoginForm({
                             </div>
                         </div>
                     </form>
-                    <div className="bg-gray-500 relative hidden md:block p-2">
-                        <Image
-                            src="/logo.svg"
-                            alt="Image"
-                            className="h-full w-full"
-                            width={100}
-                            height={100}
-                        />
+                    <div className="relative hidden md:flex items-center justify-center bg-gradient-to-br from-primary/20 via-secondary/15 to-primary/10 p-8">
+                        <div className="rounded-2xl bg-background/30 backdrop-blur-sm p-6 ring-1 ring-white/10">
+                            <Image
+                                src="/logo.svg"
+                                alt="Image"
+                                className="h-24 w-24 opacity-80"
+                                width={96}
+                                height={96}
+                            />
+                        </div>
                     </div>
                 </CardContent>
             </Card>

@@ -47,13 +47,13 @@ export function AppNavbar() {
     })
 
     return (
-        <section className="py-4">
-            <div className='container mx-auto'>
+        <section className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+            <div className='container mx-auto py-3'>
                 <nav className='flex items-center justify-between'>
                     <Link
                         href="/"
-                        className="flex items-center gap-2">
-                        <div className='rounded-full p-2 bg-gray-500'>
+                        className="flex items-center gap-2.5 group">
+                        <div className='rounded-xl p-2 bg-primary/10 ring-1 ring-primary/20 transition-all group-hover:bg-primary/20 group-hover:ring-primary/40'>
                             <Image
                                 src="/logo.svg"
                                 className="max-h-8"
@@ -62,7 +62,7 @@ export function AppNavbar() {
                                 height={32}
                             />
                         </div>
-                        <span className="text-lg font-semibold tracking-tighter">
+                        <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
                             {t("app_name")}
                         </span>
                     </Link>
@@ -141,7 +141,7 @@ export function AppNavbar() {
                                         className='flex items-center gap-2'
                                         onClick={() => setSheetOpen(true)}
                                     >
-                                        <div className='rounded-full p-2 bg-gray-500'>
+                                        <div className='rounded-xl p-2 bg-primary/10 ring-1 ring-primary/20'>
                                             <Image
                                                 src="/vercel.svg"
                                                 className="max-h-8"

@@ -74,9 +74,9 @@ export function PortfolioTiles({ page, itemsPerPage, className, onEditClick }: P
     return (
         <div className={cn("flex flex-row flex-wrap gap-4", className)}>
             {portfoliosQuery.data?.data?.items.map((p, i) => (
-                <Card key={i}>
+                <Card key={i} className="transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ring-1 ring-border/50">
                     <CardHeader className="flex flex-row justify-between items-center">
-                        <CardTitle className="text-3xl">{p.name}</CardTitle>
+                        <CardTitle className="text-2xl font-bold">{p.name}</CardTitle>
                         <Button
                             variant="secondary"
                             className="cursor-pointer rounded-md text-3xl"

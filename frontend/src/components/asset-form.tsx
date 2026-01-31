@@ -167,7 +167,8 @@ export function AssetForm({
                         </Field>
                     )}
                 />
-                <Button type="submit" className="w-full cursor-pointer">
+                <Button type="submit" className="w-full cursor-pointer flex-row items-center" disabled={createAssetMutation.isPending}>
+                    {createAssetMutation.isPending ? <Spinner className="mr-2" /> : null}
                     {t("create")}
                 </Button>
             </form>

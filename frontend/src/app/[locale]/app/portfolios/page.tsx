@@ -14,6 +14,7 @@ import { PortfolioForm, PortfolioFormData } from "@/components/portfolio-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useApiClient } from "@/components/api-client-provider";
 import { toast } from "sonner";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function Page() {
     const t = useTranslations("Portfolios");
@@ -82,7 +83,7 @@ export default function Page() {
                         <Button onClick={() => {
                             setPortfolioToEdit(null);
                             setPortfolioFormIsOpen(true);
-                        }}>
+                        }} className="cursor-pointer">
                             <PlusIcon className="w-4 h-4" />
                             <span className="hidden md:inline">{t("add")}</span>
                         </Button>
@@ -147,7 +148,8 @@ export default function Page() {
                             <Button variant="outline" onClick={() => setDeleteConfirmationDialogIsOpen(false)}>
                                 {t("cancel")}
                             </Button>
-                            <Button variant="destructive" onClick={handleDeleteTask}>
+                            <Button variant="destructive" onClick={handleDeleteTask} disabled={portfolioDeleteMutation.isPending} className="flex-row items-center">
+                                {portfolioDeleteMutation.isPending && <Spinner className="mr-2" />}
                                 {t("delete")}
                             </Button>
                         </div>

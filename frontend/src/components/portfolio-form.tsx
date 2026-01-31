@@ -14,6 +14,7 @@ import { AlertCircleIcon } from "lucide-react";
 import { Field, FieldError, FieldLabel } from "./ui/field";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { Spinner } from "./ui/spinner";
 
 const formSchema = (t: ReturnType<typeof useTranslations>) => z.object({
     name: z.string().min(1, t("name_required")).max(100, t("name_required"))
@@ -222,7 +223,8 @@ export function PortfolioForm({
                         </Field>
                     )}
                 />
-                <Button type="submit" className="w-full cursor-pointer">
+                <Button type="submit" className="w-full cursor-pointer flex-row items-center" disabled={createPortfolioMutation.isPending || updatePortfolioMutation.isPending}>
+                    {createPortfolioMutation.isPending || updatePortfolioMutation.isPending ? <Spinner className="mr-2" /> : null}
                     {mode === "create" ? t("create") : t("edit")}
                 </Button>
             </form>

@@ -18,7 +18,7 @@ import { AssetForm } from "@/components/asset-form";
 import { AssetTable } from "@/components/asset-table";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Separator } from "@/src/components/ui/separator";
+import { Separator } from "@/components/ui/separator";
 import { ValuationTable } from "@/components/valuation-table";
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
@@ -180,12 +180,13 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="flex justify-end gap-2">
-                                <Button variant="outline" onClick={() =>
+                                <Button variant="outline" className="cursor-pointer" onClick={() =>
                                     setDeleteConfirmationDialogIsOpen(false)
                                 }>
                                     {t("cancel")}
                                 </Button>
-                                <Button variant="destructive" onClick={handleDeleteTask}>
+                                <Button variant="destructive" onClick={handleDeleteTask} disabled={portfolioDeleteMutation.isPending} className="cursor-pointer flex-row items-center">
+                                    {portfolioDeleteMutation.isPending ? <Spinner className="mr-2" /> : null}
                                     {t("delete")}
                                 </Button>
                             </div>
