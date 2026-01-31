@@ -17,7 +17,8 @@ from .exceptions import (
     NoAccessTokenError,
     TokenInvalidError,
     CantFetchUserError,
-    EmailConfirmationRequiredError
+    EmailConfirmationRequiredError,
+    SignupFailedError
 )
 
 
@@ -62,7 +63,7 @@ class SupabaseAuthDataService(AuthDataService):
 
         if r.status_code >= 400:
             # Supabase returns structured errors; keep it simple for now
-            raise ValueError("Supabase signup failed")
+            raise SignupFailedError
 
         data = r.json()
         access_token = data.get("access_token")

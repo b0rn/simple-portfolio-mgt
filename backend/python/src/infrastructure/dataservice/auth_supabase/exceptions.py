@@ -37,3 +37,7 @@ class TokenInvalidError(SupabaseAuthError):
 class CantFetchUserError(SupabaseAuthError):
     def __init__(self, msg="Could not fetch user", *args, **kwargs):
         super().__init__(msg, *args, **kwargs)
+        
+class SignupFailedError(SupabaseAuthError):
+    def __init__(self, msg="Supabase signup failed", *args, **kwargs):
+        super().__init__(msg, *args, **kwargs)
