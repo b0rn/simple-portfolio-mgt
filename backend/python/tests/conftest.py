@@ -4,6 +4,11 @@ Shared test fixtures for unit and integration tests.
 
 from __future__ import annotations
 
+import os
+
+# Disable OTel instrumentation during tests
+os.environ.setdefault("OTEL_ENABLED", "false")
+
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 

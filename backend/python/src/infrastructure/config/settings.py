@@ -41,6 +41,19 @@ class Settings(BaseSettings):
         default="lax", alias="COOKIE_SAMESITE"
     )  # lax|strict|none
     cookie_domain: str | None = Field(default=None, alias="COOKIE_DOMAIN")
+    # Observability
+    otel_enabled: bool = Field(default=True, alias="OTEL_ENABLED")
+    otel_service_name: str = Field(
+        default="simple-portfolio-api", alias="OTEL_SERVICE_NAME"
+    )
+    otel_exporter_otlp_endpoint: str = Field(
+        default="http://localhost:4317", alias="OTEL_EXPORTER_OTLP_ENDPOINT"
+    )
+    otel_exporter_otlp_insecure: bool = Field(
+        default=True, alias="OTEL_EXPORTER_OTLP_INSECURE"
+    )
+    otel_log_level: str = Field(default="INFO", alias="OTEL_LOG_LEVEL")
+
     # Supabase (required if auth_mode == "supabase")
     supabase_url: str | None = Field(default=None, alias="SUPABASE_URL")
     supabase_anon_key: str | None = Field(default=None, alias="SUPABASE_ANON_KEY")

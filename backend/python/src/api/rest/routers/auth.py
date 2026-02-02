@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import structlog
 from fastapi import APIRouter, Depends, HTTPException, Response
 
 from src.infrastructure.config.settings import Settings
@@ -15,6 +16,7 @@ from src.api.rest.schemas.auth import (
 from src.domain.aggregates.exceptions.auth import EmailAlreadyExistsError
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+logger = structlog.get_logger("auth")
 
 
 def _set_auth_cookie(settings: Settings, resp: Response, token: str) -> None:
@@ -59,9 +61,12 @@ async def register(
     try:
         user, token = await uc.register(payload.email, payload.password)
     except ValueError as e:
+        logger.warning("register_failed", email=payload.email, reason=str(e))
         raise HTTPException(status_code=400, detail=str(e))
     except EmailAlreadyExistsError as e:
+        logger.warning("register_conflict", email=payload.email)
         raise HTTPException(status_code=409, detail=str(e))
+    logger.info("user_registered", user_id=str(user.id), email=user.email)
     _set_auth_cookie(settings, resp, token)
     return MeResponse(
         user=UserResponse(id=user.id, email=user.email, created_at=user.created_at)
@@ -78,11 +83,11 @@ async def login(
     uc = ucs.auth_mgt
     try:
         user, token = await uc.login(payload.email, payload.password)
-    except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e))
-    except InvalidCredentialsError as e:
+    except (ValueError, InvalidCredentialsError) as e:
+        logger.warning("login_failed", email=payload.email, reason=str(e))
         raise HTTPException(status_code=401, detail=str(e))
 
+    logger.info("user_logged_in", user_id=str(user.id), email=user.email)
     _set_auth_cookie(settings, resp, token)
     return MeResponse(
         user=UserResponse(id=user.id, email=user.email, created_at=user.created_at)
@@ -92,6 +97,7 @@ async def login(
 @router.post("/logout")
 async def logout(resp: Response, settings: Settings = Depends(get_settings)):
     _clear_auth_cookie(settings, resp)
+    logger.info("user_logged_out")
     return {"status": "ok"}
 
 
