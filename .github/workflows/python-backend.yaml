@@ -244,9 +244,34 @@ jobs:
           sarif_file: snyk.sarif
           category: snyk-container
 
+  publish-helm:
+    name: Publish Helm Chart to GHCR
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Package Helm chart
+        run: helm package helm/python-backend
+
+      - name: Push Helm chart to GHCR
+        run: helm push python-backend-*.tgz oci://ghcr.io/${{ github.repository }}/charts
+
   deploy:
     name: Deploy to VPS
-    needs: build
+    needs: [build, publish-helm]
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
 
