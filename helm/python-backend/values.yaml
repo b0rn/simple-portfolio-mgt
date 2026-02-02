@@ -47,7 +47,7 @@ config:
   JWT_EXPIRES_MINUTES: "60"
   COOKIE_SECURE: "true"
   COOKIE_SAMESITE: "lax"
-  COOKIE_DOMAIN: "spa.demos.vleveneur.com"
+  COOKIE_DOMAIN: ".demos.vleveneur.com"
   OTEL_SERVICE_NAME: "simple-portfolio-backend"
 
 secret:
