@@ -33,17 +33,28 @@ Simple Portfolio Management is a full-stack application for managing investment 
 
 ## Layered Architecture
 
-```
-┌─────────────────────────────────┐
-│         API Layer               │
-│  Routers · Schemas · Deps       │
-├─────────────────────────────────┤
-│        Domain Layer             │
-│  Use Cases · Entities · Errors  │
-├─────────────────────────────────┤
-│     Infrastructure Layer        │
-│  Data Services · ORM · Config   │
-└─────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph API["API Layer"]
+        Routers
+        Schemas
+        Dependencies
+    end
+    subgraph Domain["Domain Layer"]
+        UseCases["Use Cases"]
+        Entities
+        Errors
+    end
+    subgraph Infra["Infrastructure Layer"]
+        DataServices["Data Services"]
+        ORM
+        Config
+    end
+
+    API -->|depends on| Domain
+    Infra -->|injected| Domain
+    Infra -->|PostgreSQL| DB[(Database)]
+    API -->|serves| Client([Client])
 ```
 
 Dependencies flow inward: API depends on Domain, Infrastructure implements Domain interfaces. The Domain layer has no framework dependencies.
@@ -59,12 +70,32 @@ Dependencies flow inward: API depends on Domain, Infrastructure implements Domai
 
 All domain entities are frozen dataclasses with slots, ensuring immutability.
 
-### Database Schema
+### Entity Relationships
 
-```
-users (id UUID PK, email, password_hash, created_at)
-  └── portfolios (id SERIAL PK, owner_id FK→users, name, created_at)
-        └── assets (id SERIAL PK, portfolio_id FK→portfolios, symbol, quantity, created_at)
+```mermaid
+erDiagram
+    users ||--o{ portfolios : owns
+    portfolios ||--o{ assets : contains
+
+    users {
+        UUID id PK
+        string email
+        string password_hash
+        timestamp created_at
+    }
+    portfolios {
+        serial id PK
+        UUID owner_id FK
+        string name
+        timestamp created_at
+    }
+    assets {
+        serial id PK
+        int portfolio_id FK
+        string symbol
+        decimal quantity
+        timestamp created_at
+    }
 ```
 
 Cascade deletes: User → Portfolios → Assets.
@@ -81,6 +112,26 @@ Abstract interfaces (`DbDataService`, `AuthDataService`) decouple data access fr
 
 ### Strategy Pattern
 
+```mermaid
+classDiagram
+    class AuthDataService {
+        <<interface>>
+        +register()
+        +authenticate()
+    }
+    class LocalAuthService {
+        +register()
+        +authenticate()
+    }
+    class SupabaseAuthService {
+        +register()
+        +authenticate()
+    }
+    AuthDataService <|.. LocalAuthService
+    AuthDataService <|.. SupabaseAuthService
+    UseCases --> AuthDataService : uses
+```
+
 Auth providers (Local, Supabase) implement the same `AuthDataService` interface. The active provider is selected at configuration time and injected into use cases.
 
 ### Dependency Injection
@@ -94,6 +145,27 @@ Portfolio valuations use a TTL-based in-memory cache (`cachetools.TTLCache`, 30s
 ## Authentication & Authorization
 
 ### Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as API
+    participant Auth as AuthDataService
+    participant DB as Database
+
+    C->>A: POST /auth/login (email, password)
+    A->>Auth: authenticate(email, password)
+    Auth->>DB: lookup user
+    DB-->>Auth: user record
+    Auth-->>A: user entity
+    A-->>C: Set-Cookie: access_token (JWT, HttpOnly)
+
+    C->>A: GET /portfolios (cookie)
+    A->>A: get_current_user() validates JWT
+    A->>DB: query portfolios WHERE owner_id = user.id
+    DB-->>A: results
+    A-->>C: 200 JSON response
+```
 
 1. User registers/logs in via `/auth/register` or `/auth/login`
 2. Server issues a JWT (HS256) stored in an HttpOnly cookie (`access_token`)
@@ -153,6 +225,17 @@ Environment variables loaded via Pydantic Settings from `.env`:
 | `COOKIE_SAMESITE`    | `lax`                    | SameSite policy                      |
 
 ## Startup Sequence
+
+```mermaid
+flowchart LR
+    A[Load Settings] --> B[Create DB Engine]
+    B --> C[Build AuthDataService]
+    C --> D[Build DbDataService]
+    D --> E[Instantiate Use Cases]
+    E --> F[Create FastAPI App]
+    F --> G[Register Routers & CORS]
+    G --> H[Uvicorn :8080]
+```
 
 1. Load and validate settings from environment / `.env`
 2. Initialize async SQLAlchemy engine with connection pool (10 + 20 overflow)
