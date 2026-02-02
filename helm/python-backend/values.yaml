@@ -48,6 +48,7 @@ config:
   COOKIE_SECURE: "true"
   COOKIE_SAMESITE: "lax"
   COOKIE_DOMAIN: "spa.demos.vleveneur.com"
+  OTEL_SERVICE_NAME: "simple-portfolio-backend"
 
 secret:
   DB_HOST: ""
