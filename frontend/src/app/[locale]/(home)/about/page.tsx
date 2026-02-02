@@ -1,6 +1,19 @@
 import { getTranslations } from "next-intl/server";
 import AboutContent from "@/components/about-content";
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params;
+    const t = await getTranslations({ locale, namespace: 'Metadata' });
+    return {
+        title: t('about_title'),
+        description: t('about_description'),
+        alternates: {
+            canonical: `/${locale}/about`,
+            languages: { en: '/en/about', fr: '/fr/about' },
+        },
+    };
+}
+
 export default async function Page() {
     const t = await getTranslations("About");
 

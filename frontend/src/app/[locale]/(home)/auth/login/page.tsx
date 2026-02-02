@@ -1,6 +1,20 @@
 import { LoginForm } from "@/components/login-form";
 import { getTranslations } from "next-intl/server";
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params;
+    const t = await getTranslations({ locale, namespace: 'Metadata' });
+    return {
+        title: t('login_title'),
+        description: t('login_description'),
+        robots: { index: false, follow: true },
+        alternates: {
+            canonical: `/${locale}/auth/login`,
+            languages: { en: '/en/auth/login', fr: '/fr/auth/login' },
+        },
+    };
+}
+
 export default async function Page({ searchParams } : { searchParams : Promise<{[key: string] : string | string[] | undefined}> }) {
     const t = await getTranslations("LoginForm");
     

@@ -1,0 +1,48 @@
+# Simple Portfolio App
+
+> A production-grade portfolio management application built with Next.js and TypeScript.
+
+## About
+
+Simple Portfolio App is a free investment portfolio tracker that lets users create portfolios, add assets (stocks, crypto), and monitor real-time valuations in USD. It serves as a technical showcase demonstrating full-stack development, security hardening, and DevOps best practices.
+
+## Website
+
+- URL: https://spa.demos.vleveneur.com
+- API: https://api.spas.demos.vleveneur.com
+- Source: https://github.com/b0rn/simple-portfolio-mgt
+- API Docs: https://b0rn.github.io/simple-portfolio-mgt/api/
+
+## Languages
+
+- English: https://spa.demos.vleveneur.com/en
+- French: https://spa.demos.vleveneur.com/fr
+
+## Pages
+
+- Home: https://spa.demos.vleveneur.com/en
+- About: https://spa.demos.vleveneur.com/en/about
+- Login: https://spa.demos.vleveneur.com/en/auth/login
+- Sign Up: https://spa.demos.vleveneur.com/en/auth/signup
+- Dashboard (authenticated): https://spa.demos.vleveneur.com/en/app/portfolios
+
+## Features
+
+- Portfolio Management: Create and organize multiple investment portfolios
+- Asset Tracking: Track stocks, crypto, and other assets with real-time valuations
+- Performance Monitoring: Monitor holdings value in USD across all portfolios
+- Secure Authentication: JWT with HttpOnly cookies, OWASP Top 10 compliance
+- Multilingual: English and French support
+- Responsive Design: Works on desktop, tablet, and mobile
+
+## Tech Stack
+
+- Frontend: Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui, TanStack Query, next-intl
+- Backend: Python / FastAPI, SQLAlchemy 2.0, Pydantic v2, argon2 password hashing
+- Infrastructure: PostgreSQL, Docker, Kubernetes (microk8s), GitHub Actions CI/CD
+- Quality: SonarQube (SAST/DAST), Snyk dependency scanning, 85%+ test coverage
+
+## Author
+
+Victor Leveneur — Cybersecurity Specialist & Full-Stack Developer
+M2 Cybersecurity and Legal IT (Université Grenoble-Alpes)

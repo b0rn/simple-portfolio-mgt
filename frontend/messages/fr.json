@@ -256,6 +256,12 @@
     },
     "Metadata": {
         "title": "Simple Portfolio App",
-        "description": "Une application simple de gestion de portefeuille construite avec Next.js et TypeScript."
+        "description": "Suivez vos portefeuilles d'investissement, surveillez la performance de vos actifs et prenez des décisions éclairées. Outil gratuit de gestion de portefeuille avec évaluations en temps réel.",
+        "about_title": "À propos - Simple Portfolio App",
+        "about_description": "Découvrez Simple Portfolio App — une vitrine technique de qualité production démontrant le développement full-stack, le durcissement sécuritaire et les pratiques DevOps.",
+        "login_title": "Connexion - Simple Portfolio App",
+        "login_description": "Connectez-vous à Simple Portfolio App pour gérer vos portefeuilles d'investissement et suivre la performance de vos actifs.",
+        "signup_title": "Inscription - Simple Portfolio App",
+        "signup_description": "Créez votre compte gratuit sur Simple Portfolio App et commencez à suivre vos portefeuilles d'investissement dès aujourd'hui."
     }
 }

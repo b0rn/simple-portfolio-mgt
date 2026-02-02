@@ -9,20 +9,51 @@ import { ApiClientProvider } from "@/components/api-client-provider";
 import { ReactQueryProvider } from "@/components/react-query-provider";
 import "./globals.css";
 
+const BASE_URL = 'https://spa.demos.vleveneur.com';
+
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
 });
 
-export async function generateMetadata({ params }: { params: { locale: string } }) {
+export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Metadata' });
 
   return {
-    title: t('title'),
+    title: {
+      default: t('title'),
+      template: `%s | ${t('title')}`,
+    },
     description: t('description'),
     icons: {
       icon: '/favicon.svg',
+    },
+    metadataBase: new URL(BASE_URL),
+    alternates: {
+      canonical: `/${locale}`,
+      languages: {
+        en: '/en',
+        fr: '/fr',
+      },
+    },
+    openGraph: {
+      title: t('title'),
+      description: t('description'),
+      url: `${BASE_URL}/${locale}`,
+      siteName: 'Simple Portfolio App',
+      locale: locale === 'fr' ? 'fr_FR' : 'en_US',
+      alternateLocale: locale === 'fr' ? 'en_US' : 'fr_FR',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary',
+      title: t('title'),
+      description: t('description'),
+    },
+    robots: {
+      index: true,
+      follow: true,
     },
   };
 }

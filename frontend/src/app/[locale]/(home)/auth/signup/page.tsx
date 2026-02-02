@@ -1,6 +1,20 @@
 import { SignupForm } from "@/components/signup-form";
 import { getTranslations } from "next-intl/server";
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params;
+    const t = await getTranslations({ locale, namespace: 'Metadata' });
+    return {
+        title: t('signup_title'),
+        description: t('signup_description'),
+        robots: { index: false, follow: true },
+        alternates: {
+            canonical: `/${locale}/auth/signup`,
+            languages: { en: '/en/auth/signup', fr: '/fr/auth/signup' },
+        },
+    };
+}
+
 export default async function Page({ searchParams }: {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {

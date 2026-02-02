@@ -257,6 +257,12 @@
     },
     "Metadata": {
         "title": "Simple Portfolio App",
-        "description": "A simple portfolio management application built with Next.js and TypeScript."
+        "description": "Track your investment portfolios, monitor asset performance, and make informed decisions. Free portfolio management tool with real-time valuations.",
+        "about_title": "About - Simple Portfolio App",
+        "about_description": "Learn about Simple Portfolio App — a production-grade technical showcase demonstrating full-stack development, security hardening, and DevOps practices.",
+        "login_title": "Login - Simple Portfolio App",
+        "login_description": "Sign in to Simple Portfolio App to manage your investment portfolios and track asset performance.",
+        "signup_title": "Sign Up - Simple Portfolio App",
+        "signup_description": "Create your free account on Simple Portfolio App and start tracking your investment portfolios today."
     }
 }
