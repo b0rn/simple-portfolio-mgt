@@ -7,6 +7,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ApiClientProvider } from "@/components/api-client-provider";
 import { ReactQueryProvider } from "@/components/react-query-provider";
+import { CookieConsentBanner } from "@/components/cookie-consent";
 import "./globals.css";
 
 const BASE_URL = 'https://spa.demos.vleveneur.com';
@@ -87,6 +88,7 @@ export default async function LocaleLayout({
                 <div className="container mx-auto px-4 md:px-0">
                   {children}
                 </div>
+                <CookieConsentBanner />
               </ApiClientProvider>
             </ReactQueryProvider>
           </ThemeProvider>

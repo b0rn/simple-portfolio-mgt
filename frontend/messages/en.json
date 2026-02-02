@@ -255,6 +255,11 @@
         "next" : "Next",
         "more_pages" : "More pages"
     },
+    "CookieConsent": {
+        "message": "We use cookies for analytics to improve your experience. The authentication cookie is required for the service to function.",
+        "accept": "Accept",
+        "decline": "Decline"
+    },
     "Metadata": {
         "title": "Simple Portfolio App",
         "description": "Track your investment portfolios, monitor asset performance, and make informed decisions. Free portfolio management tool with real-time valuations.",

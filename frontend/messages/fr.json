@@ -254,6 +254,11 @@
         "next": "Suivant",
         "more_pages": "Plus de pages"
     },
+    "CookieConsent": {
+        "message": "Nous utilisons des cookies analytiques pour améliorer votre expérience. Le cookie d'authentification est nécessaire au fonctionnement du service.",
+        "accept": "Accepter",
+        "decline": "Refuser"
+    },
     "Metadata": {
         "title": "Simple Portfolio App",
         "description": "Suivez vos portefeuilles d'investissement, surveillez la performance de vos actifs et prenez des décisions éclairées. Outil gratuit de gestion de portefeuille avec évaluations en temps réel.",
