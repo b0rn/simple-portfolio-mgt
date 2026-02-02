@@ -9,7 +9,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.sdk.resources import Resource, SERVICE_NAME
-from opentelemetry.sdk._logs import LoggerProvider
+from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry._logs import set_logger_provider
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
@@ -59,6 +59,10 @@ def setup_observability(settings: Settings) -> None:
         BatchLogRecordProcessor(OTLPLogExporter(endpoint=endpoint, insecure=insecure))
     )
     set_logger_provider(_logger_provider)
+
+    # Bridge Python logging → OTEL log export
+    otel_handler = LoggingHandler(level=logging.NOTSET, logger_provider=_logger_provider)
+    logging.getLogger().addHandler(otel_handler)
 
     # Auto-instrument libraries
     LoggingInstrumentor().instrument(set_logging_format=True)
