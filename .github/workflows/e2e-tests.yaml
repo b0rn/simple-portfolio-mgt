@@ -87,7 +87,7 @@ jobs:
           JWT_SECRET: test-secret-key-for-ci
           CORS_ORIGINS: http://localhost:3000
         run: |
-          python -m uvicorn src.api.rest.app:create_app --host 0.0.0.0 --port 8000 &
+          python -m uvicorn src.infrastructure.cmd.api:app --host 0.0.0.0 --port 8000 &
           # Wait for the backend to be ready
           echo "Waiting for backend to be ready..."
           for i in {1..30}; do
