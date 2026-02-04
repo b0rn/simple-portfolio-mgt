@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { PortfolioForm, PortfolioFormData } from "@/components/portfolio-form";
 import { components } from "@/lib/api/types/schema";
-import { redirect } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { AssetForm } from "@/components/asset-form";
 import { AssetTable } from "@/components/asset-table";
 import { toast } from "sonner";
@@ -25,6 +25,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     const t = useTranslations("Portfolio");
     const client = useApiClient();
     const queryClient = useQueryClient();
+    const router = useRouter();
     const locale = useLocale();
     const searchParams = useSearchParams();
     const page = parsePositiveInt(searchParams.get("page"), 1);
@@ -67,7 +68,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                 toast.error(t("error_500"));
             } else if (response.status === 204) {
                 setDeleteConfirmationDialogIsOpen(false);
-                redirect({href : "/app/portfolios", locale : locale});
+                router.push("/app/portfolios", { locale });
             }
         }
     })
