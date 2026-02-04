@@ -1,0 +1,6 @@
+# Auth storage state (contains session data)
+.auth/
+
+# Test results
+test-results/
+playwright-report/
