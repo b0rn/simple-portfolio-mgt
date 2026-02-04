@@ -4,6 +4,7 @@ on:
   workflow_run:
     workflows:
       - "Python Backend CI/CD"
+      - "E2E Tests"
       # - "Go Backend CI/CD"
       # - "PHP Backend CI/CD"
       # - "Java Backend CI/CD"
@@ -66,6 +67,15 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
 
+      - name: Download E2E Playwright reports (Python Backend)
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-report-python-backend
+          path: site/e2e/python-backend
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
       # - name: Download Go test reports
       #   uses: actions/download-artifact@v4
       #   with:
@@ -114,25 +124,37 @@ jobs:
             <style>
               body { font-family: system-ui, sans-serif; max-width: 600px; margin: 60px auto; padding: 0 20px; }
               h1 { border-bottom: 2px solid #333; padding-bottom: 10px; }
-              ul { list-style: none; padding: 0; }
-              li { margin: 12px 0; }
-              a { color: #0366d6; text-decoration: none; font-size: 1.1em; }
+              h2 { font-size: 1.1em; color: #555; margin-top: 24px; margin-bottom: 8px; }
+              ul { list-style: none; padding: 0; margin: 0; }
+              li { margin: 8px 0; padding-left: 12px; }
+              a { color: #0366d6; text-decoration: none; }
               a:hover { text-decoration: underline; }
-              .badge { font-size: 0.75em; padding: 2px 8px; border-radius: 4px; color: white; margin-left: 8px; }
+              .badge { font-size: 0.7em; padding: 2px 6px; border-radius: 4px; color: white; margin-left: 8px; vertical-align: middle; }
               .active { background: #28a745; }
               .soon { background: #6c757d; }
             </style>
           </head>
           <body>
             <h1>Project Reports</h1>
+            <h2>API</h2>
             <ul>
               <li><a href="api/index.html">API Documentation</a> <span class="badge active">active</span></li>
-              <li><a href="python/index.html">Python Backend - Coverage</a> <span class="badge active">active</span></li>
+            </ul>
+            <h2>Backend Coverage</h2>
+            <ul>
+              <li><a href="python/index.html">Python Backend</a> <span class="badge active">active</span></li>
               <!--
               <li><a href="go/index.html">Go Backend</a> <span class="badge soon">coming soon</span></li>
               <li><a href="php/index.html">PHP Backend</a> <span class="badge soon">coming soon</span></li>
               <li><a href="java/index.html">Java Backend</a> <span class="badge soon">coming soon</span></li>
               <li><a href="js/index.html">JS Backend</a> <span class="badge soon">coming soon</span></li>
+              -->
+            </ul>
+            <h2>E2E Tests</h2>
+            <ul>
+              <li><a href="e2e/python-backend/index.html">Frontend + Python Backend</a> <span class="badge active">active</span></li>
+              <!--
+              <li><a href="e2e/go-backend/index.html">Frontend + Go Backend</a> <span class="badge soon">coming soon</span></li>
               -->
             </ul>
           </body>
