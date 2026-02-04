@@ -159,6 +159,7 @@ export function AssetForm({
                                 {...field}
                                 id="asset-form-quantity"
                                 type="number"
+                                step="any"
                                 aria-invalid={fieldState.invalid}
                             />
                             {fieldState.invalid && (
