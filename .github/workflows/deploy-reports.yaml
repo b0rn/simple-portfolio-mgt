@@ -5,6 +5,7 @@ on:
     workflows:
       - "Python Backend CI/CD"
       - "E2E Tests"
+      - "k6 Load Tests"
       # - "Go Backend CI/CD"
       # - "PHP Backend CI/CD"
       # - "Java Backend CI/CD"
@@ -75,6 +76,51 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
+
+      - name: Download k6 load test report (Python Backend)
+        uses: actions/download-artifact@v4
+        with:
+          name: k6-report-python-backend
+          path: site/k6/python-backend
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      # - name: Download k6 load test report (Go Backend)
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: k6-report-go-backend
+      #     path: site/k6/go-backend
+      #     run-id: ${{ github.event.workflow_run.id }}
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #   continue-on-error: true
+
+      # - name: Download k6 load test report (PHP Backend)
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: k6-report-php-backend
+      #     path: site/k6/php-backend
+      #     run-id: ${{ github.event.workflow_run.id }}
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #   continue-on-error: true
+
+      # - name: Download k6 load test report (Java Backend)
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: k6-report-java-backend
+      #     path: site/k6/java-backend
+      #     run-id: ${{ github.event.workflow_run.id }}
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #   continue-on-error: true
+
+      # - name: Download k6 load test report (JS Backend)
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: k6-report-js-backend
+      #     path: site/k6/js-backend
+      #     run-id: ${{ github.event.workflow_run.id }}
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #   continue-on-error: true
 
       # - name: Download Go test reports
       #   uses: actions/download-artifact@v4
@@ -155,6 +201,16 @@ jobs:
               <li><a href="e2e/python-backend/index.html">Frontend + Python Backend</a> <span class="badge active">active</span></li>
               <!--
               <li><a href="e2e/go-backend/index.html">Frontend + Go Backend</a> <span class="badge soon">coming soon</span></li>
+              -->
+            </ul>
+            <h2>Performance (k6 Load Tests)</h2>
+            <ul>
+              <li><a href="k6/python-backend/report.html">Python Backend</a> <span class="badge active">active</span></li>
+              <!--
+              <li><a href="k6/go-backend/report.html">Go Backend</a> <span class="badge soon">coming soon</span></li>
+              <li><a href="k6/php-backend/report.html">PHP Backend</a> <span class="badge soon">coming soon</span></li>
+              <li><a href="k6/java-backend/report.html">Java Backend</a> <span class="badge soon">coming soon</span></li>
+              <li><a href="k6/js-backend/report.html">JS Backend</a> <span class="badge soon">coming soon</span></li>
               -->
             </ul>
           </body>
