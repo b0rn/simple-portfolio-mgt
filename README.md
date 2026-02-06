@@ -15,7 +15,7 @@
 
 **Live Demo:** [spa.demos.vleveneur.com](https://spa.demos.vleveneur.com)
 | **API Documentation:** [OpenAPI Spec](https://b0rn.github.io/simple-portfolio-mgt/api/)
-| **Test Reports:** [Coverage Reports](https://b0rn.github.io/simple-portfolio-mgt/)
+| **Test Reports:** [Tests + Coverage + Load tests](https://b0rn.github.io/simple-portfolio-mgt/)
 | **Monitoring Dashboard:** Coming Soon
 
 ---
@@ -68,7 +68,7 @@ Simple Portfolio App is a financial portfolio management system that allows user
 
 ### Performance & Scalability
 - ✅ **Caching Strategy**: Using a cache for expensive queries, connection pooling optimization
-- **Load Testing**: Performance benchmarks under realistic load scenarios
+- ✅ **Load Testing**: Performance benchmarks under realistic load scenarios
 - ✅ **Performance Monitoring**: Real-time metrics, alerting, SLO tracking
 
 ### Advanced Features
@@ -344,7 +344,7 @@ For detailed migration documentation, see [database/README.md](database/README.m
 - [x] CI/CD pipeline
 - [x] Observability stack
 - [x] Security documentation
-- [ ] E2E tests
+- [x] E2E tests
 - [x] Production deployment
 
 ---
