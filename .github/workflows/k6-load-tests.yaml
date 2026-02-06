@@ -6,7 +6,7 @@ on:
       scenario:
         description: 'Performance test scenario to run (smoke always runs first as a gate)'
         required: true
-        default: 'smoke'
+        default: 'load'
         type: choice
         options:
           - smoke
