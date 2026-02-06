@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       scenario:
-        description: 'Test scenario to run'
+        description: 'Performance test scenario to run (smoke always runs first as a gate)'
         required: true
         default: 'smoke'
         type: choice
@@ -30,8 +30,9 @@ env:
   DEFAULT_BASE_URL: http://localhost:8000
 
 jobs:
-  load-test:
-    name: k6 Load Test - ${{ github.event.inputs.scenario || 'smoke' }}
+  # Smoke test always runs as a sanity gate on every trigger
+  smoke-test:
+    name: Smoke Test (Gate)
     runs-on: ubuntu-latest
 
     services:
@@ -118,63 +119,45 @@ jobs:
           sudo apt-get update
           sudo apt-get install k6
 
-      - name: Run k6 load test
+      - name: Run smoke test
         working-directory: k6
         env:
           BASE_URL: ${{ github.event.inputs.target_url || env.DEFAULT_BASE_URL }}
-          K6_PROMETHEUS_RW_SERVER_URL: ${{ secrets.PROMETHEUS_REMOTE_WRITE_URL }}
-          K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM: true
           K6_WEB_DASHBOARD: true
-          K6_WEB_DASHBOARD_EXPORT: report.html
+          K6_WEB_DASHBOARD_EXPORT: smoke-report.html
         run: |
-          SCENARIO="${{ github.event.inputs.scenario || 'smoke' }}"
-          echo "Running $SCENARIO test against $BASE_URL"
+          echo "Running smoke test against $BASE_URL"
+          k6 run --out json=smoke-results.json dist/scenarios/smoke.js
 
-          # Build output options
-          OUTPUT_OPTS="--out json=results.json"
-          if [ -n "$K6_PROMETHEUS_RW_SERVER_URL" ]; then
-            OUTPUT_OPTS="$OUTPUT_OPTS --out experimental-prometheus-rw"
-          fi
-
-          k6 run $OUTPUT_OPTS dist/scenarios/${SCENARIO}.js
-
-      - name: Generate markdown report
+      - name: Generate smoke report
         if: always()
         working-directory: k6
         run: |
-          # Create summary report
-          echo "# k6 Load Test Report" > report.md
-          echo "" >> report.md
-          echo "**Scenario:** ${{ github.event.inputs.scenario || 'smoke' }}" >> report.md
-          echo "**Target URL:** ${{ github.event.inputs.target_url || env.DEFAULT_BASE_URL }}" >> report.md
-          echo "**Run Date:** $(date -u)" >> report.md
-          echo "" >> report.md
+          echo "# k6 Smoke Test Report" > smoke-report.md
+          echo "" >> smoke-report.md
+          echo "**Scenario:** smoke" >> smoke-report.md
+          echo "**Target URL:** ${{ github.event.inputs.target_url || env.DEFAULT_BASE_URL }}" >> smoke-report.md
+          echo "**Run Date:** $(date -u)" >> smoke-report.md
+          echo "" >> smoke-report.md
 
-          if [ -f results.json ]; then
-            echo "## Results Summary" >> report.md
-            echo "" >> report.md
-            echo "See attached artifacts for detailed results." >> report.md
+          if [ -f smoke-results.json ]; then
+            echo "## Results Summary" >> smoke-report.md
+            echo "" >> smoke-report.md
+            echo "See attached artifacts for detailed results." >> smoke-report.md
           fi
 
-      - name: Upload test results
+      - name: Upload smoke test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: k6-results-${{ github.event.inputs.scenario || 'smoke' }}-${{ github.run_number }}
+          name: k6-smoke-${{ github.run_number }}-${{ github.sha }}
           path: |
-            k6/results.json
-            k6/report.md
-          retention-days: 30
+            k6/smoke-results.json
+            k6/smoke-report.html
+            k6/smoke-report.md
+          retention-days: 7
 
-      - name: Upload HTML report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: k6-report-python-backend
-          path: k6/report.html
-          retention-days: 30
-
-      - name: Post summary to PR
+      - name: Post smoke summary to PR
         if: github.event_name == 'pull_request' && always()
         uses: actions/github-script@v7
         with:
@@ -182,9 +165,9 @@ jobs:
             const fs = require('fs');
             let report = '';
             try {
-              report = fs.readFileSync('k6/report.md', 'utf8');
+              report = fs.readFileSync('k6/smoke-report.md', 'utf8');
             } catch (e) {
-              report = 'k6 load test completed. Check artifacts for details.';
+              report = 'k6 smoke test completed. Check artifacts for details.';
             }
 
             github.rest.issues.createComment({
@@ -194,10 +177,11 @@ jobs:
               body: report
             });
 
-  # Smoke test on every push to main (runs in parallel with other scenarios)
-  smoke-test:
-    name: Smoke Test (Continuous)
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  # Performance test runs on-demand after smoke passes
+  perf-test:
+    name: k6 Perf Test - ${{ github.event.inputs.scenario }}
+    needs: smoke-test
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.scenario != 'smoke'
     runs-on: ubuntu-latest
 
     services:
@@ -255,11 +239,13 @@ jobs:
           CORS_ORIGINS: http://localhost:8000,http://localhost:3000
         run: |
           python -m uvicorn src.infrastructure.cmd.api:app --host 0.0.0.0 --port 8000 &
+          echo "Waiting for backend to be ready..."
           for i in {1..30}; do
             if curl -s http://localhost:8000/health > /dev/null; then
               echo "Backend is ready!"
               break
             fi
+            echo "Waiting... ($i/30)"
             sleep 2
           done
 
@@ -282,21 +268,58 @@ jobs:
           sudo apt-get update
           sudo apt-get install k6
 
-      - name: Run smoke test
+      - name: Run k6 ${{ github.event.inputs.scenario }} test
         working-directory: k6
         env:
-          BASE_URL: http://localhost:8000
+          BASE_URL: ${{ github.event.inputs.target_url || env.DEFAULT_BASE_URL }}
+          K6_PROMETHEUS_RW_SERVER_URL: ${{ secrets.PROMETHEUS_REMOTE_WRITE_URL }}
+          K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM: true
           K6_WEB_DASHBOARD: true
-          K6_WEB_DASHBOARD_EXPORT: smoke-report.html
+          K6_WEB_DASHBOARD_EXPORT: report.html
         run: |
-          k6 run --out json=smoke-results.json dist/scenarios/smoke.js
+          SCENARIO="${{ github.event.inputs.scenario }}"
+          echo "Running $SCENARIO test against $BASE_URL"
 
-      - name: Upload smoke test results
+          # Build output options
+          OUTPUT_OPTS="--out json=results.json"
+          if [ -n "$K6_PROMETHEUS_RW_SERVER_URL" ]; then
+            OUTPUT_OPTS="$OUTPUT_OPTS --out experimental-prometheus-rw"
+          fi
+
+          k6 run $OUTPUT_OPTS dist/scenarios/${SCENARIO}.js
+
+      - name: Generate markdown report
+        if: always()
+        working-directory: k6
+        run: |
+          # Create summary report
+          echo "# k6 Performance Test Report" > report.md
+          echo "" >> report.md
+          echo "**Scenario:** ${{ github.event.inputs.scenario }}" >> report.md
+          echo "**Target URL:** ${{ github.event.inputs.target_url || env.DEFAULT_BASE_URL }}" >> report.md
+          echo "**Run Date:** $(date -u)" >> report.md
+          echo "" >> report.md
+
+          if [ -f results.json ]; then
+            echo "## Results Summary" >> report.md
+            echo "" >> report.md
+            echo "See attached artifacts for detailed results." >> report.md
+          fi
+
+      - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: k6-smoke-${{ github.sha }}
+          name: k6-results-${{ github.event.inputs.scenario }}-${{ github.run_number }}
           path: |
-            k6/smoke-results.json
-            k6/smoke-report.html
-          retention-days: 7
+            k6/results.json
+            k6/report.md
+          retention-days: 30
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-report-python-backend
+          path: k6/report.html
+          retention-days: 30
