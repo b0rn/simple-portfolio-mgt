@@ -22,7 +22,10 @@ from src.domain.aggregates.health.health import Health
 from src.infrastructure.utils.pagination import PaginationRequest, PaginationResponse
 from src.domain.usecases.portfoliomgt.payloads import PortfolioCreate, PortfolioUpdate
 from src.domain.usecases.portfoliomgt.payloads import AssetCreate
-from src.domain.aggregates.exceptions.auth import EmailAlreadyExistsError, InvalidCredentialsError
+from src.domain.aggregates.exceptions.auth import (
+    EmailAlreadyExistsError,
+    InvalidCredentialsError,
+)
 
 
 @pytest.mark.integration
@@ -206,7 +209,7 @@ class TestREST:
         res = await client.post("/auth/register", json=payload)
 
         assert res.status_code == 422
-        
+
         # Value error in registration
         auth_uc.register = AsyncMock(side_effect=ValueError("bad input"))
 
@@ -269,7 +272,7 @@ class TestREST:
         res = await client.post("/auth/login", json=payload)
 
         assert res.status_code == 422
-        
+
         # Value error in login
         auth_uc.login = AsyncMock(side_effect=ValueError("bad input"))
 
@@ -278,7 +281,7 @@ class TestREST:
 
         assert res.status_code == 401
         assert res.json()["detail"] == "bad input"
-        
+
         # Invalid credentials
         auth_uc.login = AsyncMock(side_effect=InvalidCredentialsError())
 
@@ -314,7 +317,6 @@ class TestREST:
         res = await client.get("/auth/me")
 
         assert res.status_code == 401
-
 
     # ----------------------- Portfolios route ----------------
     async def test_portfolio_create(

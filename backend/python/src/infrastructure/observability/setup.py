@@ -61,7 +61,9 @@ def setup_observability(settings: Settings) -> None:
     set_logger_provider(_logger_provider)
 
     # Bridge Python logging → OTEL log export
-    otel_handler = LoggingHandler(level=logging.NOTSET, logger_provider=_logger_provider)
+    otel_handler = LoggingHandler(
+        level=logging.NOTSET, logger_provider=_logger_provider
+    )
     logging.getLogger().addHandler(otel_handler)
 
     # Auto-instrument libraries

@@ -41,6 +41,7 @@ def _make_settings(**overrides):
 # Middleware tests
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.unit
 class TestRequestLoggingMiddleware:
     """Tests for RequestLoggingMiddleware."""
@@ -145,6 +146,7 @@ class TestRequestLoggingMiddleware:
 # setup_observability tests
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.unit
 class TestSetupObservability:
     """Tests for setup_observability and related functions."""
@@ -223,6 +225,7 @@ class TestSetupObservability:
 # shutdown_observability tests
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.unit
 class TestShutdownObservability:
     """Tests for shutdown_observability."""
@@ -263,6 +266,7 @@ class TestShutdownObservability:
 # instrument_app tests
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.unit
 class TestInstrumentApp:
     """Tests for instrument_app."""
@@ -277,6 +281,7 @@ class TestInstrumentApp:
 # ---------------------------------------------------------------------------
 # _configure_structlog tests
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.unit
 class TestConfigureStructlog:
@@ -318,6 +323,7 @@ class TestConfigureStructlog:
 # ---------------------------------------------------------------------------
 # get_logger tests
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.unit
 class TestGetLogger:

@@ -9,7 +9,12 @@ from src.infrastructure.dataservice.auth_supabase.supabase import (
     SupabaseAuthDataService,
 )
 from src.domain.aggregates.exceptions.auth import InvalidCredentialsError
-from src.infrastructure.dataservice.auth_supabase.exceptions import SignupFailedError, NoAccessTokenError, EmailConfirmationRequiredError
+from src.infrastructure.dataservice.auth_supabase.exceptions import (
+    SignupFailedError,
+    NoAccessTokenError,
+    EmailConfirmationRequiredError,
+)
+
 
 @pytest.mark.integration
 @pytest.mark.asyncio
@@ -41,11 +46,11 @@ class TestSupabase:
         assert user.email == email
         assert user.created_at == created_at
         assert token == access_token
-        
+
         # Error with supabase
         with pytest.raises(SignupFailedError):
             await ds.register("400", password)
-        
+
         # No access token returned
         with pytest.raises(EmailConfirmationRequiredError):
             await ds.register("no_access_token", password)
@@ -61,11 +66,11 @@ class TestSupabase:
         assert user.email == email
         assert user.created_at == created_at
         assert token == access_token
-        
+
         # Invalid credentials
         with pytest.raises(InvalidCredentialsError):
             await ds.login("400", "test")
-            
+
         # No access token returned
         with pytest.raises(NoAccessTokenError):
             await ds.login("no_access_token", "test")
@@ -81,7 +86,7 @@ class TestSupabase:
         assert user.id == id
         assert user.email == email
         assert user.created_at == created_at
-        
+
         # Token invalid
         user = await ds.get_user_from_token(access_token="400")
         assert user is None
