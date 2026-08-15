@@ -243,6 +243,13 @@ jobs:
         with:
           sarif_file: snyk.sarif
           category: snyk-container
+      
+      - name: Build and push migrations image
+        uses: docker/build-push-action@v6
+        with:
+          context: database
+          push: true
+          tags: ghcr.io/${{ github.repository }}/db-migrations:${{ steps.tag.outputs.tag }}
 
   publish-helm:
     name: Publish Helm Chart to GHCR
