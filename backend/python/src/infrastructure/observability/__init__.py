@@ -1,7 +1,7 @@
 from src.infrastructure.observability.setup import (
+    get_logger,
     setup_observability,
     shutdown_observability,
-    get_logger,
 )
 
-__all__ = ["setup_observability", "shutdown_observability", "get_logger"]
+__all__ = ["get_logger", "setup_observability", "shutdown_observability"]

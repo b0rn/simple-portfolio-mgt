@@ -4,12 +4,12 @@ Unit tests for infrastructure components to improve code coverage.
 
 from __future__ import annotations
 
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock
 
 from src.infrastructure.config.exceptions import SettingsNotSetError
 from src.infrastructure.config.settings import build_settings
-
 
 # ----------------------- SettingsNotSetError -----------------------
 
@@ -29,10 +29,10 @@ class TestSettingsNotSetError:
 
 class TestAuthDataServiceBuilder:
     def test_build_local(self):
+        from src.infrastructure.dataservice.auth_local.local import LocalAuthDataService
         from src.infrastructure.dataservice.authdataservice_builder import (
             build_auth_dataservice,
         )
-        from src.infrastructure.dataservice.auth_local.local import LocalAuthDataService
 
         settings = build_settings()
         settings.auth_mode = "local"
@@ -40,11 +40,11 @@ class TestAuthDataServiceBuilder:
         assert isinstance(ds, LocalAuthDataService)
 
     def test_build_supabase(self):
-        from src.infrastructure.dataservice.authdataservice_builder import (
-            build_auth_dataservice,
-        )
         from src.infrastructure.dataservice.auth_supabase.supabase import (
             SupabaseAuthDataService,
+        )
+        from src.infrastructure.dataservice.authdataservice_builder import (
+            build_auth_dataservice,
         )
 
         settings = build_settings()
@@ -58,11 +58,11 @@ class TestAuthDataServiceBuilder:
 
 class TestDbDataServiceBuilder:
     def test_build(self):
-        from src.infrastructure.dataservice.dbdataservice_builder import (
-            build_db_dataservice,
-        )
         from src.infrastructure.dataservice.db_sqlalchemy.sqlalchemy import (
             SQLAlchemyDataService,
+        )
+        from src.infrastructure.dataservice.dbdataservice_builder import (
+            build_db_dataservice,
         )
 
         settings = build_settings()
@@ -75,9 +75,9 @@ class TestDbDataServiceBuilder:
 
 class TestUseCasesBuild:
     def test_build(self):
-        from src.domain.usecases.usecases import UseCases
         from src.domain.usecases.authmgt.authmgt import AuthMgt
         from src.domain.usecases.portfoliomgt.portfoliomgt import PortfolioMgt
+        from src.domain.usecases.usecases import UseCases
 
         settings = build_settings()
         ucs = UseCases.build(settings=settings)
@@ -91,7 +91,8 @@ class TestUseCasesBuild:
 @pytest.mark.asyncio
 class TestSQLAlchemyBase:
     def test_set_engine(self):
-        from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+        from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
         from src.infrastructure.datastore.sqlalchemy.base import set_engine
 
         engine = create_async_engine("sqlite+aiosqlite:///:memory:")
@@ -99,8 +100,9 @@ class TestSQLAlchemyBase:
         assert isinstance(session_maker, async_sessionmaker)
 
     async def test_get_db_happy_path(self):
-        from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-        from src.infrastructure.datastore.sqlalchemy.base import set_engine, get_db
+        from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+
+        from src.infrastructure.datastore.sqlalchemy.base import get_db, set_engine
 
         engine = create_async_engine("sqlite+aiosqlite:///:memory:")
         set_engine(engine)
@@ -165,14 +167,14 @@ class TestSQLAlchemyBase:
 class TestSupabaseExceptions:
     def test_all_exceptions_instantiate(self):
         from src.infrastructure.dataservice.auth_supabase.exceptions import (
-            SupabaseAuthError,
-            SupabaseUrlNotSetError,
             AnonKeyNotSetError,
+            CantFetchUserError,
             EmailConfirmationRequiredError,
             NoAccessTokenError,
-            TokenInvalidError,
-            CantFetchUserError,
             SignupFailedError,
+            SupabaseAuthError,
+            SupabaseUrlNotSetError,
+            TokenInvalidError,
         )
 
         assert isinstance(SupabaseUrlNotSetError(), SupabaseAuthError)

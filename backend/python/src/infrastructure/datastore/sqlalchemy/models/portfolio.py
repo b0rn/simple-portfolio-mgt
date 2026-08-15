@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from datetime import datetime
 import uuid
-from sqlalchemy import DateTime, ForeignKey, Integer, String, UUID, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
+from datetime import datetime
 from typing import TYPE_CHECKING
+
+from sqlalchemy import UUID, DateTime, ForeignKey, Integer, String, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
     from .asset import Asset
@@ -30,7 +30,7 @@ class Portfolio(Base):
         nullable=False,
     )
 
-    assets: Mapped[list["Asset"]] = relationship(
+    assets: Mapped[list[Asset]] = relationship(
         back_populates="portfolio",  # so the Asset model can reference back
         cascade="all, delete-orphan",  # delete assets when portfolio is deleted
         lazy="selectin",  # optimize loading with selectin loading (avoids N+1 problem, loads assets in one query)

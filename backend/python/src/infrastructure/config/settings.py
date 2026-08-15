@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import os
-from urllib.parse import quote_plus
 from typing import Literal
+from urllib.parse import quote_plus
+from zoneinfo import ZoneInfo
+
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -20,6 +22,7 @@ class Settings(BaseSettings):
     app_name: str = Field(default="Simple Portfolio App API", alias="APP_NAME")
     app_env: str = Field(default="dev", alias="APP_ENV")
     app_debug: bool = Field(default=False, alias="APP_DEBUG")
+    tz: str = Field(default="UTC", alias="TZ")
 
     # Database (REQUIRED)
     db_host: str = Field(default="localhost", alias="DB_HOST")
@@ -118,6 +121,10 @@ class Settings(BaseSettings):
         # comma-separated -> list, trimmed, no empties
         return [o.strip() for o in self.cors_origins_raw.split(",") if o.strip()]
 
+    @property
+    def tzinfo(self) -> ZoneInfo:
+        return ZoneInfo(self.tz)
+
     @field_validator("cookie_samesite")
     @classmethod
     def validate_samesite(cls, v: str) -> str:
@@ -128,7 +135,7 @@ class Settings(BaseSettings):
         return v
 
     @model_validator(mode="after")
-    def validate_auth_requirements(self) -> "Settings":
+    def validate_auth_requirements(self) -> Settings:
         mode = (self.auth_mode or "").lower()
         if mode not in {"local", "supabase"}:
             raise ValueError("AUTH_MODE must be 'local' or 'supabase'")

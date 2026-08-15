@@ -3,13 +3,15 @@ Integration tests for the local auth dataservice
 """
 
 from __future__ import annotations
+
 import pytest
-from src.infrastructure.dataservice.auth_local.local import LocalAuthDataService
+
 from src.domain.aggregates.auth.user import User
 from src.domain.aggregates.exceptions.auth import (
     EmailAlreadyExistsError,
     InvalidCredentialsError,
 )
+from src.infrastructure.dataservice.auth_local.local import LocalAuthDataService
 
 
 @pytest.mark.integration

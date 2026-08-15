@@ -3,15 +3,19 @@ Integration tests for the SQLAlchemy database dataservice.
 """
 
 from __future__ import annotations
-import pytest
+
 from uuid import uuid4
-from src.infrastructure.dataservice.dbdataservice import DbDataService
-from src.infrastructure.datastore.sqlalchemy.models.user import User as UserModel
+
+import pytest
+from sqlalchemy.exc import IntegrityError
+
 from src.domain.usecases.portfoliomgt.payloads import (
+    AssetCreate,
     PortfolioCreate,
     PortfolioUpdate,
-    AssetCreate,
 )
+from src.infrastructure.dataservice.dbdataservice import DbDataService
+from src.infrastructure.datastore.sqlalchemy.models.user import User as UserModel
 from src.infrastructure.utils.pagination import PaginationRequest
 
 
@@ -35,7 +39,7 @@ class TestSQLAlchemy:
         assert portfolio.owner_id == owner_id
 
         # Invalid owner_id (non-existent user)
-        with pytest.raises(Exception):
+        with pytest.raises(IntegrityError):
             await dataservice_db_sqlalchemy.create_portfolio(
                 owner_id=str(uuid4()), payload=PortfolioCreate(name="foo")
             )
@@ -200,7 +204,7 @@ class TestSQLAlchemy:
         assert asset.portfolio_id == portfolio.id
 
         # Unknown portfolio
-        with pytest.raises(Exception):
+        with pytest.raises(IntegrityError):
             await dataservice_db_sqlalchemy.create_asset(
                 portfolio_id=9999, payload=AssetCreate(symbol="BTC", quantity=0.005)
             )

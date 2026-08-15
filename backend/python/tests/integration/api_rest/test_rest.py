@@ -3,29 +3,35 @@ Integration tests for the REST API
 """
 
 from __future__ import annotations
-import pytest
-from unittest.mock import AsyncMock, MagicMock
-from httpx import AsyncClient, Cookies
-from uuid import uuid4
-from datetime import datetime
 
-from src.domain.usecases.authmgt.authmgt import AuthMgt
-from src.domain.usecases.portfoliomgt.portfoliomgt import PortfolioMgt
+from datetime import datetime
+from unittest.mock import AsyncMock, MagicMock
+from uuid import uuid4
+
+import pytest
+from httpx import AsyncClient, Cookies
+
 from src.domain.aggregates.auth.user import User
+from src.domain.aggregates.exceptions.auth import (
+    EmailAlreadyExistsError,
+    InvalidCredentialsError,
+)
+from src.domain.aggregates.health.health import Health
+from src.domain.aggregates.portfolio.asset import Asset
 from src.domain.aggregates.portfolio.portfolio import Portfolio
 from src.domain.aggregates.portfolio.portfolio_valuation import (
     PortfolioValuation,
     ValuationLine,
 )
-from src.domain.aggregates.portfolio.asset import Asset
-from src.domain.aggregates.health.health import Health
-from src.infrastructure.utils.pagination import PaginationRequest, PaginationResponse
-from src.domain.usecases.portfoliomgt.payloads import PortfolioCreate, PortfolioUpdate
-from src.domain.usecases.portfoliomgt.payloads import AssetCreate
-from src.domain.aggregates.exceptions.auth import (
-    EmailAlreadyExistsError,
-    InvalidCredentialsError,
+from src.domain.usecases.authmgt.authmgt import AuthMgt
+from src.domain.usecases.portfoliomgt.payloads import (
+    AssetCreate,
+    PortfolioCreate,
+    PortfolioUpdate,
 )
+from src.domain.usecases.portfoliomgt.portfoliomgt import PortfolioMgt
+from src.infrastructure.utils.pagination import PaginationRequest, PaginationResponse
+from tests.conftest import get_tz
 
 
 @pytest.mark.integration
@@ -34,7 +40,9 @@ class TestREST:
     """Test REST API"""
 
     def __set_authed_uc(self, auth_uc: AuthMgt) -> User:
-        user = User(id=uuid4(), email="foo@bar.com", created_at=datetime.now())
+        user = User(
+            id=uuid4(), email="foo@bar.com", created_at=datetime.now(tz=get_tz())
+        )
         auth_uc.get_user_from_token = AsyncMock()
         auth_uc.get_user_from_token.return_value = user
         return user
@@ -172,7 +180,9 @@ class TestREST:
     ):
         client, auth_uc, _ = rest_client
         auth_uc.register = AsyncMock()
-        user = User(id=uuid4(), email="foo@bar.com", created_at=datetime.now())
+        user = User(
+            id=uuid4(), email="foo@bar.com", created_at=datetime.now(tz=get_tz())
+        )
         auth_uc.register.return_value = user, "token"
 
         payload = {"email": user.email, "password": "password123!"}
@@ -232,7 +242,9 @@ class TestREST:
     ):
         client, auth_uc, _ = rest_client
         auth_uc.login = AsyncMock()
-        user = User(id=uuid4(), email="foo@bar.com", created_at=datetime.now())
+        user = User(
+            id=uuid4(), email="foo@bar.com", created_at=datetime.now(tz=get_tz())
+        )
         auth_uc.login = AsyncMock()
         auth_uc.login.return_value = user, "token"
 
@@ -303,7 +315,9 @@ class TestREST:
 
     async def test_me(self, rest_client: tuple[AsyncClient, AuthMgt, PortfolioMgt]):
         client, auth_uc, _ = rest_client
-        user = User(id=uuid4(), email="foo@bar.com", created_at=datetime.now())
+        user = User(
+            id=uuid4(), email="foo@bar.com", created_at=datetime.now(tz=get_tz())
+        )
         auth_uc.get_user_from_token = AsyncMock()
         auth_uc.get_user_from_token.return_value = user
 
@@ -325,7 +339,7 @@ class TestREST:
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
         portfolio = Portfolio(
-            id=0, owner_id=user.id, name="foo", created_at=datetime.now()
+            id=0, owner_id=user.id, name="foo", created_at=datetime.now(tz=get_tz())
         )
         portfolio_uc.create_portfolio = AsyncMock()
         portfolio_uc.create_portfolio.return_value = portfolio
@@ -338,7 +352,7 @@ class TestREST:
         assert isinstance(data.get("id"), int)
         assert data.get("owner_id") == str(portfolio.owner_id)
         assert data.get("name") == portfolio.name
-        assert data.get("created_at") == portfolio.created_at.isoformat()
+        assert datetime.fromisoformat(data.get("created_at")) == portfolio.created_at
         portfolio_uc.create_portfolio.assert_awaited_once_with(
             owner_id=portfolio.owner_id, payload=PortfolioCreate(name=portfolio.name)
         )
@@ -366,7 +380,12 @@ class TestREST:
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
         portfolios = [
-            Portfolio(id=0, owner_id=user.id, name="test", created_at=datetime.now())
+            Portfolio(
+                id=0,
+                owner_id=user.id,
+                name="test",
+                created_at=datetime.now(tz=get_tz()),
+            )
         ]
         page_res = PaginationResponse(
             total_items=1, total_pages=1, current_page=1, items_per_page=20
@@ -387,7 +406,9 @@ class TestREST:
             assert item["id"] == portfolios[i].id
             assert item["name"] == portfolios[i].name
             assert item["owner_id"] == str(portfolios[i].owner_id)
-            assert item["created_at"] == portfolios[i].created_at.isoformat()
+            assert (
+                datetime.fromisoformat(item["created_at"]) == portfolios[i].created_at
+            )
         pagination_response = data.get("pagination_response")
         assert pagination_response is not None
         assert isinstance(pagination_response, dict)
@@ -454,7 +475,7 @@ class TestREST:
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
         portfolio = Portfolio(
-            id=0, owner_id=user.id, name="foo", created_at=datetime.now()
+            id=0, owner_id=user.id, name="foo", created_at=datetime.now(tz=get_tz())
         )
         portfolio_uc.get_portfolio = AsyncMock()
         portfolio_uc.get_portfolio.return_value = portfolio
@@ -467,7 +488,7 @@ class TestREST:
         assert data["id"] == portfolio.id
         assert data["owner_id"] == str(user.id)
         assert data["name"] == portfolio.name
-        assert data["created_at"] == portfolio.created_at.isoformat()
+        assert datetime.fromisoformat(data["created_at"]) == portfolio.created_at
         portfolio_uc.get_portfolio.assert_awaited_once_with(
             owner_id=user.id, portfolio_id=id
         )
@@ -503,7 +524,7 @@ class TestREST:
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
         portfolio = Portfolio(
-            id=0, owner_id=user.id, name="foo", created_at=datetime.now()
+            id=0, owner_id=user.id, name="foo", created_at=datetime.now(tz=get_tz())
         )
         portfolio_uc.update_portfolio = AsyncMock()
         portfolio_uc.update_portfolio.return_value = portfolio
@@ -517,7 +538,7 @@ class TestREST:
         assert data["id"] == portfolio.id
         assert data["owner_id"] == str(portfolio.owner_id)
         assert data["name"] == portfolio.name
-        assert data["created_at"] == portfolio.created_at.isoformat()
+        assert datetime.fromisoformat(data["created_at"]) == portfolio.created_at
         portfolio_uc.update_portfolio.assert_awaited_once_with(
             owner_id=user.id,
             portfolio_id=id,
@@ -586,7 +607,7 @@ class TestREST:
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
         portfolio = Portfolio(
-            id=0, owner_id=user.id, name="foo", created_at=datetime.now()
+            id=0, owner_id=user.id, name="foo", created_at=datetime.now(tz=get_tz())
         )
         valuation_lines = [
             ValuationLine(
@@ -666,7 +687,7 @@ class TestREST:
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
         portfolio = Portfolio(
-            id=0, owner_id=user.id, name="foo", created_at=datetime.now()
+            id=0, owner_id=user.id, name="foo", created_at=datetime.now(tz=get_tz())
         )
         portfolio_uc.get_portfolio = AsyncMock()
         portfolio_uc.get_portfolio.return_value = portfolio
@@ -675,7 +696,7 @@ class TestREST:
             portfolio_id=portfolio.id,
             symbol="BTC",
             quantity=0.008,
-            created_at=datetime.now(),
+            created_at=datetime.now(tz=get_tz()),
         )
         portfolio_uc.create_asset = AsyncMock()
         portfolio_uc.create_asset.return_value = asset
@@ -690,7 +711,7 @@ class TestREST:
         assert data["portfolio_id"] == asset.portfolio_id
         assert data["symbol"] == asset.symbol
         assert data["quantity"] == asset.quantity
-        assert data["created_at"] == asset.created_at.isoformat()
+        assert datetime.fromisoformat(data["created_at"]) == asset.created_at
         portfolio_uc.get_portfolio.assert_awaited_once_with(
             owner_id=user.id, portfolio_id=1007
         )
@@ -759,7 +780,7 @@ class TestREST:
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
         portfolio = Portfolio(
-            id=0, owner_id=user.id, name="foo", created_at=datetime.now()
+            id=0, owner_id=user.id, name="foo", created_at=datetime.now(tz=get_tz())
         )
         portfolio_uc.get_portfolio = AsyncMock()
         portfolio_uc.get_portfolio.return_value = portfolio
@@ -769,14 +790,14 @@ class TestREST:
                 portfolio_id=portfolio.id,
                 symbol="BTC",
                 quantity=0.008,
-                created_at=datetime.now(),
+                created_at=datetime.now(tz=get_tz()),
             ),
             Asset(
                 id=1,
                 portfolio_id=portfolio.id,
                 symbol="ETH",
                 quantity=0.04,
-                created_at=datetime.now(),
+                created_at=datetime.now(tz=get_tz()),
             ),
         ]
         page_res = PaginationResponse(
@@ -797,7 +818,10 @@ class TestREST:
             assert data["items"][i]["portfolio_id"] == assets[i].portfolio_id
             assert data["items"][i]["symbol"] == assets[i].symbol
             assert data["items"][i]["quantity"] == assets[i].quantity
-            assert data["items"][i]["created_at"] == assets[i].created_at.isoformat()
+            assert (
+                datetime.fromisoformat(data["items"][i]["created_at"])
+                == assets[i].created_at
+            )
         assert isinstance(data["pagination_response"], dict)
         assert data["pagination_response"]["total_items"] == page_res.total_items
         assert data["pagination_response"]["total_pages"] == page_res.total_pages
@@ -868,7 +892,7 @@ class TestREST:
         client, auth_uc, portfolio_uc = rest_client
         user = self.__set_authed_uc(auth_uc)
         portfolio = Portfolio(
-            id=0, owner_id=user.id, name="foo", created_at=datetime.now()
+            id=0, owner_id=user.id, name="foo", created_at=datetime.now(tz=get_tz())
         )
         portfolio_uc.get_portfolio = AsyncMock()
         portfolio_uc.get_portfolio.return_value = portfolio

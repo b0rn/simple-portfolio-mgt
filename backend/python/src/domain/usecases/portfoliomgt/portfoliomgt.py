@@ -1,16 +1,18 @@
 from __future__ import annotations
-from typing import Optional
+
 from cachetools import TTLCache
-from src.domain.aggregates.portfolio.portfolio import Portfolio
+
+from src.domain.aggregates.health.health import Health
 from src.domain.aggregates.portfolio.asset import Asset
+from src.domain.aggregates.portfolio.portfolio import Portfolio
 from src.domain.aggregates.portfolio.portfolio_valuation import (
     PortfolioValuation,
     ValuationLine,
 )
-from src.domain.aggregates.health.health import Health
 from src.infrastructure.dataservice.dbdataservice import DbDataService
 from src.infrastructure.utils.pagination import PaginationRequest, PaginationResponse
-from .payloads import PortfolioCreate, PortfolioUpdate, AssetCreate
+
+from .payloads import AssetCreate, PortfolioCreate, PortfolioUpdate
 
 ASSET_PRICES_USD = {
     "ETH": 3191.30,
@@ -40,14 +42,12 @@ class PortfolioMgt:
     ) -> Portfolio:
         return await self.data_service.create_portfolio(owner_id, payload)
 
-    async def get_portfolio(
-        self, owner_id: str, portfolio_id: int
-    ) -> Optional[Portfolio]:
+    async def get_portfolio(self, owner_id: str, portfolio_id: int) -> Portfolio | None:
         return await self.data_service.get_portfolio(owner_id, portfolio_id)
 
     async def update_portfolio(
         self, owner_id: str, portfolio_id: int, payload: PortfolioUpdate
-    ) -> Optional[Portfolio]:
+    ) -> Portfolio | None:
         return await self.data_service.update_portfolio(
             owner_id=owner_id, portfolio_id=portfolio_id, payload=payload
         )

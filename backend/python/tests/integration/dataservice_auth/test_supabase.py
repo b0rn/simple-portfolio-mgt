@@ -3,16 +3,19 @@ Integration tests for the Supabase auth dataservice
 """
 
 from __future__ import annotations
-import pytest
+
 from uuid import UUID
-from src.infrastructure.dataservice.auth_supabase.supabase import (
-    SupabaseAuthDataService,
-)
+
+import pytest
+
 from src.domain.aggregates.exceptions.auth import InvalidCredentialsError
 from src.infrastructure.dataservice.auth_supabase.exceptions import (
-    SignupFailedError,
-    NoAccessTokenError,
     EmailConfirmationRequiredError,
+    NoAccessTokenError,
+    SignupFailedError,
+)
+from src.infrastructure.dataservice.auth_supabase.supabase import (
+    SupabaseAuthDataService,
 )
 
 

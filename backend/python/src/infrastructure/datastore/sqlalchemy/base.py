@@ -1,6 +1,7 @@
 from __future__ import annotations
+
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Optional
 
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -11,9 +12,10 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import DeclarativeBase
 
 from src.infrastructure.config.settings import Settings
+from src.infrastructure.datastore.sqlalchemy.exceptions import EngineNotBuiltError
 
-engine: Optional[AsyncEngine] = None
-SessionLocal: Optional[async_sessionmaker] = None
+engine: AsyncEngine | None = None
+SessionLocal: async_sessionmaker | None = None
 
 
 def build_engine(settings: Settings):
@@ -57,7 +59,7 @@ class Base(DeclarativeBase):
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     if SessionLocal is None:
-        raise Exception("base has not been built")
+        raise EngineNotBuiltError
     async with SessionLocal() as session:
         yield session
 
@@ -65,7 +67,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 @asynccontextmanager
 async def session_scope() -> AsyncGenerator[AsyncSession, None]:
     if SessionLocal is None:
-        raise Exception("base has not been built")
+        raise EngineNotBuiltError
     async with SessionLocal() as session:
         try:
             yield session

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -12,7 +11,7 @@ class PortfolioCreateRequest(BaseModel):
 
 
 class PortfolioPatchRequest(BaseModel):
-    name: Optional[str] = Field(min_length=1, max_length=100, default=None)
+    name: str | None = Field(min_length=1, max_length=100, default=None)
 
 
 class PortfolioResponse(BaseModel):

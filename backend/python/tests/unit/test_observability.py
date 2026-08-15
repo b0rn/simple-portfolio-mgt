@@ -7,11 +7,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 import structlog
+from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import Response
-from starlette.testclient import TestClient
-from starlette.applications import Starlette
 from starlette.routing import Route
+from starlette.testclient import TestClient
 
 from src.infrastructure.observability.middleware import RequestLoggingMiddleware
 from src.infrastructure.observability.setup import (

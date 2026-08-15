@@ -2,23 +2,23 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime, timezone
-from typing import Optional
 
 import httpx
 
 from src.domain.aggregates.auth.user import User
+from src.domain.aggregates.exceptions.auth import InvalidCredentialsError
 from src.domain.aggregates.health.health import Health
 from src.infrastructure.config.settings import Settings
+
 from ..authdataservice import AuthDataService
-from src.domain.aggregates.exceptions.auth import InvalidCredentialsError
 from .exceptions import (
-    SupabaseUrlNotSetError,
     AnonKeyNotSetError,
-    NoAccessTokenError,
-    TokenInvalidError,
     CantFetchUserError,
     EmailConfirmationRequiredError,
+    NoAccessTokenError,
     SignupFailedError,
+    SupabaseUrlNotSetError,
+    TokenInvalidError,
 )
 
 
@@ -28,7 +28,7 @@ class SupabaseAuthDataService(AuthDataService):
     This provider DOES NOT support get_by_email without Admin API.
     """
 
-    def __init__(self, settings: Settings, client: Optional[httpx.AsyncClient]) -> None:
+    def __init__(self, settings: Settings, client: httpx.AsyncClient | None) -> None:
         super().__init__()
         self._settings = settings
         self._client = client if client is not None else httpx.AsyncClient(timeout=10.0)
@@ -102,7 +102,7 @@ class SupabaseAuthDataService(AuthDataService):
 
         return user, access_token
 
-    async def get_user_from_token(self, access_token: str) -> Optional[User]:
+    async def get_user_from_token(self, access_token: str) -> User | None:
         if not self._settings.supabase_url:
             raise SupabaseUrlNotSetError
         url = f"{self._settings.supabase_url.rstrip('/')}/auth/v1/user"
@@ -119,7 +119,7 @@ class SupabaseAuthDataService(AuthDataService):
         created_at_raw = data.get("created_at")
         try:
             created_at = datetime.fromisoformat(created_at_raw)
-        except Exception:
+        except (ValueError, TypeError):
             created_at = datetime.now(timezone.utc)
         return User(
             id=uuid.UUID(data["id"]),

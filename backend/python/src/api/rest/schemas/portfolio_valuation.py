@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from pydantic import BaseModel
 
 
@@ -12,5 +13,5 @@ class PortfolioValuationLine(BaseModel):
 class PortfolioValuationResponse(BaseModel):
     portfolio_id: int
     total_value: float
-    lines: list["PortfolioValuationLine"]
+    lines: list[PortfolioValuationLine]
     unknown_symbols: list[str]

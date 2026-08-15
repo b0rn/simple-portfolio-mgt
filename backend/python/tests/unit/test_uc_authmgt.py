@@ -3,15 +3,18 @@ Unit tests for authMgt usecase
 """
 
 from __future__ import annotations
-import pytest
+
+from datetime import datetime
 from unittest.mock import AsyncMock
 from uuid import uuid4
-from datetime import datetime
 
+import pytest
+
+from src.domain.aggregates.auth.user import User
+from src.domain.aggregates.health.health import Health
 from src.domain.usecases.authmgt.authmgt import AuthMgt
 from src.infrastructure.dataservice.authdataservice import AuthDataService
-from src.domain.aggregates.health.health import Health
-from src.domain.aggregates.auth.user import User
+from tests.conftest import get_tz
 
 
 @pytest.mark.unit
@@ -34,7 +37,9 @@ class TestAuthMgtUseCase:
         mock_auth_dataservice.health_check.assert_called_once()
 
     async def test_register(self, mock_auth_dataservice: AuthDataService):
-        user = User(id=uuid4(), email="foo@bar.re", created_at=datetime.now())
+        user = User(
+            id=uuid4(), email="foo@bar.re", created_at=datetime.now(tz=get_tz())
+        )
         passwd = "password123!"
         mock_auth_dataservice.register = AsyncMock()
         mock_auth_dataservice.register.return_value = user
@@ -46,7 +51,9 @@ class TestAuthMgtUseCase:
         mock_auth_dataservice.register.assert_awaited_once_with(user.email, passwd)
 
     async def test_login(self, mock_auth_dataservice: AuthDataService):
-        user = User(id=uuid4(), email="foo@bar.re", created_at=datetime.now())
+        user = User(
+            id=uuid4(), email="foo@bar.re", created_at=datetime.now(tz=get_tz())
+        )
         passwd, token = "password123!", "my_token"
         mock_auth_dataservice.login = AsyncMock()
         mock_auth_dataservice.login.return_value = user, token
@@ -59,7 +66,9 @@ class TestAuthMgtUseCase:
         mock_auth_dataservice.login.assert_awaited_once_with(user.email, passwd)
 
     async def test_get_user_from_token(self, mock_auth_dataservice: AuthDataService):
-        user = User(id=uuid4(), email="foo@bar.re", created_at=datetime.now())
+        user = User(
+            id=uuid4(), email="foo@bar.re", created_at=datetime.now(tz=get_tz())
+        )
         token = "my_token"
         mock_auth_dataservice.get_user_from_token = AsyncMock()
         mock_auth_dataservice.get_user_from_token.return_value = user

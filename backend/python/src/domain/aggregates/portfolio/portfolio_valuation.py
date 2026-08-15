@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
 
 
@@ -6,7 +7,7 @@ from dataclasses import dataclass
 class PortfolioValuation:
     portfolio_id: int
     total_value: float
-    lines: list["ValuationLine"]
+    lines: list[ValuationLine]
     unknown_symbols: list[str]
 
 

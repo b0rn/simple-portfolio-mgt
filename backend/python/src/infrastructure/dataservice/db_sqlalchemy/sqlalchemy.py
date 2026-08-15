@@ -1,20 +1,22 @@
 from __future__ import annotations
-from typing import Optional
-from sqlalchemy import select, update, delete, func
-from src.domain.aggregates.portfolio.portfolio import Portfolio
-from src.domain.aggregates.portfolio.asset import Asset
+
+from sqlalchemy import delete, func, select, update
+from sqlalchemy.exc import SQLAlchemyError
+
 from src.domain.aggregates.health.health import Health
+from src.domain.aggregates.portfolio.asset import Asset
+from src.domain.aggregates.portfolio.portfolio import Portfolio
 from src.domain.usecases.portfoliomgt.payloads import (
+    AssetCreate,
     PortfolioCreate,
     PortfolioUpdate,
-    AssetCreate,
 )
 from src.infrastructure.dataservice.dbdataservice import DbDataService
+from src.infrastructure.datastore.sqlalchemy.base import session_scope
+from src.infrastructure.datastore.sqlalchemy.models.asset import Asset as AssetModel
 from src.infrastructure.datastore.sqlalchemy.models.portfolio import (
     Portfolio as PortfolioModel,
 )
-from src.infrastructure.datastore.sqlalchemy.models.asset import Asset as AssetModel
-from src.infrastructure.datastore.sqlalchemy.base import session_scope
 from src.infrastructure.utils.pagination import (
     PaginationRequest,
     create_pagination_response,
@@ -29,7 +31,7 @@ class SQLAlchemyDataService(DbDataService):
             try:
                 await db.execute(select(PortfolioModel).limit(1))
                 return Health(errors=errors, warnings=warnings)
-            except Exception:
+            except SQLAlchemyError:
                 errors.append("could not connect to database")
                 return Health(errors, warnings=warnings)
 
@@ -49,9 +51,7 @@ class SQLAlchemyDataService(DbDataService):
             created_at=model.created_at,
         )
 
-    async def get_portfolio(
-        self, owner_id: str, portfolio_id: int
-    ) -> Optional[Portfolio]:
+    async def get_portfolio(self, owner_id: str, portfolio_id: int) -> Portfolio | None:
         async with session_scope() as db:
             res = await db.execute(
                 select(PortfolioModel).where(

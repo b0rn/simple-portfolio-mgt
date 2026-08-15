@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from src.domain.usecases.usecases import UseCases
-from src.domain.usecases.portfoliomgt.payloads import PortfolioCreate, PortfolioUpdate
-from src.api.rest.dependencies import get_usecases, get_current_user
+from fastapi import APIRouter, HTTPException, Query
+
+from src.api.rest.dependencies import CurrentUser, UseCasesDep
 from src.api.rest.schemas.common import ListResponse
 from src.api.rest.schemas.portfolio import (
     PortfolioCreateRequest,
@@ -14,8 +13,9 @@ from src.api.rest.schemas.portfolio_valuation import (
     PortfolioValuationLine,
     PortfolioValuationResponse,
 )
-from src.infrastructure.utils.pagination import PaginationRequest
 from src.domain.aggregates.exceptions.portfolio import PortfolioNotFound
+from src.domain.usecases.portfoliomgt.payloads import PortfolioCreate, PortfolioUpdate
+from src.infrastructure.utils.pagination import PaginationRequest
 
 router = APIRouter(prefix="/portfolios", tags=["portfolios"])
 
@@ -23,8 +23,8 @@ router = APIRouter(prefix="/portfolios", tags=["portfolios"])
 @router.post("", response_model=PortfolioResponse, status_code=201)
 async def create_portfolio(
     payload: PortfolioCreateRequest,
-    user=Depends(get_current_user),
-    ucs: UseCases = Depends(get_usecases),
+    user: CurrentUser,
+    ucs: UseCasesDep,
 ):
     uc = ucs.portfolio_mgt
     portfolio = await uc.create_portfolio(
@@ -40,10 +40,10 @@ async def create_portfolio(
 
 @router.get("", response_model=ListResponse[PortfolioResponse])
 async def list_portfolios(
+    user: CurrentUser,
+    ucs: UseCasesDep,
     page: int = Query(1, ge=1),
     items_per_page: int = Query(20, ge=1, le=100),
-    user=Depends(get_current_user),
-    ucs: UseCases = Depends(get_usecases),
 ):
     uc = ucs.portfolio_mgt
     items, page_res = await uc.list_portfolios_paginated(
@@ -68,8 +68,8 @@ async def list_portfolios(
 @router.get("/{portfolio_id}", response_model=PortfolioResponse)
 async def get_portfolio(
     portfolio_id: int,
-    user=Depends(get_current_user),
-    ucs: UseCases = Depends(get_usecases),
+    user: CurrentUser,
+    ucs: UseCasesDep,
 ):
     uc = ucs.portfolio_mgt
 
@@ -86,8 +86,8 @@ async def get_portfolio(
 async def update_portfolio(
     portfolio_id: int,
     payload: PortfolioPatchRequest,
-    user=Depends(get_current_user),
-    ucs: UseCases = Depends(get_usecases),
+    user: CurrentUser,
+    ucs: UseCasesDep,
 ):
     uc = ucs.portfolio_mgt
 
@@ -106,15 +106,14 @@ async def update_portfolio(
 @router.delete("/{portfolio_id}", status_code=204)
 async def delete_portfolio(
     portfolio_id: int,
-    user=Depends(get_current_user),
-    ucs: UseCases = Depends(get_usecases),
+    user: CurrentUser,
+    ucs: UseCasesDep,
 ):
     uc = ucs.portfolio_mgt
 
     ok = await uc.delete_portfolio(owner_id=user.id, portfolio_id=portfolio_id)
     if not ok:
         raise HTTPException(status_code=404, detail=str(PortfolioNotFound()))
-    return None
 
 
 @router.get(
@@ -124,8 +123,8 @@ async def delete_portfolio(
 )
 async def get_portfolio_valutation(
     portfolio_id: int,
-    user=Depends(get_current_user),
-    ucs: UseCases = Depends(get_usecases),
+    user: CurrentUser,
+    ucs: UseCasesDep,
 ):
     uc = ucs.portfolio_mgt
 

@@ -1,13 +1,14 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Optional
-from src.domain.aggregates.portfolio.portfolio import Portfolio
-from src.domain.aggregates.portfolio.asset import Asset
+
 from src.domain.aggregates.health.health import Health
+from src.domain.aggregates.portfolio.asset import Asset
+from src.domain.aggregates.portfolio.portfolio import Portfolio
 from src.domain.usecases.portfoliomgt.payloads import (
+    AssetCreate,
     PortfolioCreate,
     PortfolioUpdate,
-    AssetCreate,
 )
 from src.infrastructure.utils.pagination import PaginationRequest, PaginationResponse
 
@@ -25,15 +26,13 @@ class DbDataService(ABC):
         pass
 
     @abstractmethod
-    async def get_portfolio(
-        self, owner_id: str, portfolio_id: int
-    ) -> Optional[Portfolio]:
+    async def get_portfolio(self, owner_id: str, portfolio_id: int) -> Portfolio | None:
         pass
 
     @abstractmethod
     async def update_portfolio(
         self, owner_id: str, portfolio_id: int, payload: PortfolioUpdate
-    ) -> Optional[Portfolio]:
+    ) -> Portfolio | None:
         pass
 
     @abstractmethod

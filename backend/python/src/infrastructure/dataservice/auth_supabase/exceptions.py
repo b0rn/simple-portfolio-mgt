@@ -1,8 +1,6 @@
 class SupabaseAuthError(Exception):
     """Base exception for Supabase authentication errors."""
 
-    pass
-
 
 class SupabaseUrlNotSetError(SupabaseAuthError):
     def __init__(self, msg="Supabase URL is not set", *args, **kwargs):

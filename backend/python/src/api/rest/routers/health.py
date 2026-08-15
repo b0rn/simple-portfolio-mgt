@@ -1,16 +1,17 @@
 from __future__ import annotations
-from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
-from src.api.rest.dependencies import get_usecases
-from src.domain.usecases.usecases import UseCases
-from src.api.rest.schemas.health import Health
+
+from fastapi import APIRouter
 from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+
+from src.api.rest.dependencies import UseCasesDep
+from src.api.rest.schemas.health import Health
 
 router = APIRouter(tags=["health"])
 
 
 @router.get("/health", response_model=Health, status_code=200)
-async def get_health(ucs: UseCases = Depends(get_usecases)):
+async def get_health(ucs: UseCasesDep):
     auth_health = await ucs.auth_mgt.health_check()
     portfolio_health = await ucs.portfolio_mgt.health_check()
 

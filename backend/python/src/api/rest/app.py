@@ -1,19 +1,20 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+
 import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.api.rest.routers.assets import router as assets_router
+from src.api.rest.routers.auth import router as auth_router
+from src.api.rest.routers.health import router as health_router
+from src.api.rest.routers.portfolios import router as portfolios_router
+from src.domain.usecases.usecases import UseCases
 from src.infrastructure.config.settings import Settings
 from src.infrastructure.observability import shutdown_observability
-from src.infrastructure.observability.setup import instrument_app
 from src.infrastructure.observability.middleware import RequestLoggingMiddleware
-from src.domain.usecases.usecases import UseCases
-from src.api.rest.routers.health import router as health_router
-from src.api.rest.routers.auth import router as auth_router
-from src.api.rest.routers.portfolios import router as portfolios_router
-from src.api.rest.routers.assets import router as assets_router
+from src.infrastructure.observability.setup import instrument_app
 
 logger = structlog.get_logger("app")
 

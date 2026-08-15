@@ -1,19 +1,20 @@
 from __future__ import annotations
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, HTTPException, Response
 
-from src.infrastructure.config.settings import Settings
-from src.domain.aggregates.exceptions.auth import InvalidCredentialsError
-from src.domain.usecases.usecases import UseCases
-from src.api.rest.dependencies import get_settings, get_usecases, get_current_user
+from src.api.rest.dependencies import CurrentUser, SettingsDep, UseCasesDep
 from src.api.rest.schemas.auth import (
     LoginRequest,
-    RegisterRequest,
     MeResponse,
+    RegisterRequest,
     UserResponse,
 )
-from src.domain.aggregates.exceptions.auth import EmailAlreadyExistsError
+from src.domain.aggregates.exceptions.auth import (
+    EmailAlreadyExistsError,
+    InvalidCredentialsError,
+)
+from src.infrastructure.config.settings import Settings
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 logger = structlog.get_logger("auth")
@@ -54,8 +55,8 @@ def _clear_auth_cookie(settings: Settings, resp: Response) -> None:
 async def register(
     payload: RegisterRequest,
     resp: Response,
-    settings: Settings = Depends(get_settings),
-    ucs: UseCases = Depends(get_usecases),
+    settings: SettingsDep,
+    ucs: UseCasesDep,
 ):
     uc = ucs.auth_mgt
     try:
@@ -77,8 +78,8 @@ async def register(
 async def login(
     payload: LoginRequest,
     resp: Response,
-    settings: Settings = Depends(get_settings),
-    ucs: UseCases = Depends(get_usecases),
+    settings: SettingsDep,
+    ucs: UseCasesDep,
 ):
     uc = ucs.auth_mgt
     try:
@@ -95,14 +96,14 @@ async def login(
 
 
 @router.post("/logout")
-async def logout(resp: Response, settings: Settings = Depends(get_settings)):
+async def logout(resp: Response, settings: SettingsDep):
     _clear_auth_cookie(settings, resp)
     logger.info("user_logged_out")
     return {"status": "ok"}
 
 
 @router.get("/me", response_model=MeResponse)
-async def me(user=Depends(get_current_user)):
+async def me(user: CurrentUser):
     return MeResponse(
         user=UserResponse(id=user.id, email=user.email, created_at=user.created_at)
     )

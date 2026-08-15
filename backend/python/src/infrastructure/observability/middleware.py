@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import time
+
 import structlog
+from opentelemetry import trace
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
-from opentelemetry import trace
 
 logger = structlog.get_logger("http")
 

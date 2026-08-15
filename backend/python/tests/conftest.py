@@ -8,33 +8,43 @@ import os
 
 # Disable OTel instrumentation during tests
 os.environ.setdefault("OTEL_ENABLED", "false")
+# Ensure local-auth settings validation passes when no .env is present
+os.environ.setdefault("JWT_SECRET", "test-secret-key")
+
+import json
+from datetime import datetime
+from functools import lru_cache
+from unittest.mock import AsyncMock, MagicMock
+from uuid import uuid4
+from zoneinfo import ZoneInfo
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock
-
+from httpx import ASGITransport, AsyncClient, MockTransport, Request, Response
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
 )
-from httpx import ASGITransport, AsyncClient, MockTransport, Request, Response
-from uuid import uuid4
-from datetime import datetime, timezone
-import json
 
+from src.api.rest.app import create_app
+from src.domain.usecases.authmgt.authmgt import AuthMgt
+from src.domain.usecases.portfoliomgt.portfoliomgt import PortfolioMgt
+from src.domain.usecases.usecases import UseCases
 from src.infrastructure.config.settings import build_settings
-from src.infrastructure.dataservice.dbdataservice import DbDataService
-from src.infrastructure.dataservice.authdataservice import AuthDataService
-from src.infrastructure.dataservice.db_sqlalchemy.sqlalchemy import (
-    SQLAlchemyDataService,
-)
 from src.infrastructure.dataservice.auth_local.local import LocalAuthDataService
 from src.infrastructure.dataservice.auth_supabase.supabase import (
     SupabaseAuthDataService,
 )
+from src.infrastructure.dataservice.authdataservice import AuthDataService
+from src.infrastructure.dataservice.db_sqlalchemy.sqlalchemy import (
+    SQLAlchemyDataService,
+)
+from src.infrastructure.dataservice.dbdataservice import DbDataService
 from src.infrastructure.datastore.sqlalchemy.base import build_engine
-from src.api.rest.app import create_app
-from src.domain.usecases.usecases import UseCases
-from src.domain.usecases.authmgt.authmgt import AuthMgt
-from src.domain.usecases.portfoliomgt.portfoliomgt import PortfolioMgt
+
+
+@lru_cache(maxsize=1)
+def get_tz() -> ZoneInfo:
+    """Timezone configured via the TZ setting (sourced from Helm values in prod)."""
+    return build_settings().tzinfo
 
 
 @pytest.fixture
@@ -66,7 +76,7 @@ def dataservice_auth_supabase():
     access_token = "my_access_token"
     id = uuid4()
     email = "foo@bar.com"
-    created_at = datetime.now(tz=timezone.utc)
+    created_at = datetime.now(tz=get_tz())
 
     async def handler(request: Request):
         contents = request.content.decode()

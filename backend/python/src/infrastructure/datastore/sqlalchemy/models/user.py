@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime
 import uuid
+from datetime import datetime
+
 from sqlalchemy import DateTime, String, func
-from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, mapped_column
+
 from ..base import Base
 
 

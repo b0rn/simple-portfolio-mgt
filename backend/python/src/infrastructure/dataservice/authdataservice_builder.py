@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from src.infrastructure.config.settings import Settings
-from .authdataservice import AuthDataService
 from src.infrastructure.config.exceptions import SettingsNotSetError
+from src.infrastructure.config.settings import Settings
+
+from .authdataservice import AuthDataService
 
 
 def build_auth_dataservice(settings: Settings) -> AuthDataService:

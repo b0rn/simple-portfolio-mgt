@@ -1,6 +1,7 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Optional
+
 from src.domain.aggregates.auth.user import User
 from src.domain.aggregates.health.health import Health
 
@@ -20,5 +21,5 @@ class AuthDataService(ABC):
         pass
 
     @abstractmethod
-    async def get_user_from_token(self, access_token: str) -> Optional[User]:
+    async def get_user_from_token(self, access_token: str) -> User | None:
         pass

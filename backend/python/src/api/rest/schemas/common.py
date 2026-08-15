@@ -1,6 +1,9 @@
 from __future__ import annotations
-from typing import List, TypeVar
+
+from typing import TypeVar
+
 from pydantic import BaseModel, Field
+
 from src.infrastructure.utils.pagination import PaginationResponse
 
 T = TypeVar("T")
@@ -17,5 +20,5 @@ class PaginationParams(BaseModel):
 
 
 class ListResponse[T](BaseModel):
-    items: List[T]
+    items: list[T]
     pagination_response: PaginationResponse

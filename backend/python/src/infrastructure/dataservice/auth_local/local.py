@@ -1,22 +1,25 @@
 from __future__ import annotations
-from typing import Optional
-from sqlalchemy import select, delete
-from sqlalchemy.exc import IntegrityError
-from datetime import datetime, timezone, timedelta
+
 import uuid
+from datetime import datetime, timedelta, timezone
+
 import jwt
-from src.infrastructure.config.settings import Settings
-from src.infrastructure.datastore.sqlalchemy.base import session_scope
-from src.infrastructure.datastore.sqlalchemy.models.user import User as UserModel
 from argon2 import PasswordHasher
-from argon2.exceptions import VerifyMismatchError, VerificationError, InvalidHashError
-from ..authdataservice import AuthDataService
+from argon2.exceptions import InvalidHashError, VerificationError, VerifyMismatchError
+from sqlalchemy import delete, select
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+
 from src.domain.aggregates.auth.user import User
 from src.domain.aggregates.exceptions.auth import (
     EmailAlreadyExistsError,
     InvalidCredentialsError,
 )
 from src.domain.aggregates.health.health import Health
+from src.infrastructure.config.settings import Settings
+from src.infrastructure.datastore.sqlalchemy.base import session_scope
+from src.infrastructure.datastore.sqlalchemy.models.user import User as UserModel
+
+from ..authdataservice import AuthDataService
 
 
 class LocalAuthDataService(AuthDataService):
@@ -35,7 +38,7 @@ class LocalAuthDataService(AuthDataService):
             try:
                 await db.execute(select(UserModel).limit(1))
                 return Health(errors=errors, warnings=warnings)
-            except Exception:
+            except SQLAlchemyError:
                 errors.append("could not connect to database")
                 return Health(errors=errors, warnings=warnings)
 
@@ -64,7 +67,7 @@ class LocalAuthDataService(AuthDataService):
             token = self.__create_access_token(user.id)
             return user, token
 
-    async def get_user_from_token(self, access_token: str) -> Optional[User]:
+    async def get_user_from_token(self, access_token: str) -> User | None:
         if not self.settings.jwt_secret:
             raise ValueError("JWT secret is not set")
         try:
@@ -75,7 +78,7 @@ class LocalAuthDataService(AuthDataService):
             if not sub:
                 return None
             user_id = uuid.UUID(sub)
-        except Exception:
+        except (jwt.PyJWTError, ValueError):
             return None
 
         async with session_scope() as db:

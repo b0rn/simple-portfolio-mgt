@@ -39,6 +39,7 @@ config:
   APP_NAME: "Simple Portfolio App API"
   APP_ENV: "prod"
   APP_DEBUG: "false"
+  TZ: "UTC"
   DB_PORT: "5432"
   DB_NAME: "portfolio_db"
   DB_SSLMODE: "prefer"

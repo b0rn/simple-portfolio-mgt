@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional
+
 from dataclasses import dataclass
 
 
@@ -10,7 +10,7 @@ class PortfolioCreate:
 
 @dataclass(frozen=True, slots=True)
 class PortfolioUpdate:
-    name: Optional[str]
+    name: str | None
 
 
 @dataclass(frozen=True, slots=True)
