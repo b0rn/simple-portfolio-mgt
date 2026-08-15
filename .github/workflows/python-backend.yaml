@@ -269,96 +269,96 @@ jobs:
       - name: Push Helm chart to GHCR
         run: helm push python-backend-*.tgz oci://ghcr.io/${{ github.repository }}/charts
 
-  deploy:
-    name: Deploy to VPS
-    needs: [build, publish-helm]
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+  # deploy:
+  #   name: Deploy to VPS
+  #   needs: [build, publish-helm]
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'push'
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+  #     - name: Setup SSH
+  #       uses: webfactory/ssh-agent@v0.9.0
+  #       with:
+  #         ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
 
-      - name: Determine image tag
-        id: tag
-        run: |
-          if [[ "${{ github.ref_type }}" == "tag" ]]; then
-            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "tag=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
-          fi
+  #     - name: Determine image tag
+  #       id: tag
+  #       run: |
+  #         if [[ "${{ github.ref_type }}" == "tag" ]]; then
+  #           echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+  #         else
+  #           echo "tag=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+  #         fi
 
-      - name: Sync Helm chart to VPS
-        run: |
-          rsync -avz --delete \
-            -e "ssh -o StrictHostKeyChecking=no" \
-            helm/python-backend/ \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/helm/python-backend/
+  #     - name: Sync Helm chart to VPS
+  #       run: |
+  #         rsync -avz --delete \
+  #           -e "ssh -o StrictHostKeyChecking=no" \
+  #           helm/python-backend/ \
+  #           ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/helm/python-backend/
 
-      - name: Sync database migrations to VPS
-        run: |
-          rsync -avz --delete \
-            -e "ssh -o StrictHostKeyChecking=no" \
-            database/ \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/database/
+  #     - name: Sync database migrations to VPS
+  #       run: |
+  #         rsync -avz --delete \
+  #           -e "ssh -o StrictHostKeyChecking=no" \
+  #           database/ \
+  #           ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/database/
 
-      - name: Run database migrations
-        run: |
-          ssh -T -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash <<'MIGRATE_SCRIPT'
-            set -euo pipefail
+  #     - name: Run database migrations
+  #       run: |
+  #         ssh -T -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash <<'MIGRATE_SCRIPT'
+  #           set -euo pipefail
 
-            export DB_HOST='${{ secrets.DB_HOST }}'
-            export DB_PORT='${{ secrets.DB_PORT }}'
-            export DB_NAME='${{ secrets.DB_NAME }}'
-            export DB_USER='${{ secrets.DB_USER }}'
-            export DB_PASSWORD='${{ secrets.DB_PASSWORD }}'
-            export DB_SSLMODE='${{ secrets.DB_SSLMODE }}'
-            export AUTH_MODE='${{ secrets.AUTH_MODE }}'
+  #           export DB_HOST='${{ secrets.DB_HOST }}'
+  #           export DB_PORT='${{ secrets.DB_PORT }}'
+  #           export DB_NAME='${{ secrets.DB_NAME }}'
+  #           export DB_USER='${{ secrets.DB_USER }}'
+  #           export DB_PASSWORD='${{ secrets.DB_PASSWORD }}'
+  #           export DB_SSLMODE='${{ secrets.DB_SSLMODE }}'
+  #           export AUTH_MODE='${{ secrets.AUTH_MODE }}'
 
-            chmod +x /opt/database/migrate.sh
-            /opt/database/migrate.sh up
-          MIGRATE_SCRIPT
+  #           chmod +x /opt/database/migrate.sh
+  #           /opt/database/migrate.sh up
+  #         MIGRATE_SCRIPT
 
-      - name: Deploy via SSH
-        run: |
-          ssh -T -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash <<'DEPLOY_SCRIPT'
-            set -euo pipefail
+  #     - name: Deploy via SSH
+  #       run: |
+  #         ssh -T -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash <<'DEPLOY_SCRIPT'
+  #           set -euo pipefail
 
-            RELEASE_NAME="python-backend"
-            NAMESPACE="python-backend"
-            CHART_PATH="/opt/helm/python-backend"
-            VALUES_OVERRIDE="/opt/helm/python-backend-secrets.yaml"
+  #           RELEASE_NAME="python-backend"
+  #           NAMESPACE="python-backend"
+  #           CHART_PATH="/opt/helm/python-backend"
+  #           VALUES_OVERRIDE="/opt/helm/python-backend-secrets.yaml"
 
-            # Ensure namespace exists
-            microk8s kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | microk8s kubectl apply -f -
+  #           # Ensure namespace exists
+  #           microk8s kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | microk8s kubectl apply -f -
 
-            # Build helm upgrade command
-            HELM_CMD="microk8s helm3 upgrade --install ${RELEASE_NAME} ${CHART_PATH} \
-              --namespace ${NAMESPACE} \
-              --set image.repository=ghcr.io/${{ github.repository }}/python-backend \
-              --set image.tag=${{ steps.tag.outputs.tag }} \
-              --wait \
-              --timeout 5m"
+  #           # Build helm upgrade command
+  #           HELM_CMD="microk8s helm3 upgrade --install ${RELEASE_NAME} ${CHART_PATH} \
+  #             --namespace ${NAMESPACE} \
+  #             --set image.repository=ghcr.io/${{ github.repository }}/python-backend \
+  #             --set image.tag=${{ steps.tag.outputs.tag }} \
+  #             --wait \
+  #             --timeout 5m"
 
-            # Include secrets override file if it exists
-            if test -f "${VALUES_OVERRIDE}"; then
-              HELM_CMD="${HELM_CMD} -f ${VALUES_OVERRIDE}"
-            else
-              echo "WARNING: ${VALUES_OVERRIDE} not found, deploying without secret overrides"
-            fi
+  #           # Include secrets override file if it exists
+  #           if test -f "${VALUES_OVERRIDE}"; then
+  #             HELM_CMD="${HELM_CMD} -f ${VALUES_OVERRIDE}"
+  #           else
+  #             echo "WARNING: ${VALUES_OVERRIDE} not found, deploying without secret overrides"
+  #           fi
 
-            echo "Deploying image: ghcr.io/${{ github.repository }}/python-backend:${{ steps.tag.outputs.tag }}"
-            eval "${HELM_CMD}"
+  #           echo "Deploying image: ghcr.io/${{ github.repository }}/python-backend:${{ steps.tag.outputs.tag }}"
+  #           eval "${HELM_CMD}"
 
-            # Verify rollout
-            microk8s kubectl rollout status deployment/"${RELEASE_NAME}" \
-              --namespace "${NAMESPACE}" \
-              --timeout=120s
+  #           # Verify rollout
+  #           microk8s kubectl rollout status deployment/"${RELEASE_NAME}" \
+  #             --namespace "${NAMESPACE}" \
+  #             --timeout=120s
 
-            echo "Deployment complete"
-          DEPLOY_SCRIPT
+  #           echo "Deployment complete"
+  #         DEPLOY_SCRIPT
