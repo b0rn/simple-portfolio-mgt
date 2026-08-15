@@ -44,6 +44,10 @@ spec:
                 name: {{ include "python-backend.fullname" . }}
             - secretRef:
                 name: {{ include "python-backend.fullname" . }}
+            {{- if .Values.existingSecret }}
+            - secretRef:
+                name: {{ .Values.existingSecret }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: {{ .Values.probes.liveness.path }}

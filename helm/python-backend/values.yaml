@@ -50,6 +50,7 @@ config:
   COOKIE_DOMAIN: ".demos.vleveneur.com"
   OTEL_SERVICE_NAME: "simple-portfolio-backend"
 
+existingSecret: ""
 secret:
   DB_HOST: ""
   DB_USER: ""
